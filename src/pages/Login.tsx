@@ -12,6 +12,7 @@ import { toast } from "sonner";
 const Login = () => {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
+  const navigate = useNavigate();
 
   const handleLogin = (tipo: string) => {
     if (!email || !senha) {
@@ -19,6 +20,7 @@ const Login = () => {
       return;
     }
     toast.success(`Login como ${tipo} realizado com sucesso!`);
+    navigate("/");
   };
 
   return (
