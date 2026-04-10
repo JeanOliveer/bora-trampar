@@ -67,8 +67,8 @@ const CadastroTrabalhador = () => {
         </div>
       </div>
       <div className="space-y-2">
-        <Label>Chave PIX *</Label>
-        <Input required placeholder="CPF, e-mail, telefone ou chave aleatória" />
+        <Label>Chave PIX (opcional)</Label>
+        <Input placeholder="CPF, e-mail, telefone ou chave aleatória" />
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
