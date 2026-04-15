@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Briefcase, Building2, User, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 const estadosBR = [
   "AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG",
@@ -15,9 +16,55 @@ const estadosBR = [
 ];
 
 const CadastroTrabalhador = () => {
-  const handleSubmit = (e: React.FormEvent) => {
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [nome, setNome] = useState("");
+  const [cpf, setCpf] = useState("");
+  const [dataNascimento, setDataNascimento] = useState("");
+  const [estadoCivil, setEstadoCivil] = useState("");
+  const [cidade, setCidade] = useState("");
+  const [estado, setEstado] = useState("");
+  const [chavePix, setChavePix] = useState("");
+  const [email, setEmail] = useState("");
+  const [senha, setSenha] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success("Cadastro de trabalhador realizado! Faça login para continuar.");
+    if (senha.length < 6) {
+      toast.error("A senha deve ter no mínimo 6 caracteres.");
+      return;
+    }
+    setLoading(true);
+
+    const { error } = await supabase.auth.signUp({
+      email,
+      password: senha,
+      options: {
+        data: {
+          user_type: "trabalhador",
+          nome_completo: nome,
+        },
+      },
+    });
+
+    if (error) {
+      toast.error(error.message);
+      setLoading(false);
+      return;
+    }
+
+    // Update profile with extra fields
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await supabase.from("profiles").update({
+        cpf, data_nascimento: dataNascimento || null, estado_civil: estadoCivil,
+        cidade, estado, chave_pix: chavePix || null,
+      }).eq("user_id", user.id);
+    }
+
+    setLoading(false);
+    toast.success("Conta criada com sucesso!");
+    navigate("/");
   };
 
   return (
@@ -25,21 +72,21 @@ const CadastroTrabalhador = () => {
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
           <Label>Nome Completo *</Label>
-          <Input required placeholder="João da Silva" />
+          <Input required value={nome} onChange={(e) => setNome(e.target.value)} placeholder="João da Silva" />
         </div>
         <div className="space-y-2">
           <Label>CPF *</Label>
-          <Input required placeholder="000.000.000-00" />
+          <Input required value={cpf} onChange={(e) => setCpf(e.target.value)} placeholder="000.000.000-00" />
         </div>
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
           <Label>Data de Nascimento *</Label>
-          <Input required type="date" />
+          <Input required type="date" value={dataNascimento} onChange={(e) => setDataNascimento(e.target.value)} />
         </div>
         <div className="space-y-2">
           <Label>Estado Civil *</Label>
-          <Select required>
+          <Select value={estadoCivil} onValueChange={setEstadoCivil} required>
             <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
             <SelectContent>
               {["Solteiro(a)", "Casado(a)", "Divorciado(a)", "Viúvo(a)"].map((ec) => (
@@ -52,11 +99,11 @@ const CadastroTrabalhador = () => {
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
           <Label>Cidade *</Label>
-          <Input required placeholder="Belo Horizonte" />
+          <Input required value={cidade} onChange={(e) => setCidade(e.target.value)} placeholder="Belo Horizonte" />
         </div>
         <div className="space-y-2">
           <Label>Estado *</Label>
-          <Select required>
+          <Select value={estado} onValueChange={setEstado} required>
             <SelectTrigger><SelectValue placeholder="UF" /></SelectTrigger>
             <SelectContent>
               {estadosBR.map((uf) => (
@@ -68,53 +115,97 @@ const CadastroTrabalhador = () => {
       </div>
       <div className="space-y-2">
         <Label>Chave PIX (opcional)</Label>
-        <Input placeholder="CPF, e-mail, telefone ou chave aleatória" />
+        <Input value={chavePix} onChange={(e) => setChavePix(e.target.value)} placeholder="CPF, e-mail, telefone ou chave aleatória" />
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
           <Label>E-mail *</Label>
-          <Input required type="email" placeholder="seu@email.com" />
+          <Input required type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="seu@email.com" />
         </div>
         <div className="space-y-2">
           <Label>Senha *</Label>
-          <Input required type="password" placeholder="Mínimo 6 caracteres" />
+          <Input required type="password" value={senha} onChange={(e) => setSenha(e.target.value)} placeholder="Mínimo 6 caracteres" />
         </div>
       </div>
-      <Button type="submit" className="w-full">Criar Conta de Trabalhador</Button>
+      <Button type="submit" className="w-full" disabled={loading}>
+        {loading ? "Criando conta..." : "Criar Conta de Trabalhador"}
+      </Button>
     </form>
   );
 };
 
 const CadastroEmpresa = () => {
-  const handleSubmit = (e: React.FormEvent) => {
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [nomeEmpresa, setNomeEmpresa] = useState("");
+  const [cnpj, setCnpj] = useState("");
+  const [responsavel, setResponsavel] = useState("");
+  const [cidade, setCidade] = useState("");
+  const [estado, setEstado] = useState("");
+  const [email, setEmail] = useState("");
+  const [senha, setSenha] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success("Cadastro de empresa realizado! Faça login para continuar.");
+    if (senha.length < 6) {
+      toast.error("A senha deve ter no mínimo 6 caracteres.");
+      return;
+    }
+    setLoading(true);
+
+    const { error } = await supabase.auth.signUp({
+      email,
+      password: senha,
+      options: {
+        data: {
+          user_type: "empresa",
+          nome_completo: responsavel,
+        },
+      },
+    });
+
+    if (error) {
+      toast.error(error.message);
+      setLoading(false);
+      return;
+    }
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await supabase.from("profiles").update({
+        nome_empresa: nomeEmpresa, cnpj, responsavel, cidade, estado,
+      }).eq("user_id", user.id);
+    }
+
+    setLoading(false);
+    toast.success("Conta de empresa criada com sucesso!");
+    navigate("/");
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
         <Label>Nome da Empresa *</Label>
-        <Input required placeholder="Empresa LTDA" />
+        <Input required value={nomeEmpresa} onChange={(e) => setNomeEmpresa(e.target.value)} placeholder="Empresa LTDA" />
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
           <Label>CNPJ *</Label>
-          <Input required placeholder="00.000.000/0000-00" />
+          <Input required value={cnpj} onChange={(e) => setCnpj(e.target.value)} placeholder="00.000.000/0000-00" />
         </div>
         <div className="space-y-2">
           <Label>Responsável *</Label>
-          <Input required placeholder="Nome do responsável" />
+          <Input required value={responsavel} onChange={(e) => setResponsavel(e.target.value)} placeholder="Nome do responsável" />
         </div>
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
           <Label>Cidade *</Label>
-          <Input required placeholder="Belo Horizonte" />
+          <Input required value={cidade} onChange={(e) => setCidade(e.target.value)} placeholder="Belo Horizonte" />
         </div>
         <div className="space-y-2">
           <Label>Estado *</Label>
-          <Select required>
+          <Select value={estado} onValueChange={setEstado} required>
             <SelectTrigger><SelectValue placeholder="UF" /></SelectTrigger>
             <SelectContent>
               {estadosBR.map((uf) => (
@@ -127,14 +218,16 @@ const CadastroEmpresa = () => {
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
           <Label>E-mail *</Label>
-          <Input required type="email" placeholder="empresa@email.com" />
+          <Input required type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="empresa@email.com" />
         </div>
         <div className="space-y-2">
           <Label>Senha *</Label>
-          <Input required type="password" placeholder="Mínimo 6 caracteres" />
+          <Input required type="password" value={senha} onChange={(e) => setSenha(e.target.value)} placeholder="Mínimo 6 caracteres" />
         </div>
       </div>
-      <Button type="submit" className="w-full">Criar Conta de Empresa</Button>
+      <Button type="submit" className="w-full" disabled={loading}>
+        {loading ? "Criando conta..." : "Criar Conta de Empresa"}
+      </Button>
     </form>
   );
 };
