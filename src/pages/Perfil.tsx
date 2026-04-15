@@ -58,27 +58,20 @@ const Perfil = () => {
     if (!user) return;
     setSaving(true);
 
-    const updates: Record<string, unknown> = {
+    const baseUpdates = {
       nome_completo: nome,
       cidade,
       estado,
       updated_at: new Date().toISOString(),
     };
 
-    if (profile?.user_type === "trabalhador") {
-      updates.cpf = cpf;
-      updates.data_nascimento = dataNascimento || null;
-      updates.estado_civil = estadoCivil;
-      updates.chave_pix = chavePix;
-    } else {
-      updates.nome_empresa = nomeEmpresa;
-      updates.cnpj = cnpj;
-      updates.responsavel = responsavel;
-    }
+    const profileUpdates = profile?.user_type === "trabalhador"
+      ? { ...baseUpdates, cpf, data_nascimento: dataNascimento || null, estado_civil: estadoCivil, chave_pix: chavePix }
+      : { ...baseUpdates, nome_empresa: nomeEmpresa, cnpj, responsavel };
 
     const { error } = await supabase
       .from("profiles")
-      .update(updates)
+      .update(profileUpdates)
       .eq("user_id", user.id);
 
     if (error) {
