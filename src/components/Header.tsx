@@ -12,7 +12,7 @@ import {
 
 const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
-  const { user, profile, signOut } = useAuth();
+  const { user, profile, isAdmin, signOut } = useAuth();
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-card/80 backdrop-blur-lg">
@@ -25,12 +25,17 @@ const Header = () => {
         </Link>
 
         <nav className="hidden items-center gap-6 md:flex">
-          <Link to="/" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
-            Diárias
+          <Link to="/servicos" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
+            Serviços
           </Link>
           <Link to="/como-funciona" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
             Como Funciona
           </Link>
+          {isAdmin && (
+            <Link to="/admin" className="text-sm font-medium text-primary transition-colors hover:text-foreground">
+              Admin
+            </Link>
+          )}
         </nav>
 
         <div className="hidden items-center gap-3 md:flex">
@@ -39,7 +44,7 @@ const Header = () => {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm" className="gap-2">
                   <User className="h-4 w-4" />
-                  {profile?.nome_completo || profile?.nome_empresa || user.email}
+                  {profile?.nome_completo || user.email}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -75,12 +80,17 @@ const Header = () => {
       {menuOpen && (
         <div className="animate-fade-in border-t border-border bg-card px-4 pb-4 pt-2 md:hidden">
           <nav className="flex flex-col gap-3">
-            <Link to="/" className="rounded-md px-3 py-2 text-sm font-medium text-foreground hover:bg-muted" onClick={() => setMenuOpen(false)}>
-              Diárias
+            <Link to="/servicos" className="rounded-md px-3 py-2 text-sm font-medium text-foreground hover:bg-muted" onClick={() => setMenuOpen(false)}>
+              Serviços
             </Link>
             <Link to="/como-funciona" className="rounded-md px-3 py-2 text-sm font-medium text-foreground hover:bg-muted" onClick={() => setMenuOpen(false)}>
               Como Funciona
             </Link>
+            {isAdmin && (
+              <Link to="/admin" className="rounded-md px-3 py-2 text-sm font-medium text-primary hover:bg-muted" onClick={() => setMenuOpen(false)}>
+                Admin
+              </Link>
+            )}
             <div className="mt-2 flex flex-col gap-2">
               {user ? (
                 <>
