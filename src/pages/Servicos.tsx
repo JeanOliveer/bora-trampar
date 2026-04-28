@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Briefcase, MapPin, Calendar, DollarSign } from "lucide-react";
+import { Briefcase, MapPin, Calendar, DollarSign, Clock } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
@@ -16,6 +16,7 @@ type Servico = {
   cidade: string | null;
   estado: string | null;
   data_servico: string | null;
+  horario: string | null;
   requisitos: string | null;
 };
 
