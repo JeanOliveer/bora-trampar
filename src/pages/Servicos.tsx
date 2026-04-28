@@ -92,6 +92,12 @@ const Servicos = () => {
                       {new Date(s.data_servico).toLocaleDateString("pt-BR")}
                     </div>
                   )}
+                  {s.horario && (
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <Clock className="h-4 w-4" />
+                      {s.horario}
+                    </div>
+                  )}
                   {s.requisitos && (
                     <p className="pt-2 text-xs text-muted-foreground"><strong>Requisitos:</strong> {s.requisitos}</p>
                   )}
