@@ -127,17 +127,19 @@ const Admin = () => {
             <h1 className="text-3xl font-bold">Painel Admin</h1>
             <p className="text-muted-foreground">Gerencie os serviços disponíveis na plataforma.</p>
           </div>
-          <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) { setForm(emptyForm); setEditingId(null); } }}>
-            <DialogTrigger asChild>
+          <div className="flex gap-2">
+            <Link to="/admin/novo-servico">
               <Button><Plus className="mr-2 h-4 w-4" /> Novo Serviço</Button>
-            </DialogTrigger>
+            </Link>
+          </div>
+          <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) { setForm(emptyForm); setEditingId(null); } }}>
             <DialogContent className="max-w-lg">
-              <DialogHeader><DialogTitle>{editingId ? "Editar" : "Novo"} Serviço</DialogTitle></DialogHeader>
+              <DialogHeader><DialogTitle>Editar Serviço</DialogTitle></DialogHeader>
               <div className="space-y-3">
-                <div><Label>Título *</Label><Input value={form.titulo} onChange={(e) => setForm({ ...form, titulo: e.target.value })} /></div>
+                <div><Label>Título</Label><Input value={form.titulo} onChange={(e) => setForm({ ...form, titulo: e.target.value })} /></div>
                 <div><Label>Descrição</Label><Textarea value={form.descricao} onChange={(e) => setForm({ ...form, descricao: e.target.value })} /></div>
                 <div className="grid gap-3 sm:grid-cols-2">
-                  <div><Label>Categoria</Label><Input value={form.categoria} onChange={(e) => setForm({ ...form, categoria: e.target.value })} placeholder="Logística, Limpeza..." /></div>
+                  <div><Label>Categoria</Label><Input value={form.categoria} onChange={(e) => setForm({ ...form, categoria: e.target.value })} /></div>
                   <div><Label>Valor (R$)</Label><Input type="number" step="0.01" value={form.valor} onChange={(e) => setForm({ ...form, valor: e.target.value })} /></div>
                 </div>
                 <div className="grid gap-3 sm:grid-cols-2">
@@ -150,7 +152,10 @@ const Admin = () => {
                     </Select>
                   </div>
                 </div>
-                <div><Label>Data do Serviço</Label><Input type="date" value={form.data_servico} onChange={(e) => setForm({ ...form, data_servico: e.target.value })} /></div>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div><Label>Data</Label><Input type="date" value={form.data_servico} onChange={(e) => setForm({ ...form, data_servico: e.target.value })} /></div>
+                  <div><Label>Horário</Label><Input value={form.horario} onChange={(e) => setForm({ ...form, horario: e.target.value })} placeholder="08:00 às 17:00" /></div>
+                </div>
                 <div><Label>Requisitos</Label><Textarea value={form.requisitos} onChange={(e) => setForm({ ...form, requisitos: e.target.value })} /></div>
               </div>
               <DialogFooter><Button onClick={handleSave}>Salvar</Button></DialogFooter>
