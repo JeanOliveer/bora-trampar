@@ -11,6 +11,7 @@ import ComoFunciona from "./pages/ComoFunciona.tsx";
 import Perfil from "./pages/Perfil.tsx";
 import Servicos from "./pages/Servicos.tsx";
 import Admin from "./pages/Admin.tsx";
+import NovoServico from "./pages/NovoServico.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -30,6 +31,7 @@ const App = () => (
             <Route path="/perfil" element={<Perfil />} />
             <Route path="/servicos" element={<Servicos />} />
             <Route path="/admin" element={<Admin />} />
+            <Route path="/admin/novo-servico" element={<NovoServico />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

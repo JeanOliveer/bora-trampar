@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Briefcase, MapPin, Calendar, DollarSign } from "lucide-react";
+import { Briefcase, MapPin, Calendar, DollarSign, Clock } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
@@ -16,6 +16,7 @@ type Servico = {
   cidade: string | null;
   estado: string | null;
   data_servico: string | null;
+  horario: string | null;
   requisitos: string | null;
 };
 
@@ -89,6 +90,12 @@ const Servicos = () => {
                     <div className="flex items-center gap-2 text-muted-foreground">
                       <Calendar className="h-4 w-4" />
                       {new Date(s.data_servico).toLocaleDateString("pt-BR")}
+                    </div>
+                  )}
+                  {s.horario && (
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <Clock className="h-4 w-4" />
+                      {s.horario}
                     </div>
                   )}
                   {s.requisitos && (

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Plus, Trash2, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -24,6 +24,7 @@ type Servico = {
   cidade: string | null;
   estado: string | null;
   data_servico: string | null;
+  horario: string | null;
   requisitos: string | null;
   ativo: boolean;
 };
@@ -36,6 +37,7 @@ const emptyForm = {
   cidade: "",
   estado: "",
   data_servico: "",
+  horario: "",
   requisitos: "",
 };
 
@@ -73,6 +75,7 @@ const Admin = () => {
       cidade: form.cidade || null,
       estado: form.estado || null,
       data_servico: form.data_servico || null,
+      horario: form.horario || null,
       requisitos: form.requisitos || null,
       created_by: user!.id,
     };
@@ -99,6 +102,7 @@ const Admin = () => {
       cidade: s.cidade || "",
       estado: s.estado || "",
       data_servico: s.data_servico || "",
+      horario: s.horario || "",
       requisitos: s.requisitos || "",
     });
     setOpen(true);
@@ -127,17 +131,19 @@ const Admin = () => {
             <h1 className="text-3xl font-bold">Painel Admin</h1>
             <p className="text-muted-foreground">Gerencie os serviços disponíveis na plataforma.</p>
           </div>
-          <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) { setForm(emptyForm); setEditingId(null); } }}>
-            <DialogTrigger asChild>
+          <div className="flex gap-2">
+            <Link to="/admin/novo-servico">
               <Button><Plus className="mr-2 h-4 w-4" /> Novo Serviço</Button>
-            </DialogTrigger>
+            </Link>
+          </div>
+          <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) { setForm(emptyForm); setEditingId(null); } }}>
             <DialogContent className="max-w-lg">
-              <DialogHeader><DialogTitle>{editingId ? "Editar" : "Novo"} Serviço</DialogTitle></DialogHeader>
+              <DialogHeader><DialogTitle>Editar Serviço</DialogTitle></DialogHeader>
               <div className="space-y-3">
-                <div><Label>Título *</Label><Input value={form.titulo} onChange={(e) => setForm({ ...form, titulo: e.target.value })} /></div>
+                <div><Label>Título</Label><Input value={form.titulo} onChange={(e) => setForm({ ...form, titulo: e.target.value })} /></div>
                 <div><Label>Descrição</Label><Textarea value={form.descricao} onChange={(e) => setForm({ ...form, descricao: e.target.value })} /></div>
                 <div className="grid gap-3 sm:grid-cols-2">
-                  <div><Label>Categoria</Label><Input value={form.categoria} onChange={(e) => setForm({ ...form, categoria: e.target.value })} placeholder="Logística, Limpeza..." /></div>
+                  <div><Label>Categoria</Label><Input value={form.categoria} onChange={(e) => setForm({ ...form, categoria: e.target.value })} /></div>
                   <div><Label>Valor (R$)</Label><Input type="number" step="0.01" value={form.valor} onChange={(e) => setForm({ ...form, valor: e.target.value })} /></div>
                 </div>
                 <div className="grid gap-3 sm:grid-cols-2">
@@ -150,7 +156,10 @@ const Admin = () => {
                     </Select>
                   </div>
                 </div>
-                <div><Label>Data do Serviço</Label><Input type="date" value={form.data_servico} onChange={(e) => setForm({ ...form, data_servico: e.target.value })} /></div>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div><Label>Data</Label><Input type="date" value={form.data_servico} onChange={(e) => setForm({ ...form, data_servico: e.target.value })} /></div>
+                  <div><Label>Horário</Label><Input value={form.horario} onChange={(e) => setForm({ ...form, horario: e.target.value })} placeholder="08:00 às 17:00" /></div>
+                </div>
                 <div><Label>Requisitos</Label><Textarea value={form.requisitos} onChange={(e) => setForm({ ...form, requisitos: e.target.value })} /></div>
               </div>
               <DialogFooter><Button onClick={handleSave}>Salvar</Button></DialogFooter>
