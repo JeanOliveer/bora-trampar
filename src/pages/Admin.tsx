@@ -101,6 +101,7 @@ const Admin = () => {
       cidade: s.cidade || "",
       estado: s.estado || "",
       data_servico: s.data_servico || "",
+      horario: s.horario || "",
       requisitos: s.requisitos || "",
     });
     setOpen(true);
