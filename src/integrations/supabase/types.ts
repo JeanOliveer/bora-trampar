@@ -69,6 +69,7 @@ export type Database = {
           data_servico: string | null
           descricao: string | null
           estado: string | null
+          horario: string | null
           id: string
           requisitos: string | null
           titulo: string
@@ -84,6 +85,7 @@ export type Database = {
           data_servico?: string | null
           descricao?: string | null
           estado?: string | null
+          horario?: string | null
           id?: string
           requisitos?: string | null
           titulo: string
@@ -99,6 +101,7 @@ export type Database = {
           data_servico?: string | null
           descricao?: string | null
           estado?: string | null
+          horario?: string | null
           id?: string
           requisitos?: string | null
           titulo?: string
