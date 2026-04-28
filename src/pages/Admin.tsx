@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Plus, Trash2, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,6 +24,7 @@ type Servico = {
   cidade: string | null;
   estado: string | null;
   data_servico: string | null;
+  horario: string | null;
   requisitos: string | null;
   ativo: boolean;
 };
@@ -36,6 +37,7 @@ const emptyForm = {
   cidade: "",
   estado: "",
   data_servico: "",
+  horario: "",
   requisitos: "",
 };
 
