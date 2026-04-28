@@ -9,6 +9,8 @@ import Login from "./pages/Login.tsx";
 import Cadastro from "./pages/Cadastro.tsx";
 import ComoFunciona from "./pages/ComoFunciona.tsx";
 import Perfil from "./pages/Perfil.tsx";
+import Servicos from "./pages/Servicos.tsx";
+import Admin from "./pages/Admin.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -26,6 +28,8 @@ const App = () => (
             <Route path="/cadastro" element={<Cadastro />} />
             <Route path="/como-funciona" element={<ComoFunciona />} />
             <Route path="/perfil" element={<Perfil />} />
+            <Route path="/servicos" element={<Servicos />} />
+            <Route path="/admin" element={<Admin />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

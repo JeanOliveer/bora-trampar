@@ -18,7 +18,6 @@ export type Database = {
         Row: {
           chave_pix: string | null
           cidade: string | null
-          cnpj: string | null
           cpf: string | null
           created_at: string
           data_nascimento: string | null
@@ -26,8 +25,6 @@ export type Database = {
           estado_civil: string | null
           id: string
           nome_completo: string | null
-          nome_empresa: string | null
-          responsavel: string | null
           updated_at: string
           user_id: string
           user_type: Database["public"]["Enums"]["user_type"]
@@ -35,7 +32,6 @@ export type Database = {
         Insert: {
           chave_pix?: string | null
           cidade?: string | null
-          cnpj?: string | null
           cpf?: string | null
           created_at?: string
           data_nascimento?: string | null
@@ -43,16 +39,13 @@ export type Database = {
           estado_civil?: string | null
           id?: string
           nome_completo?: string | null
-          nome_empresa?: string | null
-          responsavel?: string | null
           updated_at?: string
           user_id: string
-          user_type: Database["public"]["Enums"]["user_type"]
+          user_type?: Database["public"]["Enums"]["user_type"]
         }
         Update: {
           chave_pix?: string | null
           cidade?: string | null
-          cnpj?: string | null
           cpf?: string | null
           created_at?: string
           data_nascimento?: string | null
@@ -60,11 +53,78 @@ export type Database = {
           estado_civil?: string | null
           id?: string
           nome_completo?: string | null
-          nome_empresa?: string | null
-          responsavel?: string | null
           updated_at?: string
           user_id?: string
           user_type?: Database["public"]["Enums"]["user_type"]
+        }
+        Relationships: []
+      }
+      servicos: {
+        Row: {
+          ativo: boolean
+          categoria: string | null
+          cidade: string | null
+          created_at: string
+          created_by: string | null
+          data_servico: string | null
+          descricao: string | null
+          estado: string | null
+          id: string
+          requisitos: string | null
+          titulo: string
+          updated_at: string
+          valor: number | null
+        }
+        Insert: {
+          ativo?: boolean
+          categoria?: string | null
+          cidade?: string | null
+          created_at?: string
+          created_by?: string | null
+          data_servico?: string | null
+          descricao?: string | null
+          estado?: string | null
+          id?: string
+          requisitos?: string | null
+          titulo: string
+          updated_at?: string
+          valor?: number | null
+        }
+        Update: {
+          ativo?: boolean
+          categoria?: string | null
+          cidade?: string | null
+          created_at?: string
+          created_by?: string | null
+          data_servico?: string | null
+          descricao?: string | null
+          estado?: string | null
+          id?: string
+          requisitos?: string | null
+          titulo?: string
+          updated_at?: string
+          valor?: number | null
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
         }
         Relationships: []
       }
@@ -73,10 +133,17 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      user_type: "trabalhador" | "empresa"
+      app_role: "admin" | "trabalhador"
+      user_type: "trabalhador"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -204,7 +271,8 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      user_type: ["trabalhador", "empresa"],
+      app_role: ["admin", "trabalhador"],
+      user_type: ["trabalhador"],
     },
   },
 } as const
