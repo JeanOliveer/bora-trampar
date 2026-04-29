@@ -118,6 +118,7 @@ const Servicos = () => {
       <CandidaturaDialog
         open={!!servicoSelecionado}
         onOpenChange={(o) => !o && setServicoSelecionado(null)}
+        servicoId={servicoSelecionado?.id ?? ""}
         servicoTitulo={servicoSelecionado?.titulo ?? ""}
       />
     </div>
