@@ -106,10 +106,7 @@ const Servicos = () => {
                   )}
                 </CardContent>
                 <CardFooter>
-                  <Button
-                    className="w-full"
-                    onClick={() => toast.success("Candidatura enviada!", { description: `Você se candidatou para "${s.titulo}".` })}
-                  >
+                  <Button className="w-full" onClick={() => setServicoSelecionado(s)}>
                     Candidatar-se
                   </Button>
                 </CardFooter>
