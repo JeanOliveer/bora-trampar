@@ -19,11 +19,11 @@ export type Database = {
           bairro: string
           cidade: string
           created_at: string
-          disponibilidade: string
+          disponibilidade: string | null
           documento_url: string
           experiencia: string | null
           id: string
-          mensagem: string
+          mensagem: string | null
           numero: string
           rua: string
           servico_id: string
@@ -36,11 +36,11 @@ export type Database = {
           bairro: string
           cidade: string
           created_at?: string
-          disponibilidade: string
+          disponibilidade?: string | null
           documento_url: string
           experiencia?: string | null
           id?: string
-          mensagem: string
+          mensagem?: string | null
           numero: string
           rua: string
           servico_id: string
@@ -53,11 +53,11 @@ export type Database = {
           bairro?: string
           cidade?: string
           created_at?: string
-          disponibilidade?: string
+          disponibilidade?: string | null
           documento_url?: string
           experiencia?: string | null
           id?: string
-          mensagem?: string
+          mensagem?: string | null
           numero?: string
           rua?: string
           servico_id?: string
