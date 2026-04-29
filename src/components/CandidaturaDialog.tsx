@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
 import { toast } from "sonner";
-import { Loader2, Upload, FileCheck2, AlertCircle } from "lucide-react";
+import { Loader2, Upload, FileCheck2, AlertCircle, Camera, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -13,14 +13,6 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -44,15 +36,6 @@ const candidaturaSchema = z.object({
   bairro: z.string().trim().min(2, "Informe o bairro").max(80, "Máximo 80 caracteres"),
   cidade: z.string().trim().min(2, "Informe a cidade").max(80, "Máximo 80 caracteres"),
   pix: z.string().trim().min(1, "Informe sua chave PIX").max(120, "Máximo 120 caracteres"),
-  mensagem: z
-    .string()
-    .trim()
-    .min(10, "A mensagem deve ter no mínimo 10 caracteres")
-    .max(500, "A mensagem deve ter no máximo 500 caracteres"),
-  disponibilidade: z.enum(["imediata", "uma_semana", "duas_semanas", "a_combinar"], {
-    errorMap: () => ({ message: "Selecione uma disponibilidade" }),
-  }),
-  experiencia: z.string().trim().max(300, "Máximo 300 caracteres").optional(),
 });
 
 const ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
@@ -75,15 +58,27 @@ const CandidaturaDialog = ({ open, onOpenChange, servicoId, servicoTitulo }: Pro
   const [bairro, setBairro] = useState("");
   const [cidade, setCidade] = useState("");
   const [pix, setPix] = useState("");
-  const [mensagem, setMensagem] = useState("");
-  const [disponibilidade, setDisponibilidade] = useState("");
-  const [experiencia, setExperiencia] = useState("");
   const [documento, setDocumento] = useState<File | null>(null);
+  const [docPreview, setDocPreview] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
 
+  // Câmera
+  const [cameraOpen, setCameraOpen] = useState(false);
+  const [cameraStarting, setCameraStarting] = useState(false);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+
   const profileCpfDigits = profile?.cpf ? onlyDigits(profile.cpf) : "";
   const profilePix = (profile?.chave_pix ?? "").trim();
+
+  const stopCamera = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((t) => t.stop());
+      streamRef.current = null;
+    }
+    setCameraOpen(false);
+  };
 
   const reset = () => {
     setCpf("");
@@ -93,21 +88,30 @@ const CandidaturaDialog = ({ open, onOpenChange, servicoId, servicoTitulo }: Pro
     setBairro("");
     setCidade(profile?.cidade ?? "");
     setPix("");
-    setMensagem("");
-    setDisponibilidade("");
-    setExperiencia("");
     setDocumento(null);
+    if (docPreview) URL.revokeObjectURL(docPreview);
+    setDocPreview(null);
     setErrors({});
+    stopCamera();
   };
 
   useEffect(() => {
     if (open) {
       setCidade(profile?.cidade ?? "");
+    } else {
+      stopCamera();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
-  // Validações em tempo real (campo a campo)
+  useEffect(() => {
+    return () => {
+      if (docPreview) URL.revokeObjectURL(docPreview);
+      stopCamera();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const validateField = (name: string, value: string) => {
     const next = { ...errors };
     if (name === "cpf") {
@@ -123,6 +127,16 @@ const CandidaturaDialog = ({ open, onOpenChange, servicoId, servicoTitulo }: Pro
       else delete next.pix;
     }
     setErrors(next);
+  };
+
+  const setDocFile = (file: File) => {
+    if (docPreview) URL.revokeObjectURL(docPreview);
+    setDocumento(file);
+    if (file.type.startsWith("image/")) {
+      setDocPreview(URL.createObjectURL(file));
+    } else {
+      setDocPreview(null);
+    }
   };
 
   const handleDocChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -148,7 +162,76 @@ const CandidaturaDialog = ({ open, onOpenChange, servicoId, servicoTitulo }: Pro
     }
     delete next.documento;
     setErrors(next);
-    setDocumento(file);
+    setDocFile(file);
+  };
+
+  const openCamera = async () => {
+    setCameraStarting(true);
+    try {
+      if (!navigator.mediaDevices?.getUserMedia) {
+        toast.error("Seu dispositivo não suporta captura de câmera");
+        return;
+      }
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: "environment" } },
+        audio: false,
+      });
+      streamRef.current = stream;
+      setCameraOpen(true);
+      // aguarda render do video element
+      setTimeout(() => {
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+          videoRef.current.play().catch(() => {});
+        }
+      }, 50);
+    } catch (err: any) {
+      toast.error(
+        err?.name === "NotAllowedError"
+          ? "Permissão de câmera negada"
+          : "Não foi possível acessar a câmera"
+      );
+    } finally {
+      setCameraStarting(false);
+    }
+  };
+
+  const capturePhoto = () => {
+    const video = videoRef.current;
+    if (!video || !video.videoWidth) {
+      toast.error("Câmera ainda não está pronta");
+      return;
+    }
+    const canvas = document.createElement("canvas");
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    ctx.drawImage(video, 0, 0);
+    canvas.toBlob(
+      (blob) => {
+        if (!blob) {
+          toast.error("Falha ao capturar imagem");
+          return;
+        }
+        const file = new File([blob], `documento-${Date.now()}.jpg`, {
+          type: "image/jpeg",
+        });
+        if (file.size > MAX_DOC_BYTES) {
+          toast.error("Imagem capturada muito grande");
+          return;
+        }
+        setDocFile(file);
+        setErrors((er) => {
+          const n = { ...er };
+          delete n.documento;
+          return n;
+        });
+        stopCamera();
+      },
+      "image/jpeg",
+      0.9
+    );
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -172,9 +255,6 @@ const CandidaturaDialog = ({ open, onOpenChange, servicoId, servicoTitulo }: Pro
       bairro,
       cidade,
       pix,
-      mensagem,
-      disponibilidade,
-      experiencia: experiencia || undefined,
     });
 
     const fieldErrors: Record<string, string> = {};
@@ -185,7 +265,6 @@ const CandidaturaDialog = ({ open, onOpenChange, servicoId, servicoTitulo }: Pro
       }
     }
 
-    // Comparação rigorosa CPF e PIX vs profile
     if (onlyDigits(cpf) !== profileCpfDigits) {
       fieldErrors.cpf = "CPF não coincide com o cadastrado na sua conta";
     }
@@ -204,7 +283,6 @@ const CandidaturaDialog = ({ open, onOpenChange, servicoId, servicoTitulo }: Pro
 
     setSubmitting(true);
     try {
-      // Upload do documento
       const ext = documento!.name.split(".").pop()?.toLowerCase() || "bin";
       const path = `${user.id}/${servicoId}-${Date.now()}.${ext}`;
       const { error: uploadError } = await supabase.storage
@@ -221,14 +299,10 @@ const CandidaturaDialog = ({ open, onOpenChange, servicoId, servicoTitulo }: Pro
         numero: numero.trim(),
         bairro: bairro.trim(),
         cidade: cidade.trim(),
-        mensagem: mensagem.trim(),
-        disponibilidade,
-        experiencia: experiencia.trim() || null,
         documento_url: path,
       });
 
       if (insertError) {
-        // Limpa arquivo órfão se insert falhar
         await supabase.storage.from("documentos-candidatura").remove([path]);
         if (insertError.code === "23505") {
           toast.error("Você já se candidatou a este serviço");
@@ -382,79 +456,95 @@ const CandidaturaDialog = ({ open, onOpenChange, servicoId, servicoTitulo }: Pro
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="documento">Documento (RG ou CNH) *</Label>
-            <label
-              htmlFor="documento"
-              className="flex cursor-pointer items-center gap-3 rounded-md border border-dashed border-input bg-muted/30 p-4 text-sm transition hover:bg-muted/60"
-            >
-              {documento ? (
-                <>
-                  <FileCheck2 className="h-5 w-5 text-primary" />
-                  <span className="truncate">{documento.name}</span>
-                </>
-              ) : (
-                <>
-                  <Upload className="h-5 w-5 text-muted-foreground" />
-                  <span className="text-muted-foreground">
-                    Clique para enviar foto do RG ou CNH (JPG, PNG, WEBP ou PDF — até 5MB)
-                  </span>
-                </>
-              )}
-              <Input
-                id="documento"
-                type="file"
-                accept="image/jpeg,image/png,image/webp,application/pdf"
-                className="hidden"
-                onChange={handleDocChange}
-              />
-            </label>
-            {errors.documento && <p className="text-sm text-destructive">{errors.documento}</p>}
-          </div>
+            <Label>Documento (RG ou CNH) *</Label>
 
-          <div className="space-y-2">
-            <Label htmlFor="disponibilidade">Disponibilidade *</Label>
-            <Select value={disponibilidade} onValueChange={setDisponibilidade}>
-              <SelectTrigger id="disponibilidade" aria-invalid={!!errors.disponibilidade}>
-                <SelectValue placeholder="Selecione" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="imediata">Imediata</SelectItem>
-                <SelectItem value="uma_semana">Em até 1 semana</SelectItem>
-                <SelectItem value="duas_semanas">Em até 2 semanas</SelectItem>
-                <SelectItem value="a_combinar">A combinar</SelectItem>
-              </SelectContent>
-            </Select>
-            {errors.disponibilidade && (
-              <p className="text-sm text-destructive">{errors.disponibilidade}</p>
+            {cameraOpen ? (
+              <div className="space-y-2 rounded-md border bg-muted/30 p-3">
+                <video
+                  ref={videoRef}
+                  autoPlay
+                  playsInline
+                  muted
+                  className="aspect-video w-full rounded-md bg-black object-cover"
+                />
+                <div className="flex flex-wrap gap-2">
+                  <Button type="button" onClick={capturePhoto} className="flex-1">
+                    <Camera className="mr-2 h-4 w-4" />
+                    Capturar foto
+                  </Button>
+                  <Button type="button" variant="outline" onClick={stopCamera}>
+                    <X className="mr-2 h-4 w-4" />
+                    Cancelar
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  <label
+                    htmlFor="documento"
+                    className="flex cursor-pointer items-center gap-3 rounded-md border border-dashed border-input bg-muted/30 p-4 text-sm transition hover:bg-muted/60"
+                  >
+                    <Upload className="h-5 w-5 text-muted-foreground" />
+                    <span className="text-muted-foreground">Enviar arquivo</span>
+                    <Input
+                      id="documento"
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp,application/pdf"
+                      className="hidden"
+                      onChange={handleDocChange}
+                    />
+                  </label>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={openCamera}
+                    disabled={cameraStarting}
+                    className="h-auto justify-start gap-3 border-dashed bg-muted/30 p-4 text-sm font-normal hover:bg-muted/60"
+                  >
+                    {cameraStarting ? (
+                      <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                    ) : (
+                      <Camera className="h-5 w-5 text-muted-foreground" />
+                    )}
+                    <span className="text-muted-foreground">Tirar foto agora</span>
+                  </Button>
+                </div>
+
+                {documento && (
+                  <div className="flex items-center gap-3 rounded-md border bg-muted/30 p-3 text-sm">
+                    {docPreview ? (
+                      <img
+                        src={docPreview}
+                        alt="Pré-visualização do documento"
+                        className="h-16 w-16 rounded object-cover"
+                      />
+                    ) : (
+                      <FileCheck2 className="h-5 w-5 text-primary" />
+                    )}
+                    <span className="flex-1 truncate">{documento.name}</span>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        if (docPreview) URL.revokeObjectURL(docPreview);
+                        setDocumento(null);
+                        setDocPreview(null);
+                      }}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                )}
+
+                <p className="text-xs text-muted-foreground">
+                  JPG, PNG, WEBP ou PDF — até 5MB
+                </p>
+              </>
             )}
-          </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="mensagem">Mensagem ao contratante *</Label>
-            <Textarea
-              id="mensagem"
-              placeholder="Apresente-se rapidamente e explique por que você é ideal para esta vaga."
-              value={mensagem}
-              onChange={(e) => setMensagem(e.target.value)}
-              maxLength={500}
-              rows={4}
-              aria-invalid={!!errors.mensagem}
-            />
-            <p className="text-xs text-muted-foreground">{mensagem.length}/500</p>
-            {errors.mensagem && <p className="text-sm text-destructive">{errors.mensagem}</p>}
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="experiencia">Experiência relevante (opcional)</Label>
-            <Textarea
-              id="experiencia"
-              placeholder="Conte sobre experiências anteriores relacionadas à vaga."
-              value={experiencia}
-              onChange={(e) => setExperiencia(e.target.value)}
-              maxLength={300}
-              rows={3}
-            />
-            <p className="text-xs text-muted-foreground">{experiencia.length}/300</p>
+            {errors.documento && <p className="text-sm text-destructive">{errors.documento}</p>}
           </div>
 
           <DialogFooter className="gap-2">
