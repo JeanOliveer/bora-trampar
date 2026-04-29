@@ -104,6 +104,14 @@ const Servicos = () => {
                     <p className="pt-2 text-xs text-muted-foreground"><strong>Requisitos:</strong> {s.requisitos}</p>
                   )}
                 </CardContent>
+                <CardFooter>
+                  <Button
+                    className="w-full"
+                    onClick={() => toast.success("Candidatura enviada!", { description: `Você se candidatou para "${s.titulo}".` })}
+                  >
+                    Candidatar-se
+                  </Button>
+                </CardFooter>
               </Card>
             ))}
           </div>
