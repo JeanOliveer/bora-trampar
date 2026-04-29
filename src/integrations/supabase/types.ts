@@ -14,6 +14,68 @@ export type Database = {
   }
   public: {
     Tables: {
+      candidaturas: {
+        Row: {
+          bairro: string
+          cidade: string
+          created_at: string
+          disponibilidade: string
+          documento_url: string
+          experiencia: string | null
+          id: string
+          mensagem: string
+          numero: string
+          rua: string
+          servico_id: string
+          status: string
+          telefone: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          bairro: string
+          cidade: string
+          created_at?: string
+          disponibilidade: string
+          documento_url: string
+          experiencia?: string | null
+          id?: string
+          mensagem: string
+          numero: string
+          rua: string
+          servico_id: string
+          status?: string
+          telefone: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          bairro?: string
+          cidade?: string
+          created_at?: string
+          disponibilidade?: string
+          documento_url?: string
+          experiencia?: string | null
+          id?: string
+          mensagem?: string
+          numero?: string
+          rua?: string
+          servico_id?: string
+          status?: string
+          telefone?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "candidaturas_servico_id_fkey"
+            columns: ["servico_id"]
+            isOneToOne: false
+            referencedRelation: "servicos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           chave_pix: string | null
