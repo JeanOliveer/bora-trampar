@@ -6,8 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
 import Header from "@/components/Header";
+import CandidaturaDialog from "@/components/CandidaturaDialog";
 
 type Servico = {
   id: string;
@@ -27,6 +27,7 @@ const Servicos = () => {
   const navigate = useNavigate();
   const [servicos, setServicos] = useState<Servico[]>([]);
   const [loading, setLoading] = useState(true);
+  const [servicoSelecionado, setServicoSelecionado] = useState<Servico | null>(null);
 
   useEffect(() => {
     if (!authLoading && !user) navigate("/login");
@@ -105,10 +106,7 @@ const Servicos = () => {
                   )}
                 </CardContent>
                 <CardFooter>
-                  <Button
-                    className="w-full"
-                    onClick={() => toast.success("Candidatura enviada!", { description: `Você se candidatou para "${s.titulo}".` })}
-                  >
+                  <Button className="w-full" onClick={() => setServicoSelecionado(s)}>
                     Candidatar-se
                   </Button>
                 </CardFooter>
@@ -117,6 +115,11 @@ const Servicos = () => {
           </div>
         )}
       </main>
+      <CandidaturaDialog
+        open={!!servicoSelecionado}
+        onOpenChange={(o) => !o && setServicoSelecionado(null)}
+        servicoTitulo={servicoSelecionado?.titulo ?? ""}
+      />
     </div>
   );
 };
