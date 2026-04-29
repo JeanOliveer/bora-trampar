@@ -28,6 +28,7 @@ const Servicos = () => {
   const navigate = useNavigate();
   const [servicos, setServicos] = useState<Servico[]>([]);
   const [loading, setLoading] = useState(true);
+  const [servicoSelecionado, setServicoSelecionado] = useState<Servico | null>(null);
 
   useEffect(() => {
     if (!authLoading && !user) navigate("/login");
