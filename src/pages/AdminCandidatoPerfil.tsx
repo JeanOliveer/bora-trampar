@@ -262,6 +262,17 @@ const AdminCandidatoPerfil = () => {
           </div>
         </div>
       </main>
+
+      {cand && profile && (
+        <AvaliacaoDialog
+          open={openAval}
+          onOpenChange={setOpenAval}
+          candidaturaId={cand.id}
+          servicoId={cand.servico_id}
+          trabalhadorId={cand.user_id}
+          onSuccess={() => setRefreshKey((k) => k + 1)}
+        />
+      )}
     </div>
   );
 };
