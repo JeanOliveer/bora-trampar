@@ -14,6 +14,7 @@ import Admin from "./pages/Admin.tsx";
 import NovoServico from "./pages/NovoServico.tsx";
 import AdminCandidatos from "./pages/AdminCandidatos.tsx";
 import AdminCandidatoPerfil from "./pages/AdminCandidatoPerfil.tsx";
+import Carreira from "./pages/Carreira.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -31,6 +32,7 @@ const App = () => (
             <Route path="/cadastro" element={<Cadastro />} />
             <Route path="/como-funciona" element={<ComoFunciona />} />
             <Route path="/perfil" element={<Perfil />} />
+            <Route path="/carreira" element={<Carreira />} />
             <Route path="/servicos" element={<Servicos />} />
             <Route path="/admin" element={<Admin />} />
             <Route path="/admin/novo-servico" element={<NovoServico />} />
