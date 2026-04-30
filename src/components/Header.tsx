@@ -31,6 +31,11 @@ const Header = () => {
           <Link to="/como-funciona" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
             Como Funciona
           </Link>
+          {user && (
+            <Link to="/carreira" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
+              Carreira
+            </Link>
+          )}
           {isAdmin && (
             <Link to="/admin" className="text-sm font-medium text-primary transition-colors hover:text-foreground">
               Admin
@@ -86,6 +91,11 @@ const Header = () => {
             <Link to="/como-funciona" className="rounded-md px-3 py-2 text-sm font-medium text-foreground hover:bg-muted" onClick={() => setMenuOpen(false)}>
               Como Funciona
             </Link>
+            {user && (
+              <Link to="/carreira" className="rounded-md px-3 py-2 text-sm font-medium text-foreground hover:bg-muted" onClick={() => setMenuOpen(false)}>
+                Carreira
+              </Link>
+            )}
             {isAdmin && (
               <Link to="/admin" className="rounded-md px-3 py-2 text-sm font-medium text-primary hover:bg-muted" onClick={() => setMenuOpen(false)}>
                 Admin

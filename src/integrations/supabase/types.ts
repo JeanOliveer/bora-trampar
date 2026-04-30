@@ -14,6 +14,60 @@ export type Database = {
   }
   public: {
     Tables: {
+      avaliacoes: {
+        Row: {
+          avaliador_id: string
+          candidatura_id: string
+          created_at: string
+          estrelas: number
+          id: string
+          justificativa: string | null
+          pontos: number
+          servico_id: string
+          trabalhador_id: string
+          updated_at: string
+        }
+        Insert: {
+          avaliador_id: string
+          candidatura_id: string
+          created_at?: string
+          estrelas: number
+          id?: string
+          justificativa?: string | null
+          pontos?: number
+          servico_id: string
+          trabalhador_id: string
+          updated_at?: string
+        }
+        Update: {
+          avaliador_id?: string
+          candidatura_id?: string
+          created_at?: string
+          estrelas?: number
+          id?: string
+          justificativa?: string | null
+          pontos?: number
+          servico_id?: string
+          trabalhador_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "avaliacoes_candidatura_id_fkey"
+            columns: ["candidatura_id"]
+            isOneToOne: true
+            referencedRelation: "candidaturas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "avaliacoes_servico_id_fkey"
+            columns: ["servico_id"]
+            isOneToOne: false
+            referencedRelation: "servicos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       candidaturas: {
         Row: {
           bairro: string
@@ -87,6 +141,7 @@ export type Database = {
           estado_civil: string | null
           id: string
           nome_completo: string | null
+          pontuacao: number
           updated_at: string
           user_id: string
           user_type: Database["public"]["Enums"]["user_type"]
@@ -101,6 +156,7 @@ export type Database = {
           estado_civil?: string | null
           id?: string
           nome_completo?: string | null
+          pontuacao?: number
           updated_at?: string
           user_id: string
           user_type?: Database["public"]["Enums"]["user_type"]
@@ -115,6 +171,7 @@ export type Database = {
           estado_civil?: string | null
           id?: string
           nome_completo?: string | null
+          pontuacao?: number
           updated_at?: string
           user_id?: string
           user_type?: Database["public"]["Enums"]["user_type"]
@@ -198,6 +255,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      calcular_pontos_estrelas: { Args: { _estrelas: number }; Returns: number }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

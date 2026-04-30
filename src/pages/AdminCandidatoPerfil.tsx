@@ -1,13 +1,16 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, User, Phone, MapPin, FileText, Calendar, CreditCard, Mail } from "lucide-react";
+import { ArrowLeft, User, Phone, MapPin, FileText, Calendar, CreditCard, Star, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
+import RankedAvatar from "@/components/RankedAvatar";
+import AvaliacaoDialog from "@/components/AvaliacaoDialog";
+import { getNivel } from "@/lib/career";
+import { cn } from "@/lib/utils";
 
 type Candidatura = {
   id: string;
@@ -32,6 +35,7 @@ type Profile = {
   cidade: string | null;
   estado: string | null;
   chave_pix: string | null;
+  pontuacao: number;
 };
 
 type Servico = { id: string; titulo: string };
@@ -62,6 +66,9 @@ const AdminCandidatoPerfil = () => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [servico, setServico] = useState<Servico | null>(null);
   const [docUrl, setDocUrl] = useState<string | null>(null);
+  const [avaliacaoExistente, setAvaliacaoExistente] = useState<{ id: string; estrelas: number; justificativa: string | null } | null>(null);
+  const [openAval, setOpenAval] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     if (!authLoading) {
@@ -84,12 +91,14 @@ const AdminCandidatoPerfil = () => {
       setCand(candidatura);
 
       if (candidatura) {
-        const [{ data: p }, { data: s }] = await Promise.all([
+        const [{ data: p }, { data: s }, { data: aval }] = await Promise.all([
           supabase.from("profiles").select("*").eq("user_id", candidatura.user_id).maybeSingle(),
           supabase.from("servicos").select("id, titulo").eq("id", candidatura.servico_id).maybeSingle(),
+          supabase.from("avaliacoes").select("id, estrelas, justificativa").eq("candidatura_id", candidatura.id).maybeSingle(),
         ]);
         setProfile(p as Profile | null);
         setServico(s as Servico | null);
+        setAvaliacaoExistente((aval as { id: string; estrelas: number; justificativa: string | null } | null) ?? null);
 
         if (candidatura.documento_url) {
           const { data: signed } = await supabase.storage
@@ -102,7 +111,7 @@ const AdminCandidatoPerfil = () => {
       setLoading(false);
     };
     load();
-  }, [candidaturaId, isAdmin]);
+  }, [candidaturaId, isAdmin, refreshKey]);
 
   if (authLoading || !isAdmin) {
     return <div className="flex min-h-screen items-center justify-center">Carregando...</div>;
@@ -149,19 +158,38 @@ const AdminCandidatoPerfil = () => {
         </Link>
 
         <div className="grid gap-6 lg:grid-cols-3">
-          <Card className="lg:col-span-1">
+          <Card className={cn("lg:col-span-1", profile && `border-2 ${getNivel(profile.pontuacao ?? 0).borderClass}`)}>
             <CardHeader className="flex flex-col items-center text-center">
-              <Avatar className="mb-3 h-24 w-24">
-                <AvatarFallback className="bg-primary/10 text-2xl text-primary">
-                  {initials(nome)}
-                </AvatarFallback>
-              </Avatar>
+              <RankedAvatar nome={nome} pontuacao={profile?.pontuacao ?? 0} size="xl" className="mb-3" />
               <CardTitle className="text-xl">{nome}</CardTitle>
-              <Badge variant="secondary" className="mt-2">{cand.status}</Badge>
+              <div className="mt-2 flex flex-wrap items-center justify-center gap-2">
+                <Badge variant="secondary">{cand.status}</Badge>
+                {profile && (
+                  <Badge className={getNivel(profile.pontuacao ?? 0).badgeClass}>
+                    {getNivel(profile.pontuacao ?? 0).label} • {profile.pontuacao ?? 0} pts
+                  </Badge>
+                )}
+              </div>
             </CardHeader>
             <CardContent className="space-y-3">
               <InfoRow icon={Phone} label="Telefone" value={cand.telefone} />
               <InfoRow icon={MapPin} label="Endereço" value={enderecoCompleto} />
+              {avaliacaoExistente ? (
+                <div className="rounded-md border bg-muted/50 p-3 text-sm">
+                  <div className="mb-1 flex items-center gap-2 font-medium">
+                    <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
+                    Já avaliado: {avaliacaoExistente.estrelas} estrelas
+                  </div>
+                  {avaliacaoExistente.justificativa && (
+                    <p className="text-xs text-muted-foreground">"{avaliacaoExistente.justificativa}"</p>
+                  )}
+                </div>
+              ) : (
+                <Button className="w-full" onClick={() => setOpenAval(true)}>
+                  <CheckCircle2 className="mr-2 h-4 w-4" />
+                  Concluir e avaliar
+                </Button>
+              )}
             </CardContent>
           </Card>
 
@@ -234,6 +262,17 @@ const AdminCandidatoPerfil = () => {
           </div>
         </div>
       </main>
+
+      {cand && profile && (
+        <AvaliacaoDialog
+          open={openAval}
+          onOpenChange={setOpenAval}
+          candidaturaId={cand.id}
+          servicoId={cand.servico_id}
+          trabalhadorId={cand.user_id}
+          onSuccess={() => setRefreshKey((k) => k + 1)}
+        />
+      )}
     </div>
   );
 };
