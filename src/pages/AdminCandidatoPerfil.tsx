@@ -91,12 +91,14 @@ const AdminCandidatoPerfil = () => {
       setCand(candidatura);
 
       if (candidatura) {
-        const [{ data: p }, { data: s }] = await Promise.all([
+        const [{ data: p }, { data: s }, { data: aval }] = await Promise.all([
           supabase.from("profiles").select("*").eq("user_id", candidatura.user_id).maybeSingle(),
           supabase.from("servicos").select("id, titulo").eq("id", candidatura.servico_id).maybeSingle(),
+          supabase.from("avaliacoes").select("id, estrelas, justificativa").eq("candidatura_id", candidatura.id).maybeSingle(),
         ]);
         setProfile(p as Profile | null);
         setServico(s as Servico | null);
+        setAvaliacaoExistente((aval as { id: string; estrelas: number; justificativa: string | null } | null) ?? null);
 
         if (candidatura.documento_url) {
           const { data: signed } = await supabase.storage
@@ -109,7 +111,7 @@ const AdminCandidatoPerfil = () => {
       setLoading(false);
     };
     load();
-  }, [candidaturaId, isAdmin]);
+  }, [candidaturaId, isAdmin, refreshKey]);
 
   if (authLoading || !isAdmin) {
     return <div className="flex min-h-screen items-center justify-center">Carregando...</div>;
