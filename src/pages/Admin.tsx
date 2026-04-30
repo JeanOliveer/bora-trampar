@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { Plus, Trash2, Pencil } from "lucide-react";
+import { Plus, Trash2, Pencil, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -183,7 +183,10 @@ const Admin = () => {
                       {s.valor != null && ` • R$ ${Number(s.valor).toFixed(2)}`}
                     </p>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
+                    <Link to={`/admin/servicos/${s.id}/candidatos`}>
+                      <Button size="sm" variant="outline"><Users className="mr-1 h-4 w-4" /> Candidatos</Button>
+                    </Link>
                     <Button size="sm" variant="outline" onClick={() => toggleAtivo(s)}>{s.ativo ? "Desativar" : "Ativar"}</Button>
                     <Button size="sm" variant="ghost" onClick={() => handleEdit(s)}><Pencil className="h-4 w-4" /></Button>
                     <Button size="sm" variant="ghost" onClick={() => handleDelete(s.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
