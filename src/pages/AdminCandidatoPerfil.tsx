@@ -35,6 +35,7 @@ type Profile = {
   cidade: string | null;
   estado: string | null;
   chave_pix: string | null;
+  pontuacao: number;
 };
 
 type Servico = { id: string; titulo: string };
