@@ -66,6 +66,9 @@ const AdminCandidatoPerfil = () => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [servico, setServico] = useState<Servico | null>(null);
   const [docUrl, setDocUrl] = useState<string | null>(null);
+  const [avaliacaoExistente, setAvaliacaoExistente] = useState<{ id: string; estrelas: number; justificativa: string | null } | null>(null);
+  const [openAval, setOpenAval] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     if (!authLoading) {
