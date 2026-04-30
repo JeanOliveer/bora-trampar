@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Briefcase, MapPin, Calendar, DollarSign, Clock } from "lucide-react";
+import { useNavigate, Link } from "react-router-dom";
+import { Briefcase, MapPin, Calendar, DollarSign, Clock, Users } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -23,7 +23,7 @@ type Servico = {
 };
 
 const Servicos = () => {
-  const { user, loading: authLoading } = useAuth();
+  const { user, isAdmin, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [servicos, setServicos] = useState<Servico[]>([]);
   const [loading, setLoading] = useState(true);
@@ -105,10 +105,20 @@ const Servicos = () => {
                     <p className="pt-2 text-xs text-muted-foreground"><strong>Requisitos:</strong> {s.requisitos}</p>
                   )}
                 </CardContent>
-                <CardFooter>
-                  <Button className="w-full" onClick={() => setServicoSelecionado(s)}>
-                    Candidatar-se
-                  </Button>
+                <CardFooter className="flex flex-col gap-2">
+                  {!isAdmin && (
+                    <Button className="w-full" onClick={() => setServicoSelecionado(s)}>
+                      Candidatar-se
+                    </Button>
+                  )}
+                  {isAdmin && (
+                    <Link to={`/admin/servicos/${s.id}/candidatos`} className="w-full">
+                      <Button variant="outline" className="w-full">
+                        <Users className="mr-2 h-4 w-4" />
+                        Candidatos
+                      </Button>
+                    </Link>
+                  )}
                 </CardFooter>
               </Card>
             ))}
