@@ -8,6 +8,8 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
+import RankedAvatar from "@/components/RankedAvatar";
+import { getNivel } from "@/lib/career";
 
 type Candidatura = {
   id: string;
@@ -27,6 +29,7 @@ type ProfileLite = {
   nome_completo: string | null;
   cidade: string | null;
   estado: string | null;
+  pontuacao: number;
 };
 
 type Servico = {
@@ -85,7 +88,7 @@ const AdminCandidatos = () => {
       if (ids.length > 0) {
         const { data: profs } = await supabase
           .from("profiles")
-          .select("user_id, nome_completo, cidade, estado")
+          .select("user_id, nome_completo, cidade, estado, pontuacao")
           .in("user_id", ids);
         const map: Record<string, ProfileLite> = {};
         (profs as ProfileLite[] | null)?.forEach((p) => (map[p.user_id] = p));
@@ -149,19 +152,18 @@ const AdminCandidatos = () => {
             {candidaturas.map((c) => {
               const p = profilesMap[c.user_id];
               const nome = p?.nome_completo || "Sem nome";
+              const pts = p?.pontuacao ?? 0;
+              const nivel = getNivel(pts);
               return (
                 <Card key={c.id} className="transition-shadow hover:shadow-md">
                   <CardHeader className="flex flex-row items-center gap-3 space-y-0">
-                    <Avatar className="h-12 w-12">
-                      <AvatarFallback className="bg-primary/10 text-primary">
-                        {initials(nome)}
-                      </AvatarFallback>
-                    </Avatar>
+                    <RankedAvatar nome={nome} pontuacao={pts} size="md" />
                     <div className="min-w-0 flex-1">
                       <CardTitle className="truncate text-base">{nome}</CardTitle>
-                      <Badge variant="secondary" className="mt-1 text-xs">
-                        {c.status}
-                      </Badge>
+                      <div className="mt-1 flex flex-wrap items-center gap-1">
+                        <Badge variant="secondary" className="text-xs">{c.status}</Badge>
+                        <Badge className={`text-xs ${nivel.badgeClass}`}>{nivel.label} • {pts} pts</Badge>
+                      </div>
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-2 text-sm">
