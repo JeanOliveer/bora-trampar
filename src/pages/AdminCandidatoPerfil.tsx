@@ -1,13 +1,16 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, User, Phone, MapPin, FileText, Calendar, CreditCard, Mail } from "lucide-react";
+import { ArrowLeft, User, Phone, MapPin, FileText, Calendar, CreditCard, Star, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
+import RankedAvatar from "@/components/RankedAvatar";
+import AvaliacaoDialog from "@/components/AvaliacaoDialog";
+import { getNivel } from "@/lib/career";
+import { cn } from "@/lib/utils";
 
 type Candidatura = {
   id: string;
