@@ -158,19 +158,38 @@ const AdminCandidatoPerfil = () => {
         </Link>
 
         <div className="grid gap-6 lg:grid-cols-3">
-          <Card className="lg:col-span-1">
+          <Card className={cn("lg:col-span-1", profile && `border-2 ${getNivel(profile.pontuacao ?? 0).borderClass}`)}>
             <CardHeader className="flex flex-col items-center text-center">
-              <Avatar className="mb-3 h-24 w-24">
-                <AvatarFallback className="bg-primary/10 text-2xl text-primary">
-                  {initials(nome)}
-                </AvatarFallback>
-              </Avatar>
+              <RankedAvatar nome={nome} pontuacao={profile?.pontuacao ?? 0} size="xl" className="mb-3" />
               <CardTitle className="text-xl">{nome}</CardTitle>
-              <Badge variant="secondary" className="mt-2">{cand.status}</Badge>
+              <div className="mt-2 flex flex-wrap items-center justify-center gap-2">
+                <Badge variant="secondary">{cand.status}</Badge>
+                {profile && (
+                  <Badge className={getNivel(profile.pontuacao ?? 0).badgeClass}>
+                    {getNivel(profile.pontuacao ?? 0).label} • {profile.pontuacao ?? 0} pts
+                  </Badge>
+                )}
+              </div>
             </CardHeader>
             <CardContent className="space-y-3">
               <InfoRow icon={Phone} label="Telefone" value={cand.telefone} />
               <InfoRow icon={MapPin} label="Endereço" value={enderecoCompleto} />
+              {avaliacaoExistente ? (
+                <div className="rounded-md border bg-muted/50 p-3 text-sm">
+                  <div className="mb-1 flex items-center gap-2 font-medium">
+                    <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
+                    Já avaliado: {avaliacaoExistente.estrelas} estrelas
+                  </div>
+                  {avaliacaoExistente.justificativa && (
+                    <p className="text-xs text-muted-foreground">"{avaliacaoExistente.justificativa}"</p>
+                  )}
+                </div>
+              ) : (
+                <Button className="w-full" onClick={() => setOpenAval(true)}>
+                  <CheckCircle2 className="mr-2 h-4 w-4" />
+                  Concluir e avaliar
+                </Button>
+              )}
             </CardContent>
           </Card>
 
