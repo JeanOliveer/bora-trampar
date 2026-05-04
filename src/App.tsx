@@ -15,6 +15,7 @@ import NovoServico from "./pages/NovoServico.tsx";
 import AdminCandidatos from "./pages/AdminCandidatos.tsx";
 import AdminCandidatoPerfil from "./pages/AdminCandidatoPerfil.tsx";
 import Carreira from "./pages/Carreira.tsx";
+import EmpresaPainel from "./pages/EmpresaPainel.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -38,6 +39,7 @@ const App = () => (
             <Route path="/admin/novo-servico" element={<NovoServico />} />
             <Route path="/admin/servicos/:id/candidatos" element={<AdminCandidatos />} />
             <Route path="/admin/candidatos/:id" element={<AdminCandidatoPerfil />} />
+            <Route path="/empresa/:token" element={<EmpresaPainel />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
