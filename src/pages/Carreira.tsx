@@ -1,13 +1,15 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, Star, TrendingUp, Award, MessageSquare } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ArrowLeft, Star, TrendingUp, Award, MessageSquare, Building2 } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import RankedAvatar from "@/components/RankedAvatar";
+import AvaliacaoEmpresaDialog from "@/components/AvaliacaoEmpresaDialog";
 import { getNivel, proximoLimite } from "@/lib/career";
 import { cn } from "@/lib/utils";
 
@@ -20,7 +22,15 @@ type Avaliacao = {
   servico_id: string;
 };
 
-type ServicoLite = { id: string; titulo: string };
+type ServicoLite = { id: string; titulo: string; empresa_nome: string | null };
+
+type AvalPendente = {
+  candidatura_id: string;
+  servico_id: string;
+  trabalhador_id: string;
+  servico_titulo: string;
+  empresa_nome: string | null;
+};
 
 const StarRow = ({ value }: { value: number }) => (
   <div className="flex items-center gap-0.5">
@@ -40,6 +50,10 @@ const Carreira = () => {
   const [avaliacoes, setAvaliacoes] = useState<Avaliacao[]>([]);
   const [servicosMap, setServicosMap] = useState<Record<string, ServicoLite>>({});
   const [loading, setLoading] = useState(true);
+
+  const [pendentes, setPendentes] = useState<AvalPendente[]>([]);
+  const [alvoPendente, setAlvoPendente] = useState<AvalPendente | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     if (!authLoading && !user) navigate("/login");
@@ -67,19 +81,70 @@ const Carreira = () => {
       setAvaliacoes(list);
 
       const ids = Array.from(new Set(list.map((a) => a.servico_id)));
+      const map: Record<string, ServicoLite> = {};
       if (ids.length > 0) {
         const { data: srvs } = await supabase
           .from("servicos")
-          .select("id, titulo")
+          .select("id, titulo, empresa_nome")
           .in("id", ids);
-        const map: Record<string, ServicoLite> = {};
         (srvs as ServicoLite[] | null)?.forEach((s) => (map[s.id] = s));
         setServicosMap(map);
       }
+
+      // Avaliações pendentes do trabalhador para a empresa:
+      // candidaturas onde a empresa já avaliou e o trabalhador ainda não respondeu
+      const { data: recebidas } = await supabase
+        .from("avaliacoes")
+        .select("candidatura_id, servico_id")
+        .eq("trabalhador_id", user.id)
+        .eq("tipo", "empresa_para_trabalhador");
+
+      const candIds = ((recebidas as Array<{ candidatura_id: string; servico_id: string }> | null) ?? []).map((r) => r.candidatura_id);
+
+      if (candIds.length > 0) {
+        const { data: minhas } = await supabase
+          .from("avaliacoes")
+          .select("candidatura_id")
+          .eq("avaliador_id", user.id)
+          .eq("tipo", "trabalhador_para_empresa")
+          .in("candidatura_id", candIds);
+        const jaFeitas = new Set(((minhas as Array<{ candidatura_id: string }> | null) ?? []).map((m) => m.candidatura_id));
+
+        const aFazer = ((recebidas as Array<{ candidatura_id: string; servico_id: string }>) ?? []).filter(
+          (r) => !jaFeitas.has(r.candidatura_id)
+        );
+
+        if (aFazer.length > 0) {
+          const srvIds = Array.from(new Set(aFazer.map((a) => a.servico_id)));
+          const missing = srvIds.filter((sid) => !map[sid]);
+          if (missing.length > 0) {
+            const { data: extra } = await supabase
+              .from("servicos")
+              .select("id, titulo, empresa_nome")
+              .in("id", missing);
+            (extra as ServicoLite[] | null)?.forEach((s) => (map[s.id] = s));
+            setServicosMap({ ...map });
+          }
+          setPendentes(
+            aFazer.map((a) => ({
+              candidatura_id: a.candidatura_id,
+              servico_id: a.servico_id,
+              trabalhador_id: user.id,
+              servico_titulo: map[a.servico_id]?.titulo ?? "Serviço",
+              empresa_nome: map[a.servico_id]?.empresa_nome ?? null,
+            }))
+          );
+        } else {
+          setPendentes([]);
+        }
+      } else {
+        setPendentes([]);
+      }
+
       setLoading(false);
     };
     load();
-  }, [user]);
+  }, [user, refreshKey]);
 
   const nivel = getNivel(pontuacao);
   const total = avaliacoes.length;
