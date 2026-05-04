@@ -1,1 +1,4 @@
 project_id = "ltseidxietneylhrhhxm"
+
+[functions.empresa-acao]
+verify_jwt = false
