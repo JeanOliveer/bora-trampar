@@ -24,6 +24,7 @@ export type Database = {
           justificativa: string | null
           pontos: number
           servico_id: string
+          tipo: Database["public"]["Enums"]["avaliacao_tipo"]
           trabalhador_id: string
           updated_at: string
         }
@@ -36,6 +37,7 @@ export type Database = {
           justificativa?: string | null
           pontos?: number
           servico_id: string
+          tipo?: Database["public"]["Enums"]["avaliacao_tipo"]
           trabalhador_id: string
           updated_at?: string
         }
@@ -48,6 +50,7 @@ export type Database = {
           justificativa?: string | null
           pontos?: number
           servico_id?: string
+          tipo?: Database["public"]["Enums"]["avaliacao_tipo"]
           trabalhador_id?: string
           updated_at?: string
         }
@@ -70,6 +73,8 @@ export type Database = {
       }
       candidaturas: {
         Row: {
+          aprovada_em: string | null
+          aprovada_pela_empresa: boolean
           bairro: string
           cidade: string
           created_at: string
@@ -87,6 +92,8 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          aprovada_em?: string | null
+          aprovada_pela_empresa?: boolean
           bairro: string
           cidade: string
           created_at?: string
@@ -104,6 +111,8 @@ export type Database = {
           user_id: string
         }
         Update: {
+          aprovada_em?: string | null
+          aprovada_pela_empresa?: boolean
           bairro?: string
           cidade?: string
           created_at?: string
@@ -187,6 +196,11 @@ export type Database = {
           created_by: string | null
           data_servico: string | null
           descricao: string | null
+          empresa_email: string | null
+          empresa_nome: string | null
+          empresa_pontuacao: number
+          empresa_token: string
+          empresa_total_avaliacoes: number
           estado: string | null
           horario: string | null
           id: string
@@ -203,6 +217,11 @@ export type Database = {
           created_by?: string | null
           data_servico?: string | null
           descricao?: string | null
+          empresa_email?: string | null
+          empresa_nome?: string | null
+          empresa_pontuacao?: number
+          empresa_token?: string
+          empresa_total_avaliacoes?: number
           estado?: string | null
           horario?: string | null
           id?: string
@@ -219,6 +238,11 @@ export type Database = {
           created_by?: string | null
           data_servico?: string | null
           descricao?: string | null
+          empresa_email?: string | null
+          empresa_nome?: string | null
+          empresa_pontuacao?: number
+          empresa_token?: string
+          empresa_total_avaliacoes?: number
           estado?: string | null
           horario?: string | null
           id?: string
@@ -263,9 +287,14 @@ export type Database = {
         }
         Returns: boolean
       }
+      servico_token_valido: {
+        Args: { _servico_id: string; _token: string }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role: "admin" | "trabalhador"
+      avaliacao_tipo: "empresa_para_trabalhador" | "trabalhador_para_empresa"
       user_type: "trabalhador"
     }
     CompositeTypes: {
@@ -395,6 +424,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "trabalhador"],
+      avaliacao_tipo: ["empresa_para_trabalhador", "trabalhador_para_empresa"],
       user_type: ["trabalhador"],
     },
   },
