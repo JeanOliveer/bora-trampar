@@ -165,10 +165,9 @@ const EmpresaPainel = () => {
   }, [token]);
 
   const aprovar = async (c: Candidato) => {
-    const { error } = await supabase
-      .from("candidaturas")
-      .update({ aprovada_pela_empresa: true, aprovada_em: new Date().toISOString(), status: "aprovada" })
-      .eq("id", c.candidatura_id);
+    const { error } = await supabase.functions.invoke("empresa-acao", {
+      body: { acao: "aprovar", token, candidatura_id: c.candidatura_id },
+    });
     if (error) {
       toast.error("Não foi possível aprovar este candidato.");
       return;
@@ -196,30 +195,18 @@ const EmpresaPainel = () => {
       return;
     }
     setSaving(true);
-    // Marca conclusão e insere avaliação. avaliador_id = trabalhador_id (proxy: usamos user_id do trabalhador como avaliador no fluxo público)
-    // Para política RLS, INSERT da empresa precisa de admin -> usamos RPC? No nosso caso, o token já validou via SELECT.
-    // Solução: criar via RPC seria melhor. Por simplicidade aqui, a tabela exige admin. Vamos via política específica.
-    const { error: errCand } = await supabase
-      .from("candidaturas")
-      .update({ status: "concluida" })
-      .eq("id", alvo.candidatura_id);
-    if (errCand) {
-      setSaving(false);
-      toast.error("Erro ao concluir candidatura.");
-      return;
-    }
-    const { error } = await supabase.from("avaliacoes").insert({
-      candidatura_id: alvo.candidatura_id,
-      servico_id: servico.id,
-      trabalhador_id: alvo.user_id,
-      avaliador_id: alvo.user_id, // placeholder no fluxo público (sem auth)
-      estrelas,
-      justificativa: comentario.trim() || null,
-      tipo: "empresa_para_trabalhador",
+    const { data, error } = await supabase.functions.invoke("empresa-acao", {
+      body: {
+        acao: "avaliar",
+        token,
+        candidatura_id: alvo.candidatura_id,
+        estrelas,
+        comentario: comentario.trim(),
+      },
     });
     setSaving(false);
-    if (error) {
-      toast.error(error.message || "Erro ao enviar avaliação.");
+    if (error || (data as { error?: string })?.error) {
+      toast.error((data as { error?: string })?.error || "Erro ao enviar avaliação.");
       return;
     }
     toast.success("Avaliação registrada!");
@@ -230,26 +217,16 @@ const EmpresaPainel = () => {
   const recontratar = async (c: Candidato) => {
     if (!servico) return;
     setRecontratando(true);
-    const { data: novo, error } = await supabase
-      .from("servicos")
-      .insert({
-        titulo: servico.titulo,
-        categoria: servico.categoria,
-        descricao: servico.descricao,
-        cidade: servico.cidade,
-        estado: servico.estado,
-        valor: servico.valor,
-        horario: servico.horario,
-        empresa_nome: servico.empresa_nome,
-      })
-      .select("empresa_token")
-      .single();
+    const { data, error } = await supabase.functions.invoke("empresa-acao", {
+      body: { acao: "recontratar", token, candidatura_id: c.candidatura_id },
+    });
     setRecontratando(false);
-    if (error || !novo) {
+    const novoToken = (data as { novo_token?: string })?.novo_token;
+    if (error || !novoToken) {
       toast.error("Não foi possível recontratar agora.");
       return;
     }
-    const link = `${window.location.origin}/empresa/${(novo as { empresa_token: string }).empresa_token}`;
+    const link = `${window.location.origin}/empresa/${novoToken}`;
     await navigator.clipboard.writeText(link);
     toast.success(`Novo serviço criado para ${c.nome_completo}. Link copiado!`);
   };
