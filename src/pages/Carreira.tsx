@@ -220,6 +220,37 @@ const Carreira = () => {
           </Card>
         </div>
 
+        {pendentes.length > 0 && (
+          <Card className="mb-6 border-2 border-primary/40 bg-primary/5">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Building2 className="h-5 w-5 text-primary" /> Avalie a empresa
+              </CardTitle>
+              <CardDescription>
+                Você concluiu {pendentes.length === 1 ? "um serviço" : `${pendentes.length} serviços`}. Sua opinião sobre a empresa ajuda toda a comunidade.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {pendentes.map((p) => (
+                <div
+                  key={p.candidatura_id}
+                  className="flex flex-col gap-2 rounded-md border bg-background p-4 sm:flex-row sm:items-center sm:justify-between"
+                >
+                  <div className="min-w-0">
+                    <p className="font-medium truncate">{p.servico_titulo}</p>
+                    <p className="text-xs text-muted-foreground">
+                      Empresa: {p.empresa_nome ?? "—"} • Serviço finalizado
+                    </p>
+                  </div>
+                  <Button size="sm" onClick={() => setAlvoPendente(p)}>
+                    <Star className="mr-1 h-4 w-4" /> Avaliar empresa
+                  </Button>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        )}
+
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
@@ -266,6 +297,21 @@ const Carreira = () => {
           </CardContent>
         </Card>
       </main>
+
+      {alvoPendente && (
+        <AvaliacaoEmpresaDialog
+          open={!!alvoPendente}
+          onOpenChange={(o) => !o && setAlvoPendente(null)}
+          candidaturaId={alvoPendente.candidatura_id}
+          servicoId={alvoPendente.servico_id}
+          trabalhadorId={alvoPendente.trabalhador_id}
+          empresaNome={alvoPendente.empresa_nome}
+          onSuccess={() => {
+            setAlvoPendente(null);
+            setRefreshKey((k) => k + 1);
+          }}
+        />
+      )}
     </div>
   );
 };
