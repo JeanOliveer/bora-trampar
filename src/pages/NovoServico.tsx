@@ -41,6 +41,9 @@ const NovoServico = () => {
   const [horarioFim, setHorarioFim] = useState("");
   const [valor, setValor] = useState("");
   const [requisitos, setRequisitos] = useState("");
+  const [empresaNome, setEmpresaNome] = useState("");
+  const [empresaEmail, setEmpresaEmail] = useState("");
+  const [linkEmpresa, setLinkEmpresa] = useState<string | null>(null);
 
   useEffect(() => {
     if (!authLoading) {
@@ -60,13 +63,14 @@ const NovoServico = () => {
     if (!cidade.trim()) { toast.error("Informe a cidade."); return; }
     if (!estado) { toast.error("Selecione o estado."); return; }
     if (descricao.length > 2000) { toast.error("Descrição muito longa."); return; }
+    if (!empresaNome.trim()) { toast.error("Informe o nome da empresa contratante."); return; }
 
     setSaving(true);
     const horario = horarioInicio && horarioFim
       ? `${horarioInicio} às ${horarioFim}`
       : horarioInicio || null;
 
-    const { error } = await supabase.from("servicos").insert({
+    const { data: inserted, error } = await supabase.from("servicos").insert({
       titulo: titulo.trim(),
       categoria,
       descricao: descricao.trim() || null,
@@ -77,16 +81,19 @@ const NovoServico = () => {
       valor: valor ? Number(valor) : null,
       requisitos: requisitos.trim() || null,
       created_by: user!.id,
-    });
+      empresa_nome: empresaNome.trim(),
+      empresa_email: empresaEmail.trim() || null,
+    }).select("empresa_token").single();
 
     setSaving(false);
 
-    if (error) {
+    if (error || !inserted) {
       toast.error("Erro ao publicar serviço.");
       return;
     }
-    toast.success("Serviço publicado com sucesso!");
-    navigate("/admin");
+    const link = `${window.location.origin}/empresa/${(inserted as { empresa_token: string }).empresa_token}`;
+    setLinkEmpresa(link);
+    toast.success("Serviço publicado! Compartilhe o link com a empresa.");
   };
 
   if (authLoading || !isAdmin) {
@@ -200,10 +207,58 @@ const NovoServico = () => {
                 </div>
               </div>
 
-              <Button type="submit" className="w-full" disabled={saving}>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>Empresa contratante *</Label>
+                  <Input
+                    required
+                    maxLength={120}
+                    value={empresaNome}
+                    onChange={(e) => setEmpresaNome(e.target.value)}
+                    placeholder="Nome da empresa"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>E-mail da empresa</Label>
+                  <Input
+                    type="email"
+                    maxLength={160}
+                    value={empresaEmail}
+                    onChange={(e) => setEmpresaEmail(e.target.value)}
+                    placeholder="contato@empresa.com"
+                  />
+                </div>
+              </div>
+
+              <Button type="submit" className="w-full" disabled={saving || !!linkEmpresa}>
                 <Save className="mr-2 h-4 w-4" />
-                {saving ? "Publicando..." : "Publicar Serviço"}
+                {saving ? "Publicando..." : linkEmpresa ? "Publicado" : "Publicar Serviço"}
               </Button>
+
+              {linkEmpresa && (
+                <div className="space-y-2 rounded-md border bg-muted/40 p-4">
+                  <p className="text-sm font-medium">Link exclusivo da empresa</p>
+                  <p className="text-xs text-muted-foreground">
+                    Envie este link para a empresa contratante. Ela poderá ver candidatos, aprovar e avaliar o trabalhador sem precisar criar conta.
+                  </p>
+                  <div className="flex flex-col gap-2 sm:flex-row">
+                    <Input readOnly value={linkEmpresa} className="font-mono text-xs" />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => {
+                        navigator.clipboard.writeText(linkEmpresa);
+                        toast.success("Link copiado!");
+                      }}
+                    >
+                      Copiar
+                    </Button>
+                    <Button type="button" onClick={() => navigate("/admin")}>
+                      Ir para o painel
+                    </Button>
+                  </div>
+                </div>
+              )}
             </form>
           </CardContent>
         </Card>
