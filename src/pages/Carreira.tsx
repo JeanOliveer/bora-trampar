@@ -312,6 +312,60 @@ const Carreira = () => {
           </Card>
         </div>
 
+        {checkins.length > 0 && (
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <MapPin className="h-5 w-5 text-primary" /> Meus serviços aprovados
+              </CardTitle>
+              <CardDescription>
+                Ao chegar no local, registre seu check-in. A empresa confirmará sua presença.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {checkins.map((ch) => (
+                <div
+                  key={ch.candidatura_id}
+                  className="flex flex-col gap-3 rounded-lg border p-4 sm:flex-row sm:items-center sm:justify-between"
+                >
+                  <div className="min-w-0">
+                    <p className="font-medium truncate">{ch.servico_titulo}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {ch.empresa_nome ?? "Empresa"}
+                      {ch.cidade ? ` • ${ch.cidade}${ch.estado ? `/${ch.estado}` : ""}` : ""}
+                      {ch.data_servico ? ` • ${new Date(ch.data_servico).toLocaleDateString("pt-BR")}` : ""}
+                      {ch.horario ? ` • ${ch.horario}` : ""}
+                    </p>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {ch.presenca_confirmada_em ? (
+                        <Badge className="gap-1 bg-emerald-600 text-white hover:bg-emerald-700">
+                          <MapPinCheck className="h-3 w-3" /> Presença confirmada
+                        </Badge>
+                      ) : ch.checkin_em ? (
+                        <Badge variant="secondary" className="gap-1">
+                          <Clock className="h-3 w-3" /> Aguardando confirmação da empresa
+                        </Badge>
+                      ) : (
+                        <Badge variant="outline">Pronto para check-in</Badge>
+                      )}
+                    </div>
+                  </div>
+                  {!ch.checkin_em && (
+                    <Button
+                      size="sm"
+                      onClick={() => fazerCheckin(ch.candidatura_id)}
+                      disabled={checkinSaving === ch.candidatura_id}
+                    >
+                      <MapPin className="mr-1 h-4 w-4" />
+                      {checkinSaving === ch.candidatura_id ? "Registrando..." : "Cheguei no local"}
+                    </Button>
+                  )}
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        )}
+
         {pendentes.length > 0 && (
           <Card className="mb-6 border-2 border-primary/40 bg-primary/5">
             <CardHeader>
