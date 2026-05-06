@@ -189,6 +189,50 @@ const Carreira = () => {
         setPendentes([]);
       }
 
+      // Candidaturas aprovadas (para check-in)
+      const { data: aprovadas } = await supabase
+        .from("candidaturas")
+        .select("id, servico_id, status, aprovada_pela_empresa, checkin_em, presenca_confirmada_em")
+        .eq("user_id", user.id)
+        .eq("aprovada_pela_empresa", true)
+        .neq("status", "concluida");
+
+      const aprovadasList = (aprovadas as Array<{
+        id: string; servico_id: string; status: string;
+        aprovada_pela_empresa: boolean; checkin_em: string | null; presenca_confirmada_em: string | null;
+      }> | null) ?? [];
+
+      if (aprovadasList.length > 0) {
+        const sids = Array.from(new Set(aprovadasList.map((a) => a.servico_id)));
+        const { data: srvs2 } = await supabase
+          .from("servicos")
+          .select("id, titulo, empresa_nome, cidade, estado, data_servico, horario")
+          .in("id", sids);
+        const sMap = new Map(((srvs2 as Array<{
+          id: string; titulo: string; empresa_nome: string | null;
+          cidade: string | null; estado: string | null; data_servico: string | null; horario: string | null;
+        }> | null) ?? []).map((s) => [s.id, s]));
+        setCheckins(
+          aprovadasList.map((a) => {
+            const s = sMap.get(a.servico_id);
+            return {
+              candidatura_id: a.id,
+              servico_id: a.servico_id,
+              servico_titulo: s?.titulo ?? "Serviço",
+              empresa_nome: s?.empresa_nome ?? null,
+              cidade: s?.cidade ?? null,
+              estado: s?.estado ?? null,
+              data_servico: s?.data_servico ?? null,
+              horario: s?.horario ?? null,
+              checkin_em: a.checkin_em,
+              presenca_confirmada_em: a.presenca_confirmada_em,
+            };
+          })
+        );
+      } else {
+        setCheckins([]);
+      }
+
       setLoading(false);
     };
     load();
