@@ -187,11 +187,23 @@ const AdminCandidatoPerfil = () => {
                     <p className="text-xs text-muted-foreground">"{avaliacaoExistente.justificativa}"</p>
                   )}
                 </div>
-              ) : (
+              ) : cand.presenca_confirmada_em ? (
                 <Button className="w-full" onClick={() => setOpenAval(true)}>
                   <CheckCircle2 className="mr-2 h-4 w-4" />
                   Concluir e avaliar
                 </Button>
+              ) : (
+                <div className="space-y-2">
+                  <Button className="w-full" disabled>
+                    <CheckCircle2 className="mr-2 h-4 w-4" />
+                    Avaliar trabalhador
+                  </Button>
+                  <p className="text-center text-xs text-muted-foreground">
+                    {cand.checkin_em
+                      ? "Aguardando a empresa confirmar a presença para liberar a avaliação."
+                      : "A avaliação será liberada após o check-in do trabalhador e a confirmação da presença pela empresa."}
+                  </p>
+                </div>
               )}
             </CardContent>
           </Card>
