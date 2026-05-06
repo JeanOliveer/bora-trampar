@@ -76,6 +76,9 @@ export type Database = {
           aprovada_em: string | null
           aprovada_pela_empresa: boolean
           bairro: string
+          checkin_em: string | null
+          checkin_lat: number | null
+          checkin_lng: number | null
           cidade: string
           created_at: string
           disponibilidade: string | null
@@ -84,6 +87,7 @@ export type Database = {
           id: string
           mensagem: string | null
           numero: string
+          presenca_confirmada_em: string | null
           rua: string
           servico_id: string
           status: string
@@ -95,6 +99,9 @@ export type Database = {
           aprovada_em?: string | null
           aprovada_pela_empresa?: boolean
           bairro: string
+          checkin_em?: string | null
+          checkin_lat?: number | null
+          checkin_lng?: number | null
           cidade: string
           created_at?: string
           disponibilidade?: string | null
@@ -103,6 +110,7 @@ export type Database = {
           id?: string
           mensagem?: string | null
           numero: string
+          presenca_confirmada_em?: string | null
           rua: string
           servico_id: string
           status?: string
@@ -114,6 +122,9 @@ export type Database = {
           aprovada_em?: string | null
           aprovada_pela_empresa?: boolean
           bairro?: string
+          checkin_em?: string | null
+          checkin_lat?: number | null
+          checkin_lng?: number | null
           cidade?: string
           created_at?: string
           disponibilidade?: string | null
@@ -122,6 +133,7 @@ export type Database = {
           id?: string
           mensagem?: string | null
           numero?: string
+          presenca_confirmada_em?: string | null
           rua?: string
           servico_id?: string
           status?: string
