@@ -110,13 +110,14 @@ const EmpresaPainel = () => {
 
     const { data: cands } = await supabase
       .from("candidaturas")
-      .select("id, user_id, telefone, cidade, bairro, status, aprovada_pela_empresa")
+      .select("id, user_id, telefone, cidade, bairro, status, aprovada_pela_empresa, checkin_em, presenca_confirmada_em")
       .eq("servico_id", (srv as Servico).id)
       .order("created_at", { ascending: false });
 
     const list = (cands as Array<{
       id: string; user_id: string; telefone: string; cidade: string; bairro: string;
       status: string; aprovada_pela_empresa: boolean;
+      checkin_em: string | null; presenca_confirmada_em: string | null;
     }> | null) ?? [];
 
     if (list.length === 0) {
@@ -150,6 +151,8 @@ const EmpresaPainel = () => {
           bairro: c.bairro,
           status: c.status,
           aprovada_pela_empresa: c.aprovada_pela_empresa,
+          checkin_em: c.checkin_em,
+          presenca_confirmada_em: c.presenca_confirmada_em,
           nome_completo: p?.nome_completo ?? null,
           pontuacao: p?.pontuacao ?? 0,
           avaliacao_id: a?.id ?? null,
