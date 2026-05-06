@@ -404,6 +404,11 @@ const EmpresaPainel = () => {
                             <Star className="mr-1 h-4 w-4" /> Avaliar trabalhador
                           </Button>
                         )}
+                        {c.aprovada_pela_empresa && !c.presenca_confirmada_em && c.estrelas == null && (
+                          <Button size="sm" disabled title="Confirme a presença para liberar a avaliação">
+                            <Star className="mr-1 h-4 w-4" /> Avaliar trabalhador
+                          </Button>
+                        )}
                         {c.estrelas != null && (
                           <Button size="sm" variant="outline" disabled={recontratando} onClick={() => recontratar(c)}>
                             <RotateCcw className="mr-1 h-4 w-4" /> Recontratar
