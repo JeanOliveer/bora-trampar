@@ -44,6 +44,8 @@ type Candidato = {
   bairro: string;
   status: string;
   aprovada_pela_empresa: boolean;
+  checkin_em: string | null;
+  presenca_confirmada_em: string | null;
   nome_completo: string | null;
   pontuacao: number;
   avaliacao_id?: string | null;
