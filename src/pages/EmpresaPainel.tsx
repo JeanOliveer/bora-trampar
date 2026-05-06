@@ -361,10 +361,25 @@ const EmpresaPainel = () => {
                                 <CheckCircle2 className="h-3 w-3" /> Aprovado
                               </Badge>
                             )}
+                            {c.checkin_em && !c.presenca_confirmada_em && (
+                              <Badge variant="secondary" className="gap-1">
+                                <Clock className="h-3 w-3" /> Cheguei no local
+                              </Badge>
+                            )}
+                            {c.presenca_confirmada_em && (
+                              <Badge className="gap-1 bg-emerald-600 text-white hover:bg-emerald-700">
+                                <MapPinCheck className="h-3 w-3" /> Presença confirmada
+                              </Badge>
+                            )}
                           </div>
                           <p className="text-xs text-muted-foreground">
                             {c.telefone} • {[c.bairro, c.cidade].filter(Boolean).join(", ")}
                           </p>
+                          {c.checkin_em && (
+                            <p className="mt-1 text-xs text-muted-foreground">
+                              Check-in em {new Date(c.checkin_em).toLocaleString("pt-BR")}
+                            </p>
+                          )}
                           {c.estrelas != null && (
                             <p className="mt-1 text-xs">
                               <Star className="mr-1 inline h-3 w-3 fill-amber-400 text-amber-400" />
@@ -379,7 +394,12 @@ const EmpresaPainel = () => {
                             Aprovar
                           </Button>
                         )}
-                        {c.aprovada_pela_empresa && c.estrelas == null && (
+                        {c.aprovada_pela_empresa && c.checkin_em && !c.presenca_confirmada_em && (
+                          <Button size="sm" variant="secondary" onClick={() => confirmarPresenca(c)}>
+                            <MapPinCheck className="mr-1 h-4 w-4" /> Confirmar presença
+                          </Button>
+                        )}
+                        {c.aprovada_pela_empresa && c.presenca_confirmada_em && c.estrelas == null && (
                           <Button size="sm" onClick={() => abrirAvaliacao(c)}>
                             <Star className="mr-1 h-4 w-4" /> Avaliar trabalhador
                           </Button>
