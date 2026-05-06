@@ -181,6 +181,18 @@ const EmpresaPainel = () => {
     load();
   };
 
+  const confirmarPresenca = async (c: Candidato) => {
+    const { error } = await supabase.functions.invoke("empresa-acao", {
+      body: { acao: "confirmar_presenca", token, candidatura_id: c.candidatura_id },
+    });
+    if (error) {
+      toast.error("Não foi possível confirmar a presença.");
+      return;
+    }
+    toast.success(`Presença de ${c.nome_completo ?? "candidato"} confirmada!`);
+    load();
+  };
+
   const abrirAvaliacao = (c: Candidato) => {
     setAlvo(c);
     setEstrelas(0);
