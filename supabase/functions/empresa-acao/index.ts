@@ -70,6 +70,17 @@ Deno.serve(async (req) => {
       });
     }
 
+    if (body.acao === "confirmar_presenca") {
+      const { error } = await admin
+        .from("candidaturas")
+        .update({ presenca_confirmada_em: new Date().toISOString() })
+        .eq("id", cand.id);
+      if (error) throw error;
+      return new Response(JSON.stringify({ ok: true }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     if (body.acao === "avaliar") {
       const estrelas = Number(body.estrelas);
       if (!Number.isInteger(estrelas) || estrelas < 1 || estrelas > 5) {
