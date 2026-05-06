@@ -10,7 +10,8 @@ type Body =
       estrelas: number;
       comentario?: string;
     }
-  | { acao: "recontratar"; token: string; candidatura_id: string };
+  | { acao: "recontratar"; token: string; candidatura_id: string }
+  | { acao: "confirmar_presenca"; token: string; candidatura_id: string };
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -62,6 +63,17 @@ Deno.serve(async (req) => {
           aprovada_em: new Date().toISOString(),
           status: "aprovada",
         })
+        .eq("id", cand.id);
+      if (error) throw error;
+      return new Response(JSON.stringify({ ok: true }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    if (body.acao === "confirmar_presenca") {
+      const { error } = await admin
+        .from("candidaturas")
+        .update({ presenca_confirmada_em: new Date().toISOString() })
         .eq("id", cand.id);
       if (error) throw error;
       return new Response(JSON.stringify({ ok: true }), {

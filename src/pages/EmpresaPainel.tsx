@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Briefcase, Calendar, MapPin, Users, Star, CheckCircle2, RotateCcw } from "lucide-react";
+import { Briefcase, Calendar, MapPin, Users, Star, CheckCircle2, RotateCcw, MapPinCheck, Clock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -44,6 +44,8 @@ type Candidato = {
   bairro: string;
   status: string;
   aprovada_pela_empresa: boolean;
+  checkin_em: string | null;
+  presenca_confirmada_em: string | null;
   nome_completo: string | null;
   pontuacao: number;
   avaliacao_id?: string | null;
@@ -108,13 +110,14 @@ const EmpresaPainel = () => {
 
     const { data: cands } = await supabase
       .from("candidaturas")
-      .select("id, user_id, telefone, cidade, bairro, status, aprovada_pela_empresa")
+      .select("id, user_id, telefone, cidade, bairro, status, aprovada_pela_empresa, checkin_em, presenca_confirmada_em")
       .eq("servico_id", (srv as Servico).id)
       .order("created_at", { ascending: false });
 
     const list = (cands as Array<{
       id: string; user_id: string; telefone: string; cidade: string; bairro: string;
       status: string; aprovada_pela_empresa: boolean;
+      checkin_em: string | null; presenca_confirmada_em: string | null;
     }> | null) ?? [];
 
     if (list.length === 0) {
@@ -148,6 +151,8 @@ const EmpresaPainel = () => {
           bairro: c.bairro,
           status: c.status,
           aprovada_pela_empresa: c.aprovada_pela_empresa,
+          checkin_em: c.checkin_em,
+          presenca_confirmada_em: c.presenca_confirmada_em,
           nome_completo: p?.nome_completo ?? null,
           pontuacao: p?.pontuacao ?? 0,
           avaliacao_id: a?.id ?? null,
@@ -173,6 +178,18 @@ const EmpresaPainel = () => {
       return;
     }
     toast.success(`${c.nome_completo ?? "Candidato"} aprovado!`);
+    load();
+  };
+
+  const confirmarPresenca = async (c: Candidato) => {
+    const { error } = await supabase.functions.invoke("empresa-acao", {
+      body: { acao: "confirmar_presenca", token, candidatura_id: c.candidatura_id },
+    });
+    if (error) {
+      toast.error("Não foi possível confirmar a presença.");
+      return;
+    }
+    toast.success(`Presença de ${c.nome_completo ?? "candidato"} confirmada!`);
     load();
   };
 
@@ -344,10 +361,25 @@ const EmpresaPainel = () => {
                                 <CheckCircle2 className="h-3 w-3" /> Aprovado
                               </Badge>
                             )}
+                            {c.checkin_em && !c.presenca_confirmada_em && (
+                              <Badge variant="secondary" className="gap-1">
+                                <Clock className="h-3 w-3" /> Cheguei no local
+                              </Badge>
+                            )}
+                            {c.presenca_confirmada_em && (
+                              <Badge className="gap-1 bg-emerald-600 text-white hover:bg-emerald-700">
+                                <MapPinCheck className="h-3 w-3" /> Presença confirmada
+                              </Badge>
+                            )}
                           </div>
                           <p className="text-xs text-muted-foreground">
                             {c.telefone} • {[c.bairro, c.cidade].filter(Boolean).join(", ")}
                           </p>
+                          {c.checkin_em && (
+                            <p className="mt-1 text-xs text-muted-foreground">
+                              Check-in em {new Date(c.checkin_em).toLocaleString("pt-BR")}
+                            </p>
+                          )}
                           {c.estrelas != null && (
                             <p className="mt-1 text-xs">
                               <Star className="mr-1 inline h-3 w-3 fill-amber-400 text-amber-400" />
@@ -362,7 +394,12 @@ const EmpresaPainel = () => {
                             Aprovar
                           </Button>
                         )}
-                        {c.aprovada_pela_empresa && c.estrelas == null && (
+                        {c.aprovada_pela_empresa && c.checkin_em && !c.presenca_confirmada_em && (
+                          <Button size="sm" variant="secondary" onClick={() => confirmarPresenca(c)}>
+                            <MapPinCheck className="mr-1 h-4 w-4" /> Confirmar presença
+                          </Button>
+                        )}
+                        {c.aprovada_pela_empresa && c.presenca_confirmada_em && c.estrelas == null && (
                           <Button size="sm" onClick={() => abrirAvaliacao(c)}>
                             <Star className="mr-1 h-4 w-4" /> Avaliar trabalhador
                           </Button>

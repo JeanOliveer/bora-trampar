@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, Star, TrendingUp, Award, MessageSquare, Building2 } from "lucide-react";
+import { ArrowLeft, Star, TrendingUp, Award, MessageSquare, Building2, MapPin, MapPinCheck, Clock } from "lucide-react";
+import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -32,6 +33,19 @@ type AvalPendente = {
   empresa_nome: string | null;
 };
 
+type CheckinItem = {
+  candidatura_id: string;
+  servico_id: string;
+  servico_titulo: string;
+  empresa_nome: string | null;
+  cidade: string | null;
+  estado: string | null;
+  data_servico: string | null;
+  horario: string | null;
+  checkin_em: string | null;
+  presenca_confirmada_em: string | null;
+};
+
 const StarRow = ({ value }: { value: number }) => (
   <div className="flex items-center gap-0.5">
     {[1, 2, 3, 4, 5].map((n) => (
@@ -54,6 +68,40 @@ const Carreira = () => {
   const [pendentes, setPendentes] = useState<AvalPendente[]>([]);
   const [alvoPendente, setAlvoPendente] = useState<AvalPendente | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [checkins, setCheckins] = useState<CheckinItem[]>([]);
+  const [checkinSaving, setCheckinSaving] = useState<string | null>(null);
+
+  const fazerCheckin = async (candidaturaId: string) => {
+    setCheckinSaving(candidaturaId);
+    let lat: number | null = null;
+    let lng: number | null = null;
+    if (typeof navigator !== "undefined" && navigator.geolocation) {
+      try {
+        const pos = await new Promise<GeolocationPosition>((resolve, reject) =>
+          navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000 })
+        );
+        lat = pos.coords.latitude;
+        lng = pos.coords.longitude;
+      } catch {
+        // segue sem coordenadas
+      }
+    }
+    const { error } = await supabase
+      .from("candidaturas")
+      .update({
+        checkin_em: new Date().toISOString(),
+        checkin_lat: lat,
+        checkin_lng: lng,
+      })
+      .eq("id", candidaturaId);
+    setCheckinSaving(null);
+    if (error) {
+      toast.error("Não foi possível fazer check-in.");
+      return;
+    }
+    toast.success("Check-in registrado! Aguarde a confirmação da empresa.");
+    setRefreshKey((k) => k + 1);
+  };
 
   useEffect(() => {
     if (!authLoading && !user) navigate("/login");
@@ -141,6 +189,50 @@ const Carreira = () => {
         setPendentes([]);
       }
 
+      // Candidaturas aprovadas (para check-in)
+      const { data: aprovadas } = await supabase
+        .from("candidaturas")
+        .select("id, servico_id, status, aprovada_pela_empresa, checkin_em, presenca_confirmada_em")
+        .eq("user_id", user.id)
+        .eq("aprovada_pela_empresa", true)
+        .neq("status", "concluida");
+
+      const aprovadasList = (aprovadas as Array<{
+        id: string; servico_id: string; status: string;
+        aprovada_pela_empresa: boolean; checkin_em: string | null; presenca_confirmada_em: string | null;
+      }> | null) ?? [];
+
+      if (aprovadasList.length > 0) {
+        const sids = Array.from(new Set(aprovadasList.map((a) => a.servico_id)));
+        const { data: srvs2 } = await supabase
+          .from("servicos")
+          .select("id, titulo, empresa_nome, cidade, estado, data_servico, horario")
+          .in("id", sids);
+        const sMap = new Map(((srvs2 as Array<{
+          id: string; titulo: string; empresa_nome: string | null;
+          cidade: string | null; estado: string | null; data_servico: string | null; horario: string | null;
+        }> | null) ?? []).map((s) => [s.id, s]));
+        setCheckins(
+          aprovadasList.map((a) => {
+            const s = sMap.get(a.servico_id);
+            return {
+              candidatura_id: a.id,
+              servico_id: a.servico_id,
+              servico_titulo: s?.titulo ?? "Serviço",
+              empresa_nome: s?.empresa_nome ?? null,
+              cidade: s?.cidade ?? null,
+              estado: s?.estado ?? null,
+              data_servico: s?.data_servico ?? null,
+              horario: s?.horario ?? null,
+              checkin_em: a.checkin_em,
+              presenca_confirmada_em: a.presenca_confirmada_em,
+            };
+          })
+        );
+      } else {
+        setCheckins([]);
+      }
+
       setLoading(false);
     };
     load();
@@ -219,6 +311,60 @@ const Carreira = () => {
             </CardContent>
           </Card>
         </div>
+
+        {checkins.length > 0 && (
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <MapPin className="h-5 w-5 text-primary" /> Meus serviços aprovados
+              </CardTitle>
+              <CardDescription>
+                Ao chegar no local, registre seu check-in. A empresa confirmará sua presença.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {checkins.map((ch) => (
+                <div
+                  key={ch.candidatura_id}
+                  className="flex flex-col gap-3 rounded-lg border p-4 sm:flex-row sm:items-center sm:justify-between"
+                >
+                  <div className="min-w-0">
+                    <p className="font-medium truncate">{ch.servico_titulo}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {ch.empresa_nome ?? "Empresa"}
+                      {ch.cidade ? ` • ${ch.cidade}${ch.estado ? `/${ch.estado}` : ""}` : ""}
+                      {ch.data_servico ? ` • ${new Date(ch.data_servico).toLocaleDateString("pt-BR")}` : ""}
+                      {ch.horario ? ` • ${ch.horario}` : ""}
+                    </p>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {ch.presenca_confirmada_em ? (
+                        <Badge className="gap-1 bg-emerald-600 text-white hover:bg-emerald-700">
+                          <MapPinCheck className="h-3 w-3" /> Presença confirmada
+                        </Badge>
+                      ) : ch.checkin_em ? (
+                        <Badge variant="secondary" className="gap-1">
+                          <Clock className="h-3 w-3" /> Aguardando confirmação da empresa
+                        </Badge>
+                      ) : (
+                        <Badge variant="outline">Pronto para check-in</Badge>
+                      )}
+                    </div>
+                  </div>
+                  {!ch.checkin_em && (
+                    <Button
+                      size="sm"
+                      onClick={() => fazerCheckin(ch.candidatura_id)}
+                      disabled={checkinSaving === ch.candidatura_id}
+                    >
+                      <MapPin className="mr-1 h-4 w-4" />
+                      {checkinSaving === ch.candidatura_id ? "Registrando..." : "Cheguei no local"}
+                    </Button>
+                  )}
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        )}
 
         {pendentes.length > 0 && (
           <Card className="mb-6 border-2 border-primary/40 bg-primary/5">
