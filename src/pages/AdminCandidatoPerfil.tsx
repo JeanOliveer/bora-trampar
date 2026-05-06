@@ -24,6 +24,9 @@ type Candidatura = {
   documento_url: string;
   status: string;
   created_at: string;
+  aprovada_pela_empresa: boolean;
+  checkin_em: string | null;
+  presenca_confirmada_em: string | null;
 };
 
 type Profile = {
