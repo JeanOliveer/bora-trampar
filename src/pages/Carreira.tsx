@@ -33,6 +33,19 @@ type AvalPendente = {
   empresa_nome: string | null;
 };
 
+type CheckinItem = {
+  candidatura_id: string;
+  servico_id: string;
+  servico_titulo: string;
+  empresa_nome: string | null;
+  cidade: string | null;
+  estado: string | null;
+  data_servico: string | null;
+  horario: string | null;
+  checkin_em: string | null;
+  presenca_confirmada_em: string | null;
+};
+
 const StarRow = ({ value }: { value: number }) => (
   <div className="flex items-center gap-0.5">
     {[1, 2, 3, 4, 5].map((n) => (
