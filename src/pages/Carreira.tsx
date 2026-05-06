@@ -68,6 +68,40 @@ const Carreira = () => {
   const [pendentes, setPendentes] = useState<AvalPendente[]>([]);
   const [alvoPendente, setAlvoPendente] = useState<AvalPendente | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [checkins, setCheckins] = useState<CheckinItem[]>([]);
+  const [checkinSaving, setCheckinSaving] = useState<string | null>(null);
+
+  const fazerCheckin = async (candidaturaId: string) => {
+    setCheckinSaving(candidaturaId);
+    let lat: number | null = null;
+    let lng: number | null = null;
+    if (typeof navigator !== "undefined" && navigator.geolocation) {
+      try {
+        const pos = await new Promise<GeolocationPosition>((resolve, reject) =>
+          navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000 })
+        );
+        lat = pos.coords.latitude;
+        lng = pos.coords.longitude;
+      } catch {
+        // segue sem coordenadas
+      }
+    }
+    const { error } = await supabase
+      .from("candidaturas")
+      .update({
+        checkin_em: new Date().toISOString(),
+        checkin_lat: lat,
+        checkin_lng: lng,
+      })
+      .eq("id", candidaturaId);
+    setCheckinSaving(null);
+    if (error) {
+      toast.error("Não foi possível fazer check-in.");
+      return;
+    }
+    toast.success("Check-in registrado! Aguarde a confirmação da empresa.");
+    setRefreshKey((k) => k + 1);
+  };
 
   useEffect(() => {
     if (!authLoading && !user) navigate("/login");
