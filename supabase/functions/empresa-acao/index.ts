@@ -10,7 +10,8 @@ type Body =
       estrelas: number;
       comentario?: string;
     }
-  | { acao: "recontratar"; token: string; candidatura_id: string };
+  | { acao: "recontratar"; token: string; candidatura_id: string }
+  | { acao: "confirmar_presenca"; token: string; candidatura_id: string };
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
