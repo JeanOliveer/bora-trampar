@@ -327,6 +327,14 @@ const EmpresaPainel = () => {
           </CardContent>
         </Card>
 
+        <ControleChegada
+          candidatos={candidatos}
+          servicoTitulo={servico.titulo}
+          empresaNome={servico.empresa_nome}
+          horario={servico.horario}
+          onConfirmarChegada={(c) => confirmarPresenca(c as Candidato)}
+        />
+
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
