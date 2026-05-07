@@ -19,6 +19,7 @@ import { toast } from "sonner";
 import RankedAvatar from "@/components/RankedAvatar";
 import { getNivel } from "@/lib/career";
 import { cn } from "@/lib/utils";
+import ControleChegada from "@/components/ControleChegada";
 
 type Servico = {
   id: string;
@@ -325,6 +326,14 @@ const EmpresaPainel = () => {
             )}
           </CardContent>
         </Card>
+
+        <ControleChegada
+          candidatos={candidatos}
+          servicoTitulo={servico.titulo}
+          empresaNome={servico.empresa_nome}
+          horario={servico.horario}
+          onConfirmarChegada={(c) => confirmarPresenca(c as Candidato)}
+        />
 
         <Card>
           <CardHeader>
