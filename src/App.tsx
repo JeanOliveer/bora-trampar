@@ -14,6 +14,7 @@ import Admin from "./pages/Admin.tsx";
 import NovoServico from "./pages/NovoServico.tsx";
 import AdminCandidatos from "./pages/AdminCandidatos.tsx";
 import AdminCandidatoPerfil from "./pages/AdminCandidatoPerfil.tsx";
+import AdminContratados from "./pages/AdminContratados.tsx";
 import Carreira from "./pages/Carreira.tsx";
 import EmpresaPainel from "./pages/EmpresaPainel.tsx";
 import NotFound from "./pages/NotFound.tsx";
@@ -37,6 +38,7 @@ const App = () => (
             <Route path="/servicos" element={<Servicos />} />
             <Route path="/admin" element={<Admin />} />
             <Route path="/admin/novo-servico" element={<NovoServico />} />
+            <Route path="/admin/contratados" element={<AdminContratados />} />
             <Route path="/admin/servicos/:id/candidatos" element={<AdminCandidatos />} />
             <Route path="/admin/candidatos/:id" element={<AdminCandidatoPerfil />} />
             <Route path="/empresa/:token" element={<EmpresaPainel />} />

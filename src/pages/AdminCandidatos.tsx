@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Users, Phone, MapPin, FileText, ExternalLink } from "lucide-react";
+import { ArrowLeft, Users, Phone, MapPin, FileText, ExternalLink, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
@@ -22,6 +23,7 @@ type Candidatura = {
   documento_url: string;
   status: string;
   created_at: string;
+  aprovada_em: string | null;
 };
 
 type ProfileLite = {
@@ -102,6 +104,22 @@ const AdminCandidatos = () => {
     load();
   }, [servicoId, isAdmin]);
 
+  const contratar = async (c: Candidatura) => {
+    if (c.status === "aprovada") return;
+    const { error } = await supabase
+      .from("candidaturas")
+      .update({ status: "aprovada", aprovada_em: new Date().toISOString() })
+      .eq("id", c.id);
+    if (error) {
+      toast.error("Erro ao contratar candidato.");
+      return;
+    }
+    toast.success("Candidato contratado!");
+    setCandidaturas((prev) =>
+      prev.map((x) => (x.id === c.id ? { ...x, status: "aprovada", aprovada_em: new Date().toISOString() } : x)),
+    );
+  };
+
   if (authLoading || !isAdmin) {
     return <div className="flex min-h-screen items-center justify-center">Carregando...</div>;
   }
@@ -177,12 +195,25 @@ const AdminCandidatos = () => {
                         {[c.cidade, p?.estado].filter(Boolean).join(" - ") || c.cidade}
                       </span>
                     </div>
-                    <Link to={`/admin/candidatos/${c.id}`}>
-                      <Button variant="outline" className="mt-3 w-full">
-                        <ExternalLink className="mr-2 h-4 w-4" />
-                        Ver perfil
-                      </Button>
-                    </Link>
+                    <div className="mt-3 grid gap-2">
+                      {c.status === "aprovada" ? (
+                        <div className="flex items-center justify-center gap-1 rounded-md bg-emerald-500/10 px-2 py-2 text-xs font-medium text-emerald-700 dark:text-emerald-400">
+                          <CheckCircle2 className="h-4 w-4" />
+                          Contratado
+                        </div>
+                      ) : (
+                        <Button className="w-full" onClick={() => contratar(c)}>
+                          <CheckCircle2 className="mr-2 h-4 w-4" />
+                          Contratar
+                        </Button>
+                      )}
+                      <Link to={`/admin/candidatos/${c.id}`}>
+                        <Button variant="outline" className="w-full">
+                          <ExternalLink className="mr-2 h-4 w-4" />
+                          Ver perfil
+                        </Button>
+                      </Link>
+                    </div>
                   </CardContent>
                 </Card>
               );
