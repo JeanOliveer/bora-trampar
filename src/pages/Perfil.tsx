@@ -95,7 +95,7 @@ const Perfil = () => {
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label>Nome Completo</Label>
-                <Input value={nome} onChange={(e) => setNome(e.target.value)} />
+                <Input value={nome} onChange={(e) => setNome(e.target.value)} disabled />
               </div>
               <div className="space-y-2">
                 <Label>CPF</Label>
