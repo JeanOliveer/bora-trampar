@@ -233,7 +233,7 @@ const AdminContratados = () => {
                               <MapPin className="h-3 w-3" /> {c.cidade}
                             </div>
                           </div>
-                          <div className="mt-3">
+                          <div className="mt-3 space-y-2">
                             {chegou ? (
                               <div className="flex items-center justify-center gap-1 rounded-md bg-emerald-500/10 px-2 py-2 text-xs font-medium text-emerald-700 dark:text-emerald-400">
                                 <CheckCircle2 className="h-4 w-4" />
@@ -245,6 +245,26 @@ const AdminContratados = () => {
                                 Confirmar chegada
                               </Button>
                             )}
+                            {chegou && c.expediente_encerrado_em ? (
+                              <div className="flex items-center justify-center gap-1 rounded-md bg-primary/10 px-2 py-2 text-xs font-medium text-primary">
+                                <CheckCircle2 className="h-4 w-4" />
+                                Expediente encerrado
+                              </div>
+                            ) : chegou && expedienteEncerravel ? (
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                className="w-full"
+                                onClick={() => encerrarExpediente(c)}
+                              >
+                                Encerrar Expediente
+                              </Button>
+                            ) : chegou && fimExpediente ? (
+                              <p className="text-center text-[11px] text-muted-foreground">
+                                Encerramento liberado às{" "}
+                                {fimExpediente.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+                              </p>
+                            ) : null}
                           </div>
                           <Link
                             to={`/admin/candidatos/${c.id}`}
