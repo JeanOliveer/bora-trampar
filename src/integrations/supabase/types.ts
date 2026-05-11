@@ -83,6 +83,7 @@ export type Database = {
           created_at: string
           disponibilidade: string | null
           documento_url: string
+          expediente_encerrado_em: string | null
           experiencia: string | null
           id: string
           mensagem: string | null
@@ -106,6 +107,7 @@ export type Database = {
           created_at?: string
           disponibilidade?: string | null
           documento_url: string
+          expediente_encerrado_em?: string | null
           experiencia?: string | null
           id?: string
           mensagem?: string | null
@@ -129,6 +131,7 @@ export type Database = {
           created_at?: string
           disponibilidade?: string | null
           documento_url?: string
+          expediente_encerrado_em?: string | null
           experiencia?: string | null
           id?: string
           mensagem?: string | null

@@ -22,6 +22,27 @@ type Candidatura = {
   aprovada_pela_empresa: boolean;
   checkin_em: string | null;
   presenca_confirmada_em: string | null;
+  expediente_encerrado_em: string | null;
+};
+
+// Extrai o horário de término de strings como "08:00 às 17:00", "08h às 17h", "8-17h"
+const parseHorarioFim = (horario: string | null): { h: number; m: number } | null => {
+  if (!horario) return null;
+  const matches = [...horario.matchAll(/(\d{1,2})(?:[:h](\d{2}))?/g)];
+  if (matches.length < 2) return null;
+  const last = matches[matches.length - 1];
+  const h = parseInt(last[1], 10);
+  const m = last[2] ? parseInt(last[2], 10) : 0;
+  if (isNaN(h) || h > 23 || m > 59) return null;
+  return { h, m };
+};
+
+const getFimExpediente = (data: string | null, horario: string | null): Date | null => {
+  if (!data) return null;
+  const fim = parseHorarioFim(horario);
+  if (!fim) return null;
+  const [y, mo, d] = data.split("-").map(Number);
+  return new Date(y, (mo || 1) - 1, d || 1, fim.h, fim.m, 0, 0);
 };
 
 type Servico = { id: string; titulo: string; cidade: string | null; estado: string | null; data_servico: string | null; horario: string | null };
@@ -34,6 +55,12 @@ const AdminContratados = () => {
   const [servicos, setServicos] = useState<Servico[]>([]);
   const [candsByServico, setCandsByServico] = useState<Record<string, Candidatura[]>>({});
   const [profilesMap, setProfilesMap] = useState<Record<string, ProfileLite>>({});
+  const [now, setNow] = useState(() => new Date());
+
+  useEffect(() => {
+    const t = setInterval(() => setNow(new Date()), 30_000);
+    return () => clearInterval(t);
+  }, []);
 
   useEffect(() => {
     if (!authLoading) {
@@ -99,6 +126,19 @@ const AdminContratados = () => {
     load();
   };
 
+  const encerrarExpediente = async (c: Candidatura) => {
+    const { error } = await supabase
+      .from("candidaturas")
+      .update({ expediente_encerrado_em: new Date().toISOString() })
+      .eq("id", c.id);
+    if (error) {
+      toast.error("Erro ao encerrar expediente.");
+      return;
+    }
+    toast.success("Expediente encerrado!");
+    load();
+  };
+
   if (authLoading || !isAdmin) {
     return <div className="flex min-h-screen items-center justify-center">Carregando...</div>;
   }
@@ -145,6 +185,8 @@ const AdminContratados = () => {
           <div className="space-y-6">
             {servicos.map((s) => {
               const lista = candsByServico[s.id] || [];
+              const fimExpediente = getFimExpediente(s.data_servico, s.horario);
+              const expedienteEncerravel = !!(fimExpediente && now >= fimExpediente);
               return (
                 <Card key={s.id}>
                   <CardHeader>
@@ -191,7 +233,7 @@ const AdminContratados = () => {
                               <MapPin className="h-3 w-3" /> {c.cidade}
                             </div>
                           </div>
-                          <div className="mt-3">
+                          <div className="mt-3 space-y-2">
                             {chegou ? (
                               <div className="flex items-center justify-center gap-1 rounded-md bg-emerald-500/10 px-2 py-2 text-xs font-medium text-emerald-700 dark:text-emerald-400">
                                 <CheckCircle2 className="h-4 w-4" />
@@ -203,6 +245,26 @@ const AdminContratados = () => {
                                 Confirmar chegada
                               </Button>
                             )}
+                            {chegou && c.expediente_encerrado_em ? (
+                              <div className="flex items-center justify-center gap-1 rounded-md bg-primary/10 px-2 py-2 text-xs font-medium text-primary">
+                                <CheckCircle2 className="h-4 w-4" />
+                                Expediente encerrado
+                              </div>
+                            ) : chegou && expedienteEncerravel ? (
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                className="w-full"
+                                onClick={() => encerrarExpediente(c)}
+                              >
+                                Encerrar Expediente
+                              </Button>
+                            ) : chegou && fimExpediente ? (
+                              <p className="text-center text-[11px] text-muted-foreground">
+                                Encerramento liberado às{" "}
+                                {fimExpediente.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+                              </p>
+                            ) : null}
                           </div>
                           <Link
                             to={`/admin/candidatos/${c.id}`}
