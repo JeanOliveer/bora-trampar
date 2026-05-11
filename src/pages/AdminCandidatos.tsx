@@ -23,6 +23,7 @@ type Candidatura = {
   documento_url: string;
   status: string;
   created_at: string;
+  aprovada_em: string | null;
 };
 
 type ProfileLite = {
