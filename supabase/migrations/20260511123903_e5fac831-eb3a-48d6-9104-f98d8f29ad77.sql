@@ -1,0 +1,1 @@
+ALTER TABLE public.candidaturas ADD COLUMN IF NOT EXISTS expediente_encerrado_em timestamptz;
