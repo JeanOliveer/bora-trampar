@@ -99,13 +99,13 @@ const Perfil = () => {
               </div>
               <div className="space-y-2">
                 <Label>CPF</Label>
-                <Input value={cpf} onChange={(e) => setCpf(e.target.value)} placeholder="000.000.000-00" />
+                <Input value={cpf} onChange={(e) => setCpf(e.target.value)} placeholder="000.000.000-00" disabled />
               </div>
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label>Data de Nascimento</Label>
-                <Input type="date" value={dataNascimento} onChange={(e) => setDataNascimento(e.target.value)} />
+                <Input type="date" value={dataNascimento} onChange={(e) => setDataNascimento(e.target.value)} disabled />
               </div>
               <div className="space-y-2">
                 <Label>Estado Civil</Label>
