@@ -55,6 +55,12 @@ const AdminContratados = () => {
   const [servicos, setServicos] = useState<Servico[]>([]);
   const [candsByServico, setCandsByServico] = useState<Record<string, Candidatura[]>>({});
   const [profilesMap, setProfilesMap] = useState<Record<string, ProfileLite>>({});
+  const [now, setNow] = useState(() => new Date());
+
+  useEffect(() => {
+    const t = setInterval(() => setNow(new Date()), 30_000);
+    return () => clearInterval(t);
+  }, []);
 
   useEffect(() => {
     if (!authLoading) {
