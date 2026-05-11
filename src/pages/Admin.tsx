@@ -131,9 +131,12 @@ const Admin = () => {
             <h1 className="text-3xl font-bold">Painel Admin</h1>
             <p className="text-muted-foreground">Gerencie os serviços disponíveis na plataforma.</p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Link to="/admin/novo-servico">
               <Button><Plus className="mr-2 h-4 w-4" /> Novo Serviço</Button>
+            </Link>
+            <Link to="/admin/contratados">
+              <Button variant="outline"><UserCheck className="mr-2 h-4 w-4" /> Contratados</Button>
             </Link>
           </div>
           <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) { setForm(emptyForm); setEditingId(null); } }}>
