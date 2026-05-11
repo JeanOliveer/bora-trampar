@@ -195,12 +195,25 @@ const AdminCandidatos = () => {
                         {[c.cidade, p?.estado].filter(Boolean).join(" - ") || c.cidade}
                       </span>
                     </div>
-                    <Link to={`/admin/candidatos/${c.id}`}>
-                      <Button variant="outline" className="mt-3 w-full">
-                        <ExternalLink className="mr-2 h-4 w-4" />
-                        Ver perfil
-                      </Button>
-                    </Link>
+                    <div className="mt-3 grid gap-2">
+                      {c.status === "aprovada" ? (
+                        <div className="flex items-center justify-center gap-1 rounded-md bg-emerald-500/10 px-2 py-2 text-xs font-medium text-emerald-700 dark:text-emerald-400">
+                          <CheckCircle2 className="h-4 w-4" />
+                          Contratado
+                        </div>
+                      ) : (
+                        <Button className="w-full" onClick={() => contratar(c)}>
+                          <CheckCircle2 className="mr-2 h-4 w-4" />
+                          Contratar
+                        </Button>
+                      )}
+                      <Link to={`/admin/candidatos/${c.id}`}>
+                        <Button variant="outline" className="w-full">
+                          <ExternalLink className="mr-2 h-4 w-4" />
+                          Ver perfil
+                        </Button>
+                      </Link>
+                    </div>
                   </CardContent>
                 </Card>
               );
