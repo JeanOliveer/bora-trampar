@@ -22,6 +22,27 @@ type Candidatura = {
   aprovada_pela_empresa: boolean;
   checkin_em: string | null;
   presenca_confirmada_em: string | null;
+  expediente_encerrado_em: string | null;
+};
+
+// Extrai o horário de término de strings como "08:00 às 17:00", "08h às 17h", "8-17h"
+const parseHorarioFim = (horario: string | null): { h: number; m: number } | null => {
+  if (!horario) return null;
+  const matches = [...horario.matchAll(/(\d{1,2})(?:[:h](\d{2}))?/g)];
+  if (matches.length < 2) return null;
+  const last = matches[matches.length - 1];
+  const h = parseInt(last[1], 10);
+  const m = last[2] ? parseInt(last[2], 10) : 0;
+  if (isNaN(h) || h > 23 || m > 59) return null;
+  return { h, m };
+};
+
+const getFimExpediente = (data: string | null, horario: string | null): Date | null => {
+  if (!data) return null;
+  const fim = parseHorarioFim(horario);
+  if (!fim) return null;
+  const [y, mo, d] = data.split("-").map(Number);
+  return new Date(y, (mo || 1) - 1, d || 1, fim.h, fim.m, 0, 0);
 };
 
 type Servico = { id: string; titulo: string; cidade: string | null; estado: string | null; data_servico: string | null; horario: string | null };
