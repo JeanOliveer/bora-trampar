@@ -126,6 +126,19 @@ const AdminContratados = () => {
     load();
   };
 
+  const encerrarExpediente = async (c: Candidatura) => {
+    const { error } = await supabase
+      .from("candidaturas")
+      .update({ expediente_encerrado_em: new Date().toISOString() })
+      .eq("id", c.id);
+    if (error) {
+      toast.error("Erro ao encerrar expediente.");
+      return;
+    }
+    toast.success("Expediente encerrado!");
+    load();
+  };
+
   if (authLoading || !isAdmin) {
     return <div className="flex min-h-screen items-center justify-center">Carregando...</div>;
   }
