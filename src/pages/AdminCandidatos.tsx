@@ -104,6 +104,22 @@ const AdminCandidatos = () => {
     load();
   }, [servicoId, isAdmin]);
 
+  const contratar = async (c: Candidatura) => {
+    if (c.status === "aprovada") return;
+    const { error } = await supabase
+      .from("candidaturas")
+      .update({ status: "aprovada", aprovada_em: new Date().toISOString() })
+      .eq("id", c.id);
+    if (error) {
+      toast.error("Erro ao contratar candidato.");
+      return;
+    }
+    toast.success("Candidato contratado!");
+    setCandidaturas((prev) =>
+      prev.map((x) => (x.id === c.id ? { ...x, status: "aprovada", aprovada_em: new Date().toISOString() } : x)),
+    );
+  };
+
   if (authLoading || !isAdmin) {
     return <div className="flex min-h-screen items-center justify-center">Carregando...</div>;
   }
