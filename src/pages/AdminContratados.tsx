@@ -185,6 +185,8 @@ const AdminContratados = () => {
           <div className="space-y-6">
             {servicos.map((s) => {
               const lista = candsByServico[s.id] || [];
+              const fimExpediente = getFimExpediente(s.data_servico, s.horario);
+              const expedienteEncerravel = !!(fimExpediente && now >= fimExpediente);
               return (
                 <Card key={s.id}>
                   <CardHeader>
