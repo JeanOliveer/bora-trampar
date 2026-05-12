@@ -246,9 +246,20 @@ const AdminContratados = () => {
                               </Button>
                             )}
                             {chegou && c.expediente_encerrado_em ? (
-                              <div className="flex items-center justify-center gap-1 rounded-md bg-primary/10 px-2 py-2 text-xs font-medium text-primary">
-                                <CheckCircle2 className="h-4 w-4" />
-                                Expediente encerrado
+                              <div className="flex flex-col items-center justify-center gap-0.5 rounded-md bg-primary/10 px-2 py-2 text-xs font-medium text-primary">
+                                <div className="flex items-center gap-1">
+                                  <CheckCircle2 className="h-4 w-4" />
+                                  Expediente encerrado
+                                </div>
+                                <span className="text-[11px] opacity-80">
+                                  {new Date(c.expediente_encerrado_em).toLocaleString("pt-BR", {
+                                    day: "2-digit",
+                                    month: "2-digit",
+                                    year: "numeric",
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  })}
+                                </span>
                               </div>
                             ) : chegou && expedienteEncerravel ? (
                               <Button
