@@ -148,6 +148,7 @@ const Perfil = () => {
           </CardContent>
         </Card>
       </main>
+      <BottomTabBar />
     </div>
   );
 };

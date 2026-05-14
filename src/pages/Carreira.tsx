@@ -459,6 +459,7 @@ const Carreira = () => {
           }}
         />
       )}
+      <BottomTabBar />
     </div>
   );
 };
