@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
+import BottomTabBar from "@/components/BottomTabBar";
 
 const estadosBR = [
   "AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG",
@@ -75,7 +76,7 @@ const Perfil = () => {
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
-      <main className="container flex-1 py-10">
+      <main className="container flex-1 py-10 pb-24 md:pb-10">
         <Link to="/servicos" className="mb-6 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-4 w-4" /> Voltar
         </Link>
@@ -147,6 +148,7 @@ const Perfil = () => {
           </CardContent>
         </Card>
       </main>
+      <BottomTabBar />
     </div>
   );
 };
