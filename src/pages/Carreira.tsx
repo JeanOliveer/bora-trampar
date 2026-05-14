@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
+import BottomTabBar from "@/components/BottomTabBar";
 import RankedAvatar from "@/components/RankedAvatar";
 import AvaliacaoEmpresaDialog from "@/components/AvaliacaoEmpresaDialog";
 import { getNivel, proximoLimite } from "@/lib/career";
@@ -248,7 +249,7 @@ const Carreira = () => {
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
-      <main className="container flex-1 py-10">
+      <main className="container flex-1 py-10 pb-24 md:pb-10">
         <Link to="/perfil" className="mb-6 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-4 w-4" /> Voltar
         </Link>

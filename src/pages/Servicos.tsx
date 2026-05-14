@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
+import BottomTabBar from "@/components/BottomTabBar";
 import CandidaturaDialog from "@/components/CandidaturaDialog";
 
 type Servico = {
@@ -49,7 +50,7 @@ const Servicos = () => {
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
-      <main className="container flex-1 py-10">
+      <main className="container flex-1 py-10 pb-24 md:pb-10">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-foreground">Serviços Disponíveis</h1>
           <p className="mt-2 text-muted-foreground">Confira as diárias publicadas e candidate-se às que combinam com você.</p>
@@ -131,6 +132,7 @@ const Servicos = () => {
         servicoId={servicoSelecionado?.id ?? ""}
         servicoTitulo={servicoSelecionado?.titulo ?? ""}
       />
+      <BottomTabBar />
     </div>
   );
 };
