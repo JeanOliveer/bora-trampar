@@ -4,6 +4,12 @@ import { Briefcase, User, UserPlus } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useEffect } from "react";
 
+const springTransition = {
+  type: "spring" as const,
+  stiffness: 120,
+  damping: 14,
+};
+
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
@@ -17,7 +23,7 @@ const itemVariants = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: { type: "spring", stiffness: 120, damping: 14 },
+    transition: springTransition,
   },
 };
 
@@ -26,7 +32,12 @@ const logoVariants = {
   visible: {
     scale: 1,
     opacity: 1,
-    transition: { type: "spring", stiffness: 180, damping: 12, delay: 0.15 },
+    transition: {
+      type: "spring" as const,
+      stiffness: 180,
+      damping: 12,
+      delay: 0.15,
+    },
   },
 };
 
