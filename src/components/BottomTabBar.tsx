@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 
 const tabs = [
-  { to: "/", label: "Início", icon: Home, end: true },
+  { to: "/inicio", label: "Início", icon: Home, end: true },
   { to: "/servicos", label: "Vagas", icon: Briefcase },
   { to: "/carreira", label: "Carreira", icon: TrendingUp },
   { to: "/perfil", label: "Perfil", icon: User },
