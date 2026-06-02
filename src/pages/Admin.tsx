@@ -12,6 +12,8 @@ import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
+import BottomTabBar from "@/components/BottomTabBar";
+import AppMobileHeader from "@/components/AppMobileHeader";
 
 const estadosBR = ["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"];
 
@@ -123,12 +125,19 @@ const Admin = () => {
   if (authLoading || !isAdmin) return <div className="flex min-h-screen items-center justify-center">Carregando...</div>;
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <Header />
-      <main className="container flex-1 py-10">
-        <div className="mb-6 flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold">Painel Admin</h1>
+    <div className="flex min-h-screen flex-col bg-background">
+      <div className="hidden md:block">
+        <Header />
+      </div>
+      <AppMobileHeader
+        eyebrow="UaiTrampo"
+        title="Empresa"
+        subtitle="Gerencie serviços e contratações"
+      />
+      <main className="container flex-1 py-6 pb-24 md:py-10 md:pb-10">
+        <div className="mb-6 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div className="hidden md:block">
+            <h1 className="text-3xl font-bold">Painel Empresa</h1>
             <p className="text-muted-foreground">Gerencie os serviços disponíveis na plataforma.</p>
           </div>
           <div className="flex flex-wrap gap-2">

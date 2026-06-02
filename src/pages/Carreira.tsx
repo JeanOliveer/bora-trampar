@@ -10,6 +10,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import BottomTabBar from "@/components/BottomTabBar";
+import AppMobileHeader from "@/components/AppMobileHeader";
 import RankedAvatar from "@/components/RankedAvatar";
 import AvaliacaoEmpresaDialog from "@/components/AvaliacaoEmpresaDialog";
 import { getNivel, proximoLimite } from "@/lib/career";
@@ -247,14 +248,21 @@ const Carreira = () => {
   if (authLoading) return <div className="flex min-h-screen items-center justify-center">Carregando...</div>;
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <Header />
-      <main className="container flex-1 py-10 pb-24 md:pb-10">
-        <Link to="/perfil" className="mb-6 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
+    <div className="flex min-h-screen flex-col bg-background">
+      <div className="hidden md:block">
+        <Header />
+      </div>
+      <AppMobileHeader
+        eyebrow="UaiTrampo"
+        title="Carreira"
+        subtitle="Sua reputação cresce a cada serviço"
+      />
+      <main className="container flex-1 py-6 pb-24 md:py-10 md:pb-10">
+        <Link to="/perfil" className="mb-6 hidden items-center gap-1 text-sm text-muted-foreground hover:text-foreground md:inline-flex">
           <ArrowLeft className="h-4 w-4" /> Voltar
         </Link>
 
-        <div className="mb-8">
+        <div className="mb-6 hidden md:block">
           <h1 className="text-3xl font-bold">Carreira</h1>
           <p className="text-sm text-muted-foreground">
             Sua reputação cresce conforme as avaliações dos serviços que você realiza.
