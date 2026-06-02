@@ -210,6 +210,7 @@ const Admin = () => {
           </div>
         )}
       </main>
+      <BottomTabBar />
     </div>
   );
 };
