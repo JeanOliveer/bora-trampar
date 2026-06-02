@@ -49,10 +49,17 @@ const Servicos = () => {
   }, [user]);
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <Header />
-      <main className="container flex-1 py-10 pb-24 md:pb-10">
-        <div className="mb-8">
+    <div className="flex min-h-screen flex-col bg-background">
+      <div className="hidden md:block">
+        <Header />
+      </div>
+      <AppMobileHeader
+        eyebrow="UaiTrampo"
+        title="Serviços"
+        subtitle={`${servicos.length} ${servicos.length === 1 ? "vaga disponível" : "vagas disponíveis"}`}
+      />
+      <main className="container flex-1 py-6 pb-24 md:py-10 md:pb-10">
+        <div className="mb-6 hidden md:block">
           <h1 className="text-3xl font-bold text-foreground">Serviços Disponíveis</h1>
           <p className="mt-2 text-muted-foreground">Confira as diárias publicadas e candidate-se às que combinam com você.</p>
         </div>
