@@ -8,6 +8,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import BottomTabBar from "@/components/BottomTabBar";
+import AppMobileHeader from "@/components/AppMobileHeader";
 import CandidaturaDialog from "@/components/CandidaturaDialog";
 
 type Servico = {
