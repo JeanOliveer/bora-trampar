@@ -97,7 +97,7 @@ const Index = () => {
       <main className="flex-1 pb-24 md:pb-0">
         {/* Mobile quick stats */}
         <section className="md:hidden -mt-5 px-5">
-          <div className="mx-auto grid max-w-sm grid-cols-3 items-center rounded-2xl bg-card px-2 py-3 shadow-[var(--shadow-card)]">
+          <div className="mx-auto grid max-w-sm grid-cols-3 items-center rounded-2xl bg-card shadow-[var(--shadow-card)] px-[12px] py-[30px]">
             {[
               { num: mockJobs.length, label: "Vagas hoje" },
               { num: "1.2k+", label: "Trabalhadores" },
