@@ -1,18 +1,19 @@
 import { NavLink } from "react-router-dom";
-import { Home, Briefcase, TrendingUp, User } from "lucide-react";
+import { Home, Briefcase, Building2, TrendingUp, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 
-const tabs = [
-  { to: "/inicio", label: "Início", icon: Home, end: true },
-  { to: "/servicos", label: "Vagas", icon: Briefcase },
-  { to: "/carreira", label: "Carreira", icon: TrendingUp },
-  { to: "/perfil", label: "Perfil", icon: User },
-];
-
 const BottomTabBar = () => {
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   if (!user) return null;
+
+  const tabs = [
+    { to: "/inicio", label: "Início", icon: Home, end: true, show: true },
+    { to: "/servicos", label: "Serviços", icon: Briefcase, show: true },
+    { to: "/admin", label: "Empresa", icon: Building2, show: isAdmin },
+    { to: "/carreira", label: "Carreira", icon: TrendingUp, show: true },
+    { to: "/perfil", label: "Perfil", icon: User, show: true },
+  ].filter((t) => t.show);
 
   return (
     <nav
@@ -27,7 +28,7 @@ const BottomTabBar = () => {
               end={t.end}
               className={({ isActive }) =>
                 cn(
-                  "flex flex-col items-center justify-center gap-0.5 rounded-xl px-2 py-1.5 text-[11px] font-medium transition-colors",
+                  "flex flex-col items-center justify-center gap-0.5 rounded-xl px-1 py-1.5 text-[11px] font-medium transition-colors",
                   isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
                 )
               }
@@ -41,7 +42,7 @@ const BottomTabBar = () => {
                     )}
                     strokeWidth={isActive ? 2.4 : 2}
                   />
-                  <span>{t.label}</span>
+                  <span className="truncate">{t.label}</span>
                 </>
               )}
             </NavLink>
