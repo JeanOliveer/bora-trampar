@@ -97,22 +97,23 @@ const Index = () => {
       <main className="flex-1 pb-24 md:pb-0">
         {/* Mobile quick stats */}
         <section className="md:hidden -mt-5 px-5">
-          <div className="mx-auto flex max-w-sm items-center justify-around rounded-2xl bg-card px-4 py-3 shadow-[var(--shadow-card)]">
+          <div className="mx-auto grid max-w-sm grid-cols-3 items-center rounded-2xl bg-card px-2 py-3 shadow-[var(--shadow-card)]">
             {[
               { num: mockJobs.length, label: "Vagas hoje" },
               { num: "1.2k+", label: "Trabalhadores" },
               { num: "150+", label: "Empresas" },
-            ].map((s, i, arr) => (
-              <div key={s.label} className="flex flex-1 items-center justify-center">
-                <div className="flex flex-col items-center text-center">
-                  <div className="text-base font-bold leading-tight text-foreground">{s.num}</div>
-                  <div className="mt-0.5 text-[10px] uppercase tracking-wide text-muted-foreground">
-                    {s.label}
-                  </div>
-                </div>
-                {i < arr.length - 1 && (
-                  <span className="ml-2 h-8 w-px bg-border" aria-hidden />
+            ].map((s, i) => (
+              <div
+                key={s.label}
+                className={cn(
+                  "flex flex-col items-center justify-center text-center px-2",
+                  i > 0 && "border-l border-border"
                 )}
+              >
+                <div className="text-base font-bold leading-tight text-foreground">{s.num}</div>
+                <div className="mt-0.5 text-[10px] uppercase tracking-wide text-muted-foreground">
+                  {s.label}
+                </div>
               </div>
             ))}
           </div>
