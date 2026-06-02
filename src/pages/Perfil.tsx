@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { User, Save, ArrowLeft } from "lucide-react";
+import { User, Save, ArrowLeft, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,7 +19,7 @@ const estadosBR = [
 ];
 
 const Perfil = () => {
-  const { user, profile, loading, refreshProfile } = useAuth();
+  const { user, profile, loading, refreshProfile, signOut } = useAuth();
   const navigate = useNavigate();
   const [saving, setSaving] = useState(false);
 
@@ -152,6 +152,18 @@ const Perfil = () => {
             <Button className="w-full" onClick={handleSave} disabled={saving}>
               <Save className="mr-2 h-4 w-4" />
               {saving ? "Salvando..." : "Salvar Perfil"}
+            </Button>
+            <Button
+              variant="outline"
+              className="w-full border-destructive/30 text-destructive hover:bg-destructive/10 hover:text-destructive"
+              onClick={async () => {
+                await signOut();
+                toast.success("Você saiu da sua conta.");
+                navigate("/login");
+              }}
+            >
+              <LogOut className="mr-2 h-4 w-4" />
+              Sair da conta
             </Button>
           </CardContent>
         </Card>
