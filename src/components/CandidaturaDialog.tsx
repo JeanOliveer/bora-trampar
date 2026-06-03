@@ -100,6 +100,10 @@ const CandidaturaDialog = ({ open, onOpenChange, servicoId, servicoTitulo }: Pro
     setDocumento(null);
     if (docPreview) URL.revokeObjectURL(docPreview);
     setDocPreview(null);
+    setSelfie(null);
+    if (selfiePreview) URL.revokeObjectURL(selfiePreview);
+    setSelfiePreview(null);
+    setRespostas({});
     setErrors({});
     stopCamera();
   };
@@ -107,11 +111,29 @@ const CandidaturaDialog = ({ open, onOpenChange, servicoId, servicoTitulo }: Pro
   useEffect(() => {
     if (open) {
       setCidade(profile?.cidade ?? "");
+      // carregar perguntas customizadas do serviço
+      if (servicoId) {
+        supabase
+          .from("servico_perguntas")
+          .select("id, texto, tipo, opcoes, obrigatoria, ordem")
+          .eq("servico_id", servicoId)
+          .order("ordem", { ascending: true })
+          .then(({ data }) => {
+            const items = (data || []).map((p: any) => ({
+              id: p.id,
+              texto: p.texto,
+              tipo: p.tipo,
+              opcoes: Array.isArray(p.opcoes) ? p.opcoes : [],
+              obrigatoria: p.obrigatoria,
+            })) as Pergunta[];
+            setPerguntas(items);
+          });
+      }
     } else {
       stopCamera();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open]);
+  }, [open, servicoId]);
 
   useEffect(() => {
     return () => {
