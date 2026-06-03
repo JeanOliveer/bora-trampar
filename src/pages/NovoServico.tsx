@@ -87,12 +87,35 @@ const NovoServico = () => {
       empresa_email: empresaEmail.trim() || null,
     }).select("empresa_token").single();
 
-    setSaving(false);
-
     if (error || !inserted) {
+      setSaving(false);
       toast.error("Erro ao publicar serviço.");
       return;
     }
+
+    // Salvar perguntas customizadas
+    if (perguntas.length > 0) {
+      const insertedRow = inserted as { empresa_token: string; id?: string };
+      // Buscar id do serviço recém criado
+      const { data: svc } = await supabase
+        .from("servicos")
+        .select("id")
+        .eq("empresa_token", insertedRow.empresa_token)
+        .maybeSingle();
+      if (svc?.id) {
+        const rows = perguntas.map((p, idx) => ({
+          servico_id: svc.id,
+          ordem: idx,
+          texto: p.texto,
+          tipo: p.tipo,
+          opcoes: p.opcoes,
+          obrigatoria: p.obrigatoria,
+        }));
+        await supabase.from("servico_perguntas").insert(rows);
+      }
+    }
+
+    setSaving(false);
     const link = `${window.location.origin}/empresa/${(inserted as { empresa_token: string }).empresa_token}`;
     setLinkEmpresa(link);
     toast.success("Serviço publicado! Compartilhe o link com a empresa.");
