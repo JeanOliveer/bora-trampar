@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -21,6 +21,7 @@ type AuthContextType = {
   profile: Profile | null;
   isAdmin: boolean;
   loading: boolean;
+  profileLoading: boolean;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
 };
@@ -31,6 +32,7 @@ const AuthContext = createContext<AuthContextType>({
   profile: null,
   isAdmin: false,
   loading: true,
+  profileLoading: true,
   signOut: async () => {},
   refreshProfile: async () => {},
 });
@@ -43,64 +45,86 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [profileLoading, setProfileLoading] = useState(true);
+  const fetchInFlight = useRef<string | null>(null);
 
-  const fetchProfile = async (userId: string) => {
-    const { data } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("user_id", userId)
-      .single();
-    setProfile(data as unknown as Profile | null);
+  const fetchProfile = useCallback(async (userId: string) => {
+    // Avoid concurrent duplicate fetches for the same user
+    if (fetchInFlight.current === userId) return;
+    fetchInFlight.current = userId;
+    setProfileLoading(true);
+    try {
+      const [{ data: profileData }, { data: roleData }] = await Promise.all([
+        supabase.from("profiles").select("*").eq("user_id", userId).maybeSingle(),
+        supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", userId)
+          .eq("role", "admin")
+          .maybeSingle(),
+      ]);
+      setProfile(profileData as unknown as Profile | null);
+      setIsAdmin(!!roleData);
+    } finally {
+      setProfileLoading(false);
+      fetchInFlight.current = null;
+    }
+  }, []);
 
-    const { data: roleData } = await supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", userId)
-      .eq("role", "admin")
-      .maybeSingle();
-    setIsAdmin(!!roleData);
-  };
-
-  const refreshProfile = async () => {
+  const refreshProfile = useCallback(async () => {
     if (user) await fetchProfile(user.id);
-  };
+  }, [user, fetchProfile]);
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        if (session?.user) {
-          setTimeout(() => fetchProfile(session.user.id), 0);
-        } else {
-          setProfile(null);
-          setIsAdmin(false);
-        }
-        setLoading(false);
-      }
-    );
+    let mounted = true;
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        fetchProfile(session.user.id);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, newSession) => {
+      if (!mounted) return;
+      setSession(newSession);
+      const nextUser = newSession?.user ?? null;
+      setUser(nextUser);
+      if (nextUser) {
+        // defer to avoid deadlocks with onAuthStateChange
+        setTimeout(() => {
+          if (mounted) fetchProfile(nextUser.id);
+        }, 0);
+      } else {
+        setProfile(null);
+        setIsAdmin(false);
+        setProfileLoading(false);
       }
       setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
-  }, []);
+    supabase.auth.getSession().then(({ data: { session: initial } }) => {
+      if (!mounted) return;
+      setSession(initial);
+      const initialUser = initial?.user ?? null;
+      setUser(initialUser);
+      if (initialUser) {
+        fetchProfile(initialUser.id);
+      } else {
+        setProfileLoading(false);
+      }
+      setLoading(false);
+    });
 
-  const signOut = async () => {
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
+  }, [fetchProfile]);
+
+  const signOut = useCallback(async () => {
     await supabase.auth.signOut();
     setProfile(null);
     setIsAdmin(false);
-  };
+  }, []);
 
-  return (
-    <AuthContext.Provider value={{ user, session, profile, isAdmin, loading, signOut, refreshProfile }}>
-      {children}
-    </AuthContext.Provider>
+  const value = useMemo(
+    () => ({ user, session, profile, isAdmin, loading, profileLoading, signOut, refreshProfile }),
+    [user, session, profile, isAdmin, loading, profileLoading, signOut, refreshProfile]
   );
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
