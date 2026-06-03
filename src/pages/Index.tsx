@@ -22,27 +22,31 @@ const categorias = [
 
 const Index = () => {
   const { user, profile } = useAuth();
+  const navigate = useNavigate();
   const [busca, setBusca] = useState("");
   const [categoriaAtiva, setCategoriaAtiva] = useState("todas");
 
-  const jobsFiltrados = mockJobs.filter((job) => {
-    const matchBusca =
-      job.titulo.toLowerCase().includes(busca.toLowerCase()) ||
-      job.empresa.toLowerCase().includes(busca.toLowerCase()) ||
-      job.localizacao.toLowerCase().includes(busca.toLowerCase());
-    const matchCategoria = categoriaAtiva === "todas" || job.categoria === categoriaAtiva;
-    return matchBusca && matchCategoria;
-  });
+  const jobsFiltrados = useMemo(() => {
+    const q = busca.toLowerCase();
+    return mockJobs.filter((job) => {
+      const matchBusca =
+        job.titulo.toLowerCase().includes(q) ||
+        job.empresa.toLowerCase().includes(q) ||
+        job.localizacao.toLowerCase().includes(q);
+      const matchCategoria = categoriaAtiva === "todas" || job.categoria === categoriaAtiva;
+      return matchBusca && matchCategoria;
+    });
+  }, [busca, categoriaAtiva]);
 
-  const handleCandidatar = () => {
+  const handleCandidatar = useCallback(() => {
     if (!user) {
       toast.info("Faça login para se candidatar a esta vaga.", {
-        action: { label: "Entrar", onClick: () => (window.location.href = "/login") },
+        action: { label: "Entrar", onClick: () => navigate("/login") },
       });
     } else {
-      window.location.href = "/servicos";
+      navigate("/servicos");
     }
-  };
+  }, [user, navigate]);
 
   const primeiroNome = profile?.nome_completo?.split(" ")[0] ?? "Bem-vindo";
 
