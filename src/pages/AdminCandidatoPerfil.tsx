@@ -25,12 +25,16 @@ type Candidatura = {
   rua: string;
   numero: string;
   documento_url: string;
+  selfie_url: string | null;
   status: string;
   created_at: string;
   aprovada_pela_empresa: boolean;
   checkin_em: string | null;
   presenca_confirmada_em: string | null;
+  chegada_confirmada_em: string | null;
 };
+
+type Resposta = { id: string; resposta: string; pergunta: { id: string; texto: string; tipo: string } };
 
 type Profile = {
   user_id: string;
