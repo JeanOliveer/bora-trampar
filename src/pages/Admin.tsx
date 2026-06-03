@@ -142,7 +142,7 @@ const Admin = () => {
     load();
   };
 
-  if (authLoading || !isAdmin) return <div className="flex min-h-screen items-center justify-center">Carregando...</div>;
+  if (authLoading || profileLoading || !isAdmin) return <div className="flex min-h-screen items-center justify-center">Carregando...</div>;
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
