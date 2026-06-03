@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
+import PerguntasEditor, { type PerguntaDraft } from "@/components/PerguntasEditor";
 
 const estadosBR = ["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"];
 
@@ -44,6 +45,7 @@ const NovoServico = () => {
   const [empresaNome, setEmpresaNome] = useState("");
   const [empresaEmail, setEmpresaEmail] = useState("");
   const [linkEmpresa, setLinkEmpresa] = useState<string | null>(null);
+  const [perguntas, setPerguntas] = useState<PerguntaDraft[]>([]);
 
   useEffect(() => {
     if (!authLoading) {
@@ -83,14 +85,29 @@ const NovoServico = () => {
       created_by: user!.id,
       empresa_nome: empresaNome.trim(),
       empresa_email: empresaEmail.trim() || null,
-    }).select("empresa_token").single();
-
-    setSaving(false);
+    }).select("id, empresa_token").single();
 
     if (error || !inserted) {
+      setSaving(false);
       toast.error("Erro ao publicar serviço.");
       return;
     }
+
+    const insertedRow = inserted as { id: string; empresa_token: string };
+
+    if (perguntas.length > 0) {
+      const rows = perguntas.map((p, idx) => ({
+        servico_id: insertedRow.id,
+        ordem: idx,
+        texto: p.texto,
+        tipo: p.tipo,
+        opcoes: p.opcoes,
+        obrigatoria: p.obrigatoria,
+      }));
+      await supabase.from("servico_perguntas").insert(rows);
+    }
+
+    setSaving(false);
     const link = `${window.location.origin}/empresa/${(inserted as { empresa_token: string }).empresa_token}`;
     setLinkEmpresa(link);
     toast.success("Serviço publicado! Compartilhe o link com a empresa.");
@@ -229,6 +246,18 @@ const NovoServico = () => {
                   />
                 </div>
               </div>
+
+              <div className="space-y-3 rounded-xl border bg-muted/20 p-4">
+                <div>
+                  <Label className="text-base">Perguntas para candidatos</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Crie perguntas customizadas. Os candidatos deverão respondê-las antes de enviar a candidatura.
+                  </p>
+                </div>
+                <PerguntasEditor perguntas={perguntas} onChange={setPerguntas} />
+              </div>
+
+
 
               <Button type="submit" className="w-full" disabled={saving || !!linkEmpresa}>
                 <Save className="mr-2 h-4 w-4" />

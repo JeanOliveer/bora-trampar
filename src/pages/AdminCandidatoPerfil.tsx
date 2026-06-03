@@ -1,14 +1,17 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, User, Phone, MapPin, FileText, Calendar, CreditCard, Star, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, User, Phone, MapPin, FileText, Calendar, CreditCard, Star, CheckCircle2, ScanFace, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import RankedAvatar from "@/components/RankedAvatar";
 import AvaliacaoDialog from "@/components/AvaliacaoDialog";
+import ProgressoServico from "@/components/ProgressoServico";
+import { StatusBadge } from "@/components/StatusBadge";
 import { getNivel } from "@/lib/career";
 import { cn } from "@/lib/utils";
 
@@ -22,12 +25,16 @@ type Candidatura = {
   rua: string;
   numero: string;
   documento_url: string;
+  selfie_url: string | null;
   status: string;
   created_at: string;
   aprovada_pela_empresa: boolean;
   checkin_em: string | null;
   presenca_confirmada_em: string | null;
+  chegada_confirmada_em: string | null;
 };
+
+type Resposta = { id: string; resposta: string; pergunta: { id: string; texto: string; tipo: string } };
 
 type Profile = {
   user_id: string;
@@ -69,8 +76,11 @@ const AdminCandidatoPerfil = () => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [servico, setServico] = useState<Servico | null>(null);
   const [docUrl, setDocUrl] = useState<string | null>(null);
+  const [selfieUrl, setSelfieUrl] = useState<string | null>(null);
+  const [respostas, setRespostas] = useState<Resposta[]>([]);
   const [avaliacaoExistente, setAvaliacaoExistente] = useState<{ id: string; estrelas: number; justificativa: string | null } | null>(null);
   const [openAval, setOpenAval] = useState(false);
+  const [confirmandoChegada, setConfirmandoChegada] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
@@ -94,14 +104,19 @@ const AdminCandidatoPerfil = () => {
       setCand(candidatura);
 
       if (candidatura) {
-        const [{ data: p }, { data: s }, { data: aval }] = await Promise.all([
+        const [{ data: p }, { data: s }, { data: aval }, { data: resp }] = await Promise.all([
           supabase.from("profiles").select("*").eq("user_id", candidatura.user_id).maybeSingle(),
           supabase.from("servicos").select("id, titulo").eq("id", candidatura.servico_id).maybeSingle(),
           supabase.from("avaliacoes").select("id, estrelas, justificativa").eq("candidatura_id", candidatura.id).maybeSingle(),
+          supabase
+            .from("candidatura_respostas")
+            .select("id, resposta, pergunta:servico_perguntas(id, texto, tipo)")
+            .eq("candidatura_id", candidatura.id),
         ]);
         setProfile(p as Profile | null);
         setServico(s as Servico | null);
         setAvaliacaoExistente((aval as { id: string; estrelas: number; justificativa: string | null } | null) ?? null);
+        setRespostas((resp as unknown as Resposta[]) ?? []);
 
         if (candidatura.documento_url) {
           const { data: signed } = await supabase.storage
@@ -109,12 +124,33 @@ const AdminCandidatoPerfil = () => {
             .createSignedUrl(candidatura.documento_url, 60 * 10);
           setDocUrl(signed?.signedUrl ?? null);
         }
+        if (candidatura.selfie_url) {
+          const { data: signed } = await supabase.storage
+            .from("documentos-candidatura")
+            .createSignedUrl(candidatura.selfie_url, 60 * 10);
+          setSelfieUrl(signed?.signedUrl ?? null);
+        }
       }
 
       setLoading(false);
     };
     load();
   }, [candidaturaId, isAdmin, refreshKey]);
+
+  const confirmarChegada = async () => {
+    if (!cand) return;
+    setConfirmandoChegada(true);
+    const { error } = await supabase
+      .from("candidaturas")
+      .update({ chegada_confirmada_em: new Date().toISOString() })
+      .eq("id", cand.id);
+    setConfirmandoChegada(false);
+    if (error) toast.error("Erro ao confirmar chegada");
+    else {
+      toast.success("Chegada confirmada!");
+      setRefreshKey((k) => k + 1);
+    }
+  };
 
   if (authLoading || !isAdmin) {
     return <div className="flex min-h-screen items-center justify-center">Carregando...</div>;
@@ -166,12 +202,24 @@ const AdminCandidatoPerfil = () => {
               <RankedAvatar nome={nome} pontuacao={profile?.pontuacao ?? 0} size="xl" className="mb-3" />
               <CardTitle className="text-xl">{nome}</CardTitle>
               <div className="mt-2 flex flex-wrap items-center justify-center gap-2">
-                <Badge variant="secondary">{cand.status}</Badge>
+                <StatusBadge
+                  status={cand.status}
+                  presenca={!!cand.presenca_confirmada_em}
+                  chegada={!!cand.chegada_confirmada_em}
+                />
                 {profile && (
                   <Badge className={getNivel(profile.pontuacao ?? 0).badgeClass}>
                     {getNivel(profile.pontuacao ?? 0).label} • {profile.pontuacao ?? 0} pts
                   </Badge>
                 )}
+              </div>
+              <div className="mt-4 w-full">
+                <ProgressoServico
+                  aprovada={cand.aprovada_pela_empresa || cand.status === "aprovada" || cand.status === "concluida"}
+                  presencaConfirmada={!!cand.presenca_confirmada_em}
+                  chegadaConfirmada={!!cand.chegada_confirmada_em}
+                  concluida={cand.status === "concluida"}
+                />
               </div>
             </CardHeader>
             <CardContent className="space-y-3">
@@ -203,6 +251,26 @@ const AdminCandidatoPerfil = () => {
                       ? "Aguardando a empresa confirmar a presença para liberar a avaliação."
                       : "A avaliação será liberada após o check-in do trabalhador e a confirmação da presença pela empresa."}
                   </p>
+                </div>
+              )}
+
+              {/* Botão Confirmar Chegada */}
+              {cand.presenca_confirmada_em && !cand.chegada_confirmada_em && cand.status !== "concluida" && (
+                <Button
+                  className="w-full bg-emerald-600 hover:bg-emerald-700"
+                  onClick={confirmarChegada}
+                  disabled={confirmandoChegada}
+                >
+                  <MapPin className="mr-2 h-4 w-4" />
+                  {confirmandoChegada ? "Confirmando..." : "Confirmar Chegada"}
+                </Button>
+              )}
+              {cand.chegada_confirmada_em && (
+                <div className="rounded-md border border-emerald-300 bg-emerald-50 p-3 text-xs text-emerald-800">
+                  <div className="flex items-center gap-2 font-medium">
+                    <CheckCircle2 className="h-4 w-4" /> Chegada confirmada
+                  </div>
+                  <p className="mt-1">{new Date(cand.chegada_confirmada_em).toLocaleString("pt-BR")}</p>
                 </div>
               )}
             </CardContent>
@@ -274,9 +342,47 @@ const AdminCandidatoPerfil = () => {
                 </CardContent>
               </Card>
             )}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <ScanFace className="h-5 w-5" /> Selfie de verificação
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {selfieUrl ? (
+                  <img
+                    src={selfieUrl}
+                    alt="Selfie do candidato"
+                    className="max-h-[360px] w-auto rounded-md border object-contain"
+                  />
+                ) : (
+                  <p className="text-sm text-muted-foreground">Selfie indisponível.</p>
+                )}
+              </CardContent>
+            </Card>
+
+            {respostas.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-lg">
+                    <MessageCircle className="h-5 w-5" /> Respostas às perguntas
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {respostas.map((r) => (
+                    <div key={r.id} className="rounded-md border bg-muted/30 p-3">
+                      <p className="text-xs font-medium text-muted-foreground">{r.pergunta?.texto}</p>
+                      <p className="mt-1 text-sm whitespace-pre-wrap">{r.resposta}</p>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            )}
           </div>
         </div>
       </main>
+
+
 
       {cand && profile && (
         <AvaliacaoDialog

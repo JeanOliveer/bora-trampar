@@ -13,6 +13,8 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -60,11 +62,18 @@ const CandidaturaDialog = ({ open, onOpenChange, servicoId, servicoTitulo }: Pro
   const [pix, setPix] = useState("");
   const [documento, setDocumento] = useState<File | null>(null);
   const [docPreview, setDocPreview] = useState<string | null>(null);
+  const [selfie, setSelfie] = useState<File | null>(null);
+  const [selfiePreview, setSelfiePreview] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
 
-  // Câmera
-  const [cameraOpen, setCameraOpen] = useState(false);
+  // Perguntas customizadas do serviço
+  type Pergunta = { id: string; texto: string; tipo: "texto_curto" | "texto_longo" | "multipla_escolha"; opcoes: string[]; obrigatoria: boolean };
+  const [perguntas, setPerguntas] = useState<Pergunta[]>([]);
+  const [respostas, setRespostas] = useState<Record<string, string>>({});
+
+  // Câmera (compartilhada entre RG e Selfie)
+  const [cameraOpen, setCameraOpen] = useState<false | "documento" | "selfie">(false);
   const [cameraStarting, setCameraStarting] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -91,6 +100,10 @@ const CandidaturaDialog = ({ open, onOpenChange, servicoId, servicoTitulo }: Pro
     setDocumento(null);
     if (docPreview) URL.revokeObjectURL(docPreview);
     setDocPreview(null);
+    setSelfie(null);
+    if (selfiePreview) URL.revokeObjectURL(selfiePreview);
+    setSelfiePreview(null);
+    setRespostas({});
     setErrors({});
     stopCamera();
   };
@@ -98,11 +111,29 @@ const CandidaturaDialog = ({ open, onOpenChange, servicoId, servicoTitulo }: Pro
   useEffect(() => {
     if (open) {
       setCidade(profile?.cidade ?? "");
+      // carregar perguntas customizadas do serviço
+      if (servicoId) {
+        supabase
+          .from("servico_perguntas")
+          .select("id, texto, tipo, opcoes, obrigatoria, ordem")
+          .eq("servico_id", servicoId)
+          .order("ordem", { ascending: true })
+          .then(({ data }) => {
+            const items = (data || []).map((p: any) => ({
+              id: p.id,
+              texto: p.texto,
+              tipo: p.tipo,
+              opcoes: Array.isArray(p.opcoes) ? p.opcoes : [],
+              obrigatoria: p.obrigatoria,
+            })) as Pergunta[];
+            setPerguntas(items);
+          });
+      }
     } else {
       stopCamera();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open]);
+  }, [open, servicoId]);
 
   useEffect(() => {
     return () => {
@@ -165,7 +196,7 @@ const CandidaturaDialog = ({ open, onOpenChange, servicoId, servicoTitulo }: Pro
     setDocFile(file);
   };
 
-  const openCamera = async () => {
+  const openCamera = async (mode: "documento" | "selfie") => {
     setCameraStarting(true);
     try {
       if (!navigator.mediaDevices?.getUserMedia) {
@@ -173,12 +204,11 @@ const CandidaturaDialog = ({ open, onOpenChange, servicoId, servicoTitulo }: Pro
         return;
       }
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: { ideal: "environment" } },
+        video: { facingMode: { ideal: mode === "selfie" ? "user" : "environment" } },
         audio: false,
       });
       streamRef.current = stream;
-      setCameraOpen(true);
-      // aguarda render do video element
+      setCameraOpen(mode);
       setTimeout(() => {
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
@@ -198,7 +228,8 @@ const CandidaturaDialog = ({ open, onOpenChange, servicoId, servicoTitulo }: Pro
 
   const capturePhoto = () => {
     const video = videoRef.current;
-    if (!video || !video.videoWidth) {
+    const mode = cameraOpen;
+    if (!video || !video.videoWidth || !mode) {
       toast.error("Câmera ainda não está pronta");
       return;
     }
@@ -214,19 +245,30 @@ const CandidaturaDialog = ({ open, onOpenChange, servicoId, servicoTitulo }: Pro
           toast.error("Falha ao capturar imagem");
           return;
         }
-        const file = new File([blob], `documento-${Date.now()}.jpg`, {
+        const file = new File([blob], `${mode}-${Date.now()}.jpg`, {
           type: "image/jpeg",
         });
         if (file.size > MAX_DOC_BYTES) {
           toast.error("Imagem capturada muito grande");
           return;
         }
-        setDocFile(file);
-        setErrors((er) => {
-          const n = { ...er };
-          delete n.documento;
-          return n;
-        });
+        if (mode === "documento") {
+          setDocFile(file);
+          setErrors((er) => {
+            const n = { ...er };
+            delete n.documento;
+            return n;
+          });
+        } else {
+          if (selfiePreview) URL.revokeObjectURL(selfiePreview);
+          setSelfie(file);
+          setSelfiePreview(URL.createObjectURL(file));
+          setErrors((er) => {
+            const n = { ...er };
+            delete n.selfie;
+            return n;
+          });
+        }
         stopCamera();
       },
       "image/jpeg",
@@ -272,7 +314,16 @@ const CandidaturaDialog = ({ open, onOpenChange, servicoId, servicoTitulo }: Pro
       fieldErrors.pix = "PIX não coincide com o cadastrado na sua conta";
     }
     if (!documento) {
-      fieldErrors.documento = "Envie a foto do RG ou CNH";
+      fieldErrors.documento = "Envie a foto do seu RG (frente)";
+    }
+    if (!selfie) {
+      fieldErrors.selfie = "Tire uma selfie ao vivo para verificação";
+    }
+    // Validar perguntas obrigatórias
+    for (const p of perguntas) {
+      if (p.obrigatoria && !(respostas[p.id] && respostas[p.id].trim())) {
+        fieldErrors[`pergunta_${p.id}`] = "Resposta obrigatória";
+      }
     }
 
     if (Object.keys(fieldErrors).length > 0) {
@@ -284,32 +335,61 @@ const CandidaturaDialog = ({ open, onOpenChange, servicoId, servicoTitulo }: Pro
     setSubmitting(true);
     try {
       const ext = documento!.name.split(".").pop()?.toLowerCase() || "bin";
-      const path = `${user.id}/${servicoId}-${Date.now()}.${ext}`;
-      const { error: uploadError } = await supabase.storage
+      const docPath = `${user.id}/${servicoId}-rg-${Date.now()}.${ext}`;
+      const selfiePath = `${user.id}/${servicoId}-selfie-${Date.now()}.jpg`;
+
+      const { error: upDocErr } = await supabase.storage
         .from("documentos-candidatura")
-        .upload(path, documento!, { upsert: false, contentType: documento!.type });
+        .upload(docPath, documento!, { upsert: false, contentType: documento!.type });
+      if (upDocErr) throw upDocErr;
 
-      if (uploadError) throw uploadError;
+      const { error: upSelfieErr } = await supabase.storage
+        .from("documentos-candidatura")
+        .upload(selfiePath, selfie!, { upsert: false, contentType: "image/jpeg" });
+      if (upSelfieErr) {
+        await supabase.storage.from("documentos-candidatura").remove([docPath]);
+        throw upSelfieErr;
+      }
 
-      const { error: insertError } = await supabase.from("candidaturas").insert({
-        servico_id: servicoId,
-        user_id: user.id,
-        telefone: telefone.trim(),
-        rua: rua.trim(),
-        numero: numero.trim(),
-        bairro: bairro.trim(),
-        cidade: cidade.trim(),
-        documento_url: path,
-      });
+      const { data: insertedCand, error: insertError } = await supabase
+        .from("candidaturas")
+        .insert({
+          servico_id: servicoId,
+          user_id: user.id,
+          telefone: telefone.trim(),
+          rua: rua.trim(),
+          numero: numero.trim(),
+          bairro: bairro.trim(),
+          cidade: cidade.trim(),
+          documento_url: docPath,
+          documento_rg_url: docPath,
+          selfie_url: selfiePath,
+        })
+        .select("id")
+        .single();
 
-      if (insertError) {
-        await supabase.storage.from("documentos-candidatura").remove([path]);
-        if (insertError.code === "23505") {
+      if (insertError || !insertedCand) {
+        await supabase.storage.from("documentos-candidatura").remove([docPath, selfiePath]);
+        if (insertError?.code === "23505") {
           toast.error("Você já se candidatou a este serviço");
         } else {
-          toast.error(insertError.message || "Erro ao enviar candidatura");
+          toast.error(insertError?.message || "Erro ao enviar candidatura");
         }
         return;
+      }
+
+      // Salvar respostas
+      if (perguntas.length > 0) {
+        const rows = perguntas
+          .filter((p) => respostas[p.id])
+          .map((p) => ({
+            candidatura_id: (insertedCand as { id: string }).id,
+            pergunta_id: p.id,
+            resposta: respostas[p.id],
+          }));
+        if (rows.length > 0) {
+          await supabase.from("candidatura_respostas").insert(rows);
+        }
       }
 
       toast.success("Candidatura enviada com sucesso!");
@@ -456,9 +536,9 @@ const CandidaturaDialog = ({ open, onOpenChange, servicoId, servicoTitulo }: Pro
           </div>
 
           <div className="space-y-2">
-            <Label>Documento (RG ou CNH) *</Label>
+            <Label>RG (frente) *</Label>
 
-            {cameraOpen ? (
+            {cameraOpen === "documento" ? (
               <div className="space-y-2 rounded-md border bg-muted/30 p-3">
                 <video
                   ref={videoRef}
@@ -498,7 +578,7 @@ const CandidaturaDialog = ({ open, onOpenChange, servicoId, servicoTitulo }: Pro
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={openCamera}
+                    onClick={() => openCamera("documento")}
                     disabled={cameraStarting}
                     className="h-auto justify-start gap-3 border-dashed bg-muted/30 p-4 text-sm font-normal hover:bg-muted/60"
                   >
@@ -546,6 +626,119 @@ const CandidaturaDialog = ({ open, onOpenChange, servicoId, servicoTitulo }: Pro
 
             {errors.documento && <p className="text-sm text-destructive">{errors.documento}</p>}
           </div>
+
+          {/* Selfie ao vivo */}
+          <div className="space-y-2">
+            <Label>Selfie ao vivo *</Label>
+            <p className="text-xs text-muted-foreground">
+              Tire uma foto sua agora para verificação de identidade. Sem essa foto a candidatura não pode ser enviada.
+            </p>
+
+            {cameraOpen === "selfie" ? (
+              <div className="space-y-2 rounded-md border bg-muted/30 p-3">
+                <video
+                  ref={videoRef}
+                  autoPlay
+                  playsInline
+                  muted
+                  className="aspect-square w-full max-w-xs mx-auto rounded-md bg-black object-cover"
+                />
+                <div className="flex flex-wrap gap-2">
+                  <Button type="button" onClick={capturePhoto} className="flex-1">
+                    <Camera className="mr-2 h-4 w-4" /> Capturar selfie
+                  </Button>
+                  <Button type="button" variant="outline" onClick={stopCamera}>
+                    <X className="mr-2 h-4 w-4" /> Cancelar
+                  </Button>
+                </div>
+              </div>
+            ) : selfiePreview ? (
+              <div className="flex items-center gap-3 rounded-md border bg-muted/30 p-3 text-sm">
+                <img
+                  src={selfiePreview}
+                  alt="Selfie capturada"
+                  className="h-16 w-16 rounded-full object-cover"
+                />
+                <span className="flex-1 truncate">Selfie capturada com sucesso</span>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    if (selfiePreview) URL.revokeObjectURL(selfiePreview);
+                    setSelfie(null);
+                    setSelfiePreview(null);
+                  }}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            ) : (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => openCamera("selfie")}
+                disabled={cameraStarting}
+                className="w-full justify-center gap-2 border-dashed bg-muted/30 p-4"
+              >
+                {cameraStarting ? (
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                ) : (
+                  <Camera className="h-5 w-5" />
+                )}
+                Abrir câmera para selfie
+              </Button>
+            )}
+            {errors.selfie && <p className="text-sm text-destructive">{errors.selfie}</p>}
+          </div>
+
+          {/* Perguntas customizadas */}
+          {perguntas.length > 0 && (
+            <div className="space-y-3 rounded-xl border bg-muted/20 p-4">
+              <Label className="text-base">Perguntas da empresa</Label>
+              {perguntas.map((p) => {
+                const errKey = `pergunta_${p.id}`;
+                return (
+                  <div key={p.id} className="space-y-2">
+                    <Label className="text-sm">
+                      {p.texto} {p.obrigatoria && <span className="text-destructive">*</span>}
+                    </Label>
+                    {p.tipo === "texto_curto" && (
+                      <Input
+                        value={respostas[p.id] || ""}
+                        onChange={(e) => setRespostas((r) => ({ ...r, [p.id]: e.target.value }))}
+                        maxLength={300}
+                      />
+                    )}
+                    {p.tipo === "texto_longo" && (
+                      <Textarea
+                        rows={3}
+                        value={respostas[p.id] || ""}
+                        onChange={(e) => setRespostas((r) => ({ ...r, [p.id]: e.target.value }))}
+                        maxLength={2000}
+                      />
+                    )}
+                    {p.tipo === "multipla_escolha" && (
+                      <RadioGroup
+                        value={respostas[p.id] || ""}
+                        onValueChange={(v) => setRespostas((r) => ({ ...r, [p.id]: v }))}
+                      >
+                        {p.opcoes.map((op) => (
+                          <div key={op} className="flex items-center gap-2">
+                            <RadioGroupItem value={op} id={`${p.id}-${op}`} />
+                            <Label htmlFor={`${p.id}-${op}`} className="text-sm font-normal">
+                              {op}
+                            </Label>
+                          </div>
+                        ))}
+                      </RadioGroup>
+                    )}
+                    {errors[errKey] && <p className="text-sm text-destructive">{errors[errKey]}</p>}
+                  </div>
+                );
+              })}
+            </div>
+          )}
 
           <DialogFooter className="gap-2">
             <Button

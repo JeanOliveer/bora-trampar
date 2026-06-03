@@ -71,6 +71,45 @@ export type Database = {
           },
         ]
       }
+      candidatura_respostas: {
+        Row: {
+          candidatura_id: string
+          created_at: string
+          id: string
+          pergunta_id: string
+          resposta: string
+        }
+        Insert: {
+          candidatura_id: string
+          created_at?: string
+          id?: string
+          pergunta_id: string
+          resposta: string
+        }
+        Update: {
+          candidatura_id?: string
+          created_at?: string
+          id?: string
+          pergunta_id?: string
+          resposta?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "candidatura_respostas_candidatura_id_fkey"
+            columns: ["candidatura_id"]
+            isOneToOne: false
+            referencedRelation: "candidaturas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "candidatura_respostas_pergunta_id_fkey"
+            columns: ["pergunta_id"]
+            isOneToOne: false
+            referencedRelation: "servico_perguntas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       candidaturas: {
         Row: {
           aprovada_em: string | null
@@ -79,9 +118,11 @@ export type Database = {
           checkin_em: string | null
           checkin_lat: number | null
           checkin_lng: number | null
+          chegada_confirmada_em: string | null
           cidade: string
           created_at: string
           disponibilidade: string | null
+          documento_rg_url: string | null
           documento_url: string
           expediente_encerrado_em: string | null
           experiencia: string | null
@@ -90,6 +131,7 @@ export type Database = {
           numero: string
           presenca_confirmada_em: string | null
           rua: string
+          selfie_url: string | null
           servico_id: string
           status: string
           telefone: string
@@ -103,9 +145,11 @@ export type Database = {
           checkin_em?: string | null
           checkin_lat?: number | null
           checkin_lng?: number | null
+          chegada_confirmada_em?: string | null
           cidade: string
           created_at?: string
           disponibilidade?: string | null
+          documento_rg_url?: string | null
           documento_url: string
           expediente_encerrado_em?: string | null
           experiencia?: string | null
@@ -114,6 +158,7 @@ export type Database = {
           numero: string
           presenca_confirmada_em?: string | null
           rua: string
+          selfie_url?: string | null
           servico_id: string
           status?: string
           telefone: string
@@ -127,9 +172,11 @@ export type Database = {
           checkin_em?: string | null
           checkin_lat?: number | null
           checkin_lng?: number | null
+          chegada_confirmada_em?: string | null
           cidade?: string
           created_at?: string
           disponibilidade?: string | null
+          documento_rg_url?: string | null
           documento_url?: string
           expediente_encerrado_em?: string | null
           experiencia?: string | null
@@ -138,6 +185,7 @@ export type Database = {
           numero?: string
           presenca_confirmada_em?: string | null
           rua?: string
+          selfie_url?: string | null
           servico_id?: string
           status?: string
           telefone?: string
@@ -201,6 +249,47 @@ export type Database = {
           user_type?: Database["public"]["Enums"]["user_type"]
         }
         Relationships: []
+      }
+      servico_perguntas: {
+        Row: {
+          created_at: string
+          id: string
+          obrigatoria: boolean
+          opcoes: Json
+          ordem: number
+          servico_id: string
+          texto: string
+          tipo: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          obrigatoria?: boolean
+          opcoes?: Json
+          ordem?: number
+          servico_id: string
+          texto: string
+          tipo: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          obrigatoria?: boolean
+          opcoes?: Json
+          ordem?: number
+          servico_id?: string
+          texto?: string
+          tipo?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "servico_perguntas_servico_id_fkey"
+            columns: ["servico_id"]
+            isOneToOne: false
+            referencedRelation: "servicos"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       servicos: {
         Row: {
