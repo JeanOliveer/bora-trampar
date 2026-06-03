@@ -85,7 +85,7 @@ const NovoServico = () => {
       created_by: user!.id,
       empresa_nome: empresaNome.trim(),
       empresa_email: empresaEmail.trim() || null,
-    }).select("empresa_token").single();
+    }).select("id, empresa_token").single();
 
     if (error || !inserted) {
       setSaving(false);
