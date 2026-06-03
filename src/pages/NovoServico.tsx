@@ -247,6 +247,18 @@ const NovoServico = () => {
                 </div>
               </div>
 
+              <div className="space-y-3 rounded-xl border bg-muted/20 p-4">
+                <div>
+                  <Label className="text-base">Perguntas para candidatos</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Crie perguntas customizadas. Os candidatos deverão respondê-las antes de enviar a candidatura.
+                  </p>
+                </div>
+                <PerguntasEditor perguntas={perguntas} onChange={setPerguntas} />
+              </div>
+
+
+
               <Button type="submit" className="w-full" disabled={saving || !!linkEmpresa}>
                 <Save className="mr-2 h-4 w-4" />
                 {saving ? "Publicando..." : linkEmpresa ? "Publicado" : "Publicar Serviço"}
