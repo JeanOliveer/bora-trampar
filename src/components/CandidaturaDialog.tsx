@@ -62,11 +62,18 @@ const CandidaturaDialog = ({ open, onOpenChange, servicoId, servicoTitulo }: Pro
   const [pix, setPix] = useState("");
   const [documento, setDocumento] = useState<File | null>(null);
   const [docPreview, setDocPreview] = useState<string | null>(null);
+  const [selfie, setSelfie] = useState<File | null>(null);
+  const [selfiePreview, setSelfiePreview] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
 
-  // Câmera
-  const [cameraOpen, setCameraOpen] = useState(false);
+  // Perguntas customizadas do serviço
+  type Pergunta = { id: string; texto: string; tipo: "texto_curto" | "texto_longo" | "multipla_escolha"; opcoes: string[]; obrigatoria: boolean };
+  const [perguntas, setPerguntas] = useState<Pergunta[]>([]);
+  const [respostas, setRespostas] = useState<Record<string, string>>({});
+
+  // Câmera (compartilhada entre RG e Selfie)
+  const [cameraOpen, setCameraOpen] = useState<false | "documento" | "selfie">(false);
   const [cameraStarting, setCameraStarting] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
