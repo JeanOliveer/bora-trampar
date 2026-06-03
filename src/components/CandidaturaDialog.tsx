@@ -536,9 +536,9 @@ const CandidaturaDialog = ({ open, onOpenChange, servicoId, servicoTitulo }: Pro
           </div>
 
           <div className="space-y-2">
-            <Label>Documento (RG ou CNH) *</Label>
+            <Label>RG (frente) *</Label>
 
-            {cameraOpen ? (
+            {cameraOpen === "documento" ? (
               <div className="space-y-2 rounded-md border bg-muted/30 p-3">
                 <video
                   ref={videoRef}
