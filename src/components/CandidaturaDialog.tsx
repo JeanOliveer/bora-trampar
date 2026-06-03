@@ -314,7 +314,16 @@ const CandidaturaDialog = ({ open, onOpenChange, servicoId, servicoTitulo }: Pro
       fieldErrors.pix = "PIX não coincide com o cadastrado na sua conta";
     }
     if (!documento) {
-      fieldErrors.documento = "Envie a foto do RG ou CNH";
+      fieldErrors.documento = "Envie a foto do seu RG (frente)";
+    }
+    if (!selfie) {
+      fieldErrors.selfie = "Tire uma selfie ao vivo para verificação";
+    }
+    // Validar perguntas obrigatórias
+    for (const p of perguntas) {
+      if (p.obrigatoria && !(respostas[p.id] && respostas[p.id].trim())) {
+        fieldErrors[`pergunta_${p.id}`] = "Resposta obrigatória";
+      }
     }
 
     if (Object.keys(fieldErrors).length > 0) {
@@ -326,32 +335,61 @@ const CandidaturaDialog = ({ open, onOpenChange, servicoId, servicoTitulo }: Pro
     setSubmitting(true);
     try {
       const ext = documento!.name.split(".").pop()?.toLowerCase() || "bin";
-      const path = `${user.id}/${servicoId}-${Date.now()}.${ext}`;
-      const { error: uploadError } = await supabase.storage
+      const docPath = `${user.id}/${servicoId}-rg-${Date.now()}.${ext}`;
+      const selfiePath = `${user.id}/${servicoId}-selfie-${Date.now()}.jpg`;
+
+      const { error: upDocErr } = await supabase.storage
         .from("documentos-candidatura")
-        .upload(path, documento!, { upsert: false, contentType: documento!.type });
+        .upload(docPath, documento!, { upsert: false, contentType: documento!.type });
+      if (upDocErr) throw upDocErr;
 
-      if (uploadError) throw uploadError;
+      const { error: upSelfieErr } = await supabase.storage
+        .from("documentos-candidatura")
+        .upload(selfiePath, selfie!, { upsert: false, contentType: "image/jpeg" });
+      if (upSelfieErr) {
+        await supabase.storage.from("documentos-candidatura").remove([docPath]);
+        throw upSelfieErr;
+      }
 
-      const { error: insertError } = await supabase.from("candidaturas").insert({
-        servico_id: servicoId,
-        user_id: user.id,
-        telefone: telefone.trim(),
-        rua: rua.trim(),
-        numero: numero.trim(),
-        bairro: bairro.trim(),
-        cidade: cidade.trim(),
-        documento_url: path,
-      });
+      const { data: insertedCand, error: insertError } = await supabase
+        .from("candidaturas")
+        .insert({
+          servico_id: servicoId,
+          user_id: user.id,
+          telefone: telefone.trim(),
+          rua: rua.trim(),
+          numero: numero.trim(),
+          bairro: bairro.trim(),
+          cidade: cidade.trim(),
+          documento_url: docPath,
+          documento_rg_url: docPath,
+          selfie_url: selfiePath,
+        })
+        .select("id")
+        .single();
 
-      if (insertError) {
-        await supabase.storage.from("documentos-candidatura").remove([path]);
-        if (insertError.code === "23505") {
+      if (insertError || !insertedCand) {
+        await supabase.storage.from("documentos-candidatura").remove([docPath, selfiePath]);
+        if (insertError?.code === "23505") {
           toast.error("Você já se candidatou a este serviço");
         } else {
-          toast.error(insertError.message || "Erro ao enviar candidatura");
+          toast.error(insertError?.message || "Erro ao enviar candidatura");
         }
         return;
+      }
+
+      // Salvar respostas
+      if (perguntas.length > 0) {
+        const rows = perguntas
+          .filter((p) => respostas[p.id])
+          .map((p) => ({
+            candidatura_id: (insertedCand as { id: string }).id,
+            pergunta_id: p.id,
+            resposta: respostas[p.id],
+          }));
+        if (rows.length > 0) {
+          await supabase.from("candidatura_respostas").insert(rows);
+        }
       }
 
       toast.success("Candidatura enviada com sucesso!");
