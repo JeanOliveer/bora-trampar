@@ -174,7 +174,7 @@ const CandidaturaDialog = ({ open, onOpenChange, servicoId, servicoTitulo }: Pro
     setDocFile(file);
   };
 
-  const openCamera = async () => {
+  const openCamera = async (mode: "documento" | "selfie") => {
     setCameraStarting(true);
     try {
       if (!navigator.mediaDevices?.getUserMedia) {
@@ -182,12 +182,11 @@ const CandidaturaDialog = ({ open, onOpenChange, servicoId, servicoTitulo }: Pro
         return;
       }
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: { ideal: "environment" } },
+        video: { facingMode: { ideal: mode === "selfie" ? "user" : "environment" } },
         audio: false,
       });
       streamRef.current = stream;
-      setCameraOpen(true);
-      // aguarda render do video element
+      setCameraOpen(mode);
       setTimeout(() => {
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
@@ -207,7 +206,8 @@ const CandidaturaDialog = ({ open, onOpenChange, servicoId, servicoTitulo }: Pro
 
   const capturePhoto = () => {
     const video = videoRef.current;
-    if (!video || !video.videoWidth) {
+    const mode = cameraOpen;
+    if (!video || !video.videoWidth || !mode) {
       toast.error("Câmera ainda não está pronta");
       return;
     }
@@ -223,19 +223,30 @@ const CandidaturaDialog = ({ open, onOpenChange, servicoId, servicoTitulo }: Pro
           toast.error("Falha ao capturar imagem");
           return;
         }
-        const file = new File([blob], `documento-${Date.now()}.jpg`, {
+        const file = new File([blob], `${mode}-${Date.now()}.jpg`, {
           type: "image/jpeg",
         });
         if (file.size > MAX_DOC_BYTES) {
           toast.error("Imagem capturada muito grande");
           return;
         }
-        setDocFile(file);
-        setErrors((er) => {
-          const n = { ...er };
-          delete n.documento;
-          return n;
-        });
+        if (mode === "documento") {
+          setDocFile(file);
+          setErrors((er) => {
+            const n = { ...er };
+            delete n.documento;
+            return n;
+          });
+        } else {
+          if (selfiePreview) URL.revokeObjectURL(selfiePreview);
+          setSelfie(file);
+          setSelfiePreview(URL.createObjectURL(file));
+          setErrors((er) => {
+            const n = { ...er };
+            delete n.selfie;
+            return n;
+          });
+        }
         stopCamera();
       },
       "image/jpeg",
