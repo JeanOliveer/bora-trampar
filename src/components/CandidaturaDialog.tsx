@@ -518,7 +518,7 @@ const CandidaturaDialog = ({ open, onOpenChange, servicoId, servicoTitulo }: Pro
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={openCamera}
+                    onClick={() => openCamera("documento")}
                     disabled={cameraStarting}
                     className="h-auto justify-start gap-3 border-dashed bg-muted/30 p-4 text-sm font-normal hover:bg-muted/60"
                   >
