@@ -253,6 +253,26 @@ const AdminCandidatoPerfil = () => {
                   </p>
                 </div>
               )}
+
+              {/* Botão Confirmar Chegada */}
+              {cand.presenca_confirmada_em && !cand.chegada_confirmada_em && cand.status !== "concluida" && (
+                <Button
+                  className="w-full bg-emerald-600 hover:bg-emerald-700"
+                  onClick={confirmarChegada}
+                  disabled={confirmandoChegada}
+                >
+                  <MapPin className="mr-2 h-4 w-4" />
+                  {confirmandoChegada ? "Confirmando..." : "Confirmar Chegada"}
+                </Button>
+              )}
+              {cand.chegada_confirmada_em && (
+                <div className="rounded-md border border-emerald-300 bg-emerald-50 p-3 text-xs text-emerald-800">
+                  <div className="flex items-center gap-2 font-medium">
+                    <CheckCircle2 className="h-4 w-4" /> Chegada confirmada
+                  </div>
+                  <p className="mt-1">{new Date(cand.chegada_confirmada_em).toLocaleString("pt-BR")}</p>
+                </div>
+              )}
             </CardContent>
           </Card>
 
