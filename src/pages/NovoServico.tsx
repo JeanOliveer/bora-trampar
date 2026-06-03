@@ -45,6 +45,7 @@ const NovoServico = () => {
   const [empresaNome, setEmpresaNome] = useState("");
   const [empresaEmail, setEmpresaEmail] = useState("");
   const [linkEmpresa, setLinkEmpresa] = useState<string | null>(null);
+  const [perguntas, setPerguntas] = useState<PerguntaDraft[]>([]);
 
   useEffect(() => {
     if (!authLoading) {
