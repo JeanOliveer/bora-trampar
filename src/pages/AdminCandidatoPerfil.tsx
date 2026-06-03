@@ -342,9 +342,47 @@ const AdminCandidatoPerfil = () => {
                 </CardContent>
               </Card>
             )}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <ScanFace className="h-5 w-5" /> Selfie de verificação
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {selfieUrl ? (
+                  <img
+                    src={selfieUrl}
+                    alt="Selfie do candidato"
+                    className="max-h-[360px] w-auto rounded-md border object-contain"
+                  />
+                ) : (
+                  <p className="text-sm text-muted-foreground">Selfie indisponível.</p>
+                )}
+              </CardContent>
+            </Card>
+
+            {respostas.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-lg">
+                    <MessageCircle className="h-5 w-5" /> Respostas às perguntas
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {respostas.map((r) => (
+                    <div key={r.id} className="rounded-md border bg-muted/30 p-3">
+                      <p className="text-xs font-medium text-muted-foreground">{r.pergunta?.texto}</p>
+                      <p className="mt-1 text-sm whitespace-pre-wrap">{r.resposta}</p>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            )}
           </div>
         </div>
       </main>
+
+
 
       {cand && profile && (
         <AvaliacaoDialog
