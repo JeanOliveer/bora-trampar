@@ -202,12 +202,24 @@ const AdminCandidatoPerfil = () => {
               <RankedAvatar nome={nome} pontuacao={profile?.pontuacao ?? 0} size="xl" className="mb-3" />
               <CardTitle className="text-xl">{nome}</CardTitle>
               <div className="mt-2 flex flex-wrap items-center justify-center gap-2">
-                <Badge variant="secondary">{cand.status}</Badge>
+                <StatusBadge
+                  status={cand.status}
+                  presenca={!!cand.presenca_confirmada_em}
+                  chegada={!!cand.chegada_confirmada_em}
+                />
                 {profile && (
                   <Badge className={getNivel(profile.pontuacao ?? 0).badgeClass}>
                     {getNivel(profile.pontuacao ?? 0).label} • {profile.pontuacao ?? 0} pts
                   </Badge>
                 )}
+              </div>
+              <div className="mt-4 w-full">
+                <ProgressoServico
+                  aprovada={cand.aprovada_pela_empresa || cand.status === "aprovada" || cand.status === "concluida"}
+                  presencaConfirmada={!!cand.presenca_confirmada_em}
+                  chegadaConfirmada={!!cand.chegada_confirmada_em}
+                  concluida={cand.status === "concluida"}
+                />
               </div>
             </CardHeader>
             <CardContent className="space-y-3">
