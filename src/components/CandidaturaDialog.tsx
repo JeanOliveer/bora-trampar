@@ -627,6 +627,119 @@ const CandidaturaDialog = ({ open, onOpenChange, servicoId, servicoTitulo }: Pro
             {errors.documento && <p className="text-sm text-destructive">{errors.documento}</p>}
           </div>
 
+          {/* Selfie ao vivo */}
+          <div className="space-y-2">
+            <Label>Selfie ao vivo *</Label>
+            <p className="text-xs text-muted-foreground">
+              Tire uma foto sua agora para verificação de identidade. Sem essa foto a candidatura não pode ser enviada.
+            </p>
+
+            {cameraOpen === "selfie" ? (
+              <div className="space-y-2 rounded-md border bg-muted/30 p-3">
+                <video
+                  ref={videoRef}
+                  autoPlay
+                  playsInline
+                  muted
+                  className="aspect-square w-full max-w-xs mx-auto rounded-md bg-black object-cover"
+                />
+                <div className="flex flex-wrap gap-2">
+                  <Button type="button" onClick={capturePhoto} className="flex-1">
+                    <Camera className="mr-2 h-4 w-4" /> Capturar selfie
+                  </Button>
+                  <Button type="button" variant="outline" onClick={stopCamera}>
+                    <X className="mr-2 h-4 w-4" /> Cancelar
+                  </Button>
+                </div>
+              </div>
+            ) : selfiePreview ? (
+              <div className="flex items-center gap-3 rounded-md border bg-muted/30 p-3 text-sm">
+                <img
+                  src={selfiePreview}
+                  alt="Selfie capturada"
+                  className="h-16 w-16 rounded-full object-cover"
+                />
+                <span className="flex-1 truncate">Selfie capturada com sucesso</span>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    if (selfiePreview) URL.revokeObjectURL(selfiePreview);
+                    setSelfie(null);
+                    setSelfiePreview(null);
+                  }}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            ) : (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => openCamera("selfie")}
+                disabled={cameraStarting}
+                className="w-full justify-center gap-2 border-dashed bg-muted/30 p-4"
+              >
+                {cameraStarting ? (
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                ) : (
+                  <Camera className="h-5 w-5" />
+                )}
+                Abrir câmera para selfie
+              </Button>
+            )}
+            {errors.selfie && <p className="text-sm text-destructive">{errors.selfie}</p>}
+          </div>
+
+          {/* Perguntas customizadas */}
+          {perguntas.length > 0 && (
+            <div className="space-y-3 rounded-xl border bg-muted/20 p-4">
+              <Label className="text-base">Perguntas da empresa</Label>
+              {perguntas.map((p) => {
+                const errKey = `pergunta_${p.id}`;
+                return (
+                  <div key={p.id} className="space-y-2">
+                    <Label className="text-sm">
+                      {p.texto} {p.obrigatoria && <span className="text-destructive">*</span>}
+                    </Label>
+                    {p.tipo === "texto_curto" && (
+                      <Input
+                        value={respostas[p.id] || ""}
+                        onChange={(e) => setRespostas((r) => ({ ...r, [p.id]: e.target.value }))}
+                        maxLength={300}
+                      />
+                    )}
+                    {p.tipo === "texto_longo" && (
+                      <Textarea
+                        rows={3}
+                        value={respostas[p.id] || ""}
+                        onChange={(e) => setRespostas((r) => ({ ...r, [p.id]: e.target.value }))}
+                        maxLength={2000}
+                      />
+                    )}
+                    {p.tipo === "multipla_escolha" && (
+                      <RadioGroup
+                        value={respostas[p.id] || ""}
+                        onValueChange={(v) => setRespostas((r) => ({ ...r, [p.id]: v }))}
+                      >
+                        {p.opcoes.map((op) => (
+                          <div key={op} className="flex items-center gap-2">
+                            <RadioGroupItem value={op} id={`${p.id}-${op}`} />
+                            <Label htmlFor={`${p.id}-${op}`} className="text-sm font-normal">
+                              {op}
+                            </Label>
+                          </div>
+                        ))}
+                      </RadioGroup>
+                    )}
+                    {errors[errKey] && <p className="text-sm text-destructive">{errors[errKey]}</p>}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
           <DialogFooter className="gap-2">
             <Button
               type="button"
