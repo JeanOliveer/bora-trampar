@@ -104,14 +104,19 @@ const AdminCandidatoPerfil = () => {
       setCand(candidatura);
 
       if (candidatura) {
-        const [{ data: p }, { data: s }, { data: aval }] = await Promise.all([
+        const [{ data: p }, { data: s }, { data: aval }, { data: resp }] = await Promise.all([
           supabase.from("profiles").select("*").eq("user_id", candidatura.user_id).maybeSingle(),
           supabase.from("servicos").select("id, titulo").eq("id", candidatura.servico_id).maybeSingle(),
           supabase.from("avaliacoes").select("id, estrelas, justificativa").eq("candidatura_id", candidatura.id).maybeSingle(),
+          supabase
+            .from("candidatura_respostas")
+            .select("id, resposta, pergunta:servico_perguntas(id, texto, tipo)")
+            .eq("candidatura_id", candidatura.id),
         ]);
         setProfile(p as Profile | null);
         setServico(s as Servico | null);
         setAvaliacaoExistente((aval as { id: string; estrelas: number; justificativa: string | null } | null) ?? null);
+        setRespostas((resp as unknown as Resposta[]) ?? []);
 
         if (candidatura.documento_url) {
           const { data: signed } = await supabase.storage
@@ -119,12 +124,33 @@ const AdminCandidatoPerfil = () => {
             .createSignedUrl(candidatura.documento_url, 60 * 10);
           setDocUrl(signed?.signedUrl ?? null);
         }
+        if (candidatura.selfie_url) {
+          const { data: signed } = await supabase.storage
+            .from("documentos-candidatura")
+            .createSignedUrl(candidatura.selfie_url, 60 * 10);
+          setSelfieUrl(signed?.signedUrl ?? null);
+        }
       }
 
       setLoading(false);
     };
     load();
   }, [candidaturaId, isAdmin, refreshKey]);
+
+  const confirmarChegada = async () => {
+    if (!cand) return;
+    setConfirmandoChegada(true);
+    const { error } = await supabase
+      .from("candidaturas")
+      .update({ chegada_confirmada_em: new Date().toISOString() })
+      .eq("id", cand.id);
+    setConfirmandoChegada(false);
+    if (error) toast.error("Erro ao confirmar chegada");
+    else {
+      toast.success("Chegada confirmada!");
+      setRefreshKey((k) => k + 1);
+    }
+  };
 
   if (authLoading || !isAdmin) {
     return <div className="flex min-h-screen items-center justify-center">Carregando...</div>;
