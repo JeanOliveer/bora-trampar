@@ -93,26 +93,18 @@ const NovoServico = () => {
       return;
     }
 
-    // Salvar perguntas customizadas
+    const insertedRow = inserted as { id: string; empresa_token: string };
+
     if (perguntas.length > 0) {
-      const insertedRow = inserted as { empresa_token: string; id?: string };
-      // Buscar id do serviço recém criado
-      const { data: svc } = await supabase
-        .from("servicos")
-        .select("id")
-        .eq("empresa_token", insertedRow.empresa_token)
-        .maybeSingle();
-      if (svc?.id) {
-        const rows = perguntas.map((p, idx) => ({
-          servico_id: svc.id,
-          ordem: idx,
-          texto: p.texto,
-          tipo: p.tipo,
-          opcoes: p.opcoes,
-          obrigatoria: p.obrigatoria,
-        }));
-        await supabase.from("servico_perguntas").insert(rows);
-      }
+      const rows = perguntas.map((p, idx) => ({
+        servico_id: insertedRow.id,
+        ordem: idx,
+        texto: p.texto,
+        tipo: p.tipo,
+        opcoes: p.opcoes,
+        obrigatoria: p.obrigatoria,
+      }));
+      await supabase.from("servico_perguntas").insert(rows);
     }
 
     setSaving(false);
