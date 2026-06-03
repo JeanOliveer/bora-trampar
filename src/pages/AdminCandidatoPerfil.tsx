@@ -1,14 +1,17 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, User, Phone, MapPin, FileText, Calendar, CreditCard, Star, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, User, Phone, MapPin, FileText, Calendar, CreditCard, Star, CheckCircle2, ScanFace, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import RankedAvatar from "@/components/RankedAvatar";
 import AvaliacaoDialog from "@/components/AvaliacaoDialog";
+import ProgressoServico from "@/components/ProgressoServico";
+import { StatusBadge } from "@/components/StatusBadge";
 import { getNivel } from "@/lib/career";
 import { cn } from "@/lib/utils";
 
