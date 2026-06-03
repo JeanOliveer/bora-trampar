@@ -32,7 +32,7 @@ const Perfil = () => {
   const [chavePix, setChavePix] = useState("");
 
   useEffect(() => {
-    if (!loading && !user) navigate("/login");
+    if (!loading && !user) navigate("/login", { replace: true });
   }, [loading, user, navigate]);
 
   useEffect(() => {

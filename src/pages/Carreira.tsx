@@ -106,7 +106,7 @@ const Carreira = () => {
   };
 
   useEffect(() => {
-    if (!authLoading && !user) navigate("/login");
+    if (!authLoading && !user) navigate("/login", { replace: true });
   }, [authLoading, user, navigate]);
 
   useEffect(() => {

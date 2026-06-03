@@ -32,20 +32,23 @@ const Servicos = () => {
   const [servicoSelecionado, setServicoSelecionado] = useState<Servico | null>(null);
 
   useEffect(() => {
-    if (!authLoading && !user) navigate("/login");
+    if (!authLoading && !user) navigate("/login", { replace: true });
   }, [authLoading, user, navigate]);
 
   useEffect(() => {
-    const fetch = async () => {
+    if (!user) return;
+    let cancelled = false;
+    (async () => {
       const { data } = await supabase
         .from("servicos")
         .select("*")
         .eq("ativo", true)
         .order("created_at", { ascending: false });
+      if (cancelled) return;
       setServicos((data as Servico[]) || []);
       setLoading(false);
-    };
-    if (user) fetch();
+    })();
+    return () => { cancelled = true; };
   }, [user]);
 
   return (

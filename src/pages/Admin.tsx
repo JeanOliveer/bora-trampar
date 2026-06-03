@@ -44,7 +44,7 @@ const emptyForm = {
 };
 
 const Admin = () => {
-  const { user, isAdmin, loading: authLoading } = useAuth();
+  const { user, isAdmin, loading: authLoading, profileLoading } = useAuth();
   const navigate = useNavigate();
   const [servicos, setServicos] = useState<Servico[]>([]);
   const [loading, setLoading] = useState(true);
@@ -53,19 +53,39 @@ const Admin = () => {
   const [form, setForm] = useState(emptyForm);
 
   useEffect(() => {
-    if (!authLoading) {
-      if (!user) navigate("/login");
-      else if (!isAdmin) navigate("/servicos");
+    if (authLoading) return;
+    if (!user) {
+      navigate("/login", { replace: true });
+      return;
     }
-  }, [authLoading, user, isAdmin, navigate]);
+    // Wait for role to be loaded before deciding to redirect
+    if (profileLoading) return;
+    if (!isAdmin) navigate("/servicos", { replace: true });
+  }, [authLoading, profileLoading, user, isAdmin, navigate]);
+
+  useEffect(() => {
+    if (!isAdmin) return;
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("servicos")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (cancelled) return;
+      setServicos((data as Servico[]) || []);
+      setLoading(false);
+    })();
+    return () => { cancelled = true; };
+  }, [isAdmin]);
 
   const load = async () => {
-    const { data } = await supabase.from("servicos").select("*").order("created_at", { ascending: false });
+    const { data } = await supabase
+      .from("servicos")
+      .select("*")
+      .order("created_at", { ascending: false });
     setServicos((data as Servico[]) || []);
     setLoading(false);
   };
-
-  useEffect(() => { if (isAdmin) load(); }, [isAdmin]);
 
   const handleSave = async () => {
     if (!form.titulo) { toast.error("Título é obrigatório."); return; }
@@ -122,7 +142,7 @@ const Admin = () => {
     load();
   };
 
-  if (authLoading || !isAdmin) return <div className="flex min-h-screen items-center justify-center">Carregando...</div>;
+  if (authLoading || profileLoading || !isAdmin) return <div className="flex min-h-screen items-center justify-center">Carregando...</div>;
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
