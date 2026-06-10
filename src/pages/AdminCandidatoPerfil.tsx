@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, User, Phone, MapPin, FileText, Calendar, CreditCard, Star, CheckCircle2, ScanFace, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -68,10 +68,11 @@ const InfoRow = ({ icon: Icon, label, value }: { icon: any; label: string; value
 
 const AdminCandidatoPerfil = () => {
   const { id: candidaturaId } = useParams<{ id: string }>();
-  const { user, isAdmin, loading: authLoading } = useAuth();
+  const { user, isAdmin, loading: authLoading, profileLoading } = useAuth();
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [cand, setCand] = useState<Candidatura | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [servico, setServico] = useState<Servico | null>(null);
@@ -84,22 +85,33 @@ const AdminCandidatoPerfil = () => {
   const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
-    if (!authLoading) {
-      if (!user) navigate("/login");
-      else if (!isAdmin) navigate("/servicos");
+    if (authLoading) return;
+    if (!user) {
+      navigate("/login", { replace: true });
+      return;
     }
-  }, [authLoading, user, isAdmin, navigate]);
+    if (profileLoading) return;
+    if (!isAdmin) navigate("/inicio", { replace: true });
+  }, [authLoading, profileLoading, user, isAdmin, navigate]);
 
-  useEffect(() => {
-    const load = async () => {
-      if (!candidaturaId || !isAdmin) return;
-      setLoading(true);
+  const load = useCallback(async (cancelledRef?: { value: boolean }) => {
+    if (!candidaturaId || !isAdmin) return;
+    setLoading(true);
+    setErrorMessage(null);
+    setDocUrl(null);
+    setSelfieUrl(null);
 
-      const { data: c } = await supabase
+    const { data: c, error: candError } = await supabase
         .from("candidaturas")
-        .select("*")
+        .select("id, user_id, servico_id, telefone, cidade, bairro, rua, numero, documento_url, selfie_url, status, created_at, aprovada_pela_empresa, checkin_em, presenca_confirmada_em, chegada_confirmada_em")
         .eq("id", candidaturaId)
         .maybeSingle();
+      if (cancelledRef?.value) return;
+      if (candError) {
+        setErrorMessage("Não foi possível carregar este candidato.");
+        setLoading(false);
+        return;
+      }
       const candidatura = c as Candidatura | null;
       setCand(candidatura);
 
@@ -113,29 +125,33 @@ const AdminCandidatoPerfil = () => {
             .select("id, resposta, pergunta:servico_perguntas(id, texto, tipo)")
             .eq("candidatura_id", candidatura.id),
         ]);
+        if (cancelledRef?.value) return;
         setProfile(p as Profile | null);
         setServico(s as Servico | null);
         setAvaliacaoExistente((aval as { id: string; estrelas: number; justificativa: string | null } | null) ?? null);
         setRespostas((resp as unknown as Resposta[]) ?? []);
 
-        if (candidatura.documento_url) {
-          const { data: signed } = await supabase.storage
-            .from("documentos-candidatura")
-            .createSignedUrl(candidatura.documento_url, 60 * 10);
-          setDocUrl(signed?.signedUrl ?? null);
-        }
-        if (candidatura.selfie_url) {
-          const { data: signed } = await supabase.storage
-            .from("documentos-candidatura")
-            .createSignedUrl(candidatura.selfie_url, 60 * 10);
-          setSelfieUrl(signed?.signedUrl ?? null);
-        }
+        const [{ data: signedDoc }, { data: signedSelfie }] = await Promise.all([
+          candidatura.documento_url
+            ? supabase.storage.from("documentos-candidatura").createSignedUrl(candidatura.documento_url, 60 * 10)
+            : Promise.resolve({ data: null }),
+          candidatura.selfie_url
+            ? supabase.storage.from("documentos-candidatura").createSignedUrl(candidatura.selfie_url, 60 * 10)
+            : Promise.resolve({ data: null }),
+        ]);
+        if (cancelledRef?.value) return;
+        setDocUrl(signedDoc?.signedUrl ?? null);
+        setSelfieUrl(signedSelfie?.signedUrl ?? null);
       }
 
       setLoading(false);
-    };
-    load();
-  }, [candidaturaId, isAdmin, refreshKey]);
+  }, [candidaturaId, isAdmin]);
+
+  useEffect(() => {
+    const cancelledRef = { value: false };
+    load(cancelledRef);
+    return () => { cancelledRef.value = true; };
+  }, [load, refreshKey]);
 
   const confirmarChegada = async () => {
     if (!cand) return;
@@ -152,7 +168,7 @@ const AdminCandidatoPerfil = () => {
     }
   };
 
-  if (authLoading || !isAdmin) {
+  if (authLoading || profileLoading || !isAdmin) {
     return <div className="flex min-h-screen items-center justify-center">Carregando...</div>;
   }
 
@@ -170,7 +186,8 @@ const AdminCandidatoPerfil = () => {
       <div className="flex min-h-screen flex-col">
         <Header />
         <main className="container flex-1 py-10">
-          <p className="text-muted-foreground">Candidatura não encontrada.</p>
+          <p className="text-muted-foreground">{errorMessage || "Candidatura não encontrada."}</p>
+          {errorMessage && <Button variant="outline" className="mt-4" onClick={() => load()}>Tentar novamente</Button>}
         </main>
       </div>
     );
