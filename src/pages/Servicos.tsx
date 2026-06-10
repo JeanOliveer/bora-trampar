@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Briefcase, MapPin, Calendar, DollarSign, Clock, Users, CheckCircle2, Building2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
@@ -40,74 +40,129 @@ type Aprovada = {
 const Servicos = () => {
   const { user, isAdmin, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+  const userId = user?.id ?? null;
   const [servicos, setServicos] = useState<Servico[]>([]);
   const [aprovadas, setAprovadas] = useState<Aprovada[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingAprovadas, setLoadingAprovadas] = useState(false);
+  const [erroServicos, setErroServicos] = useState<string | null>(null);
+  const [erroAprovadas, setErroAprovadas] = useState<string | null>(null);
+  const [confirmandoId, setConfirmandoId] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState(() => {
+    if (typeof window === "undefined") return "disponiveis";
+    return sessionStorage.getItem("uat_servicos_tab") || "disponiveis";
+  });
   const [servicoSelecionado, setServicoSelecionado] = useState<Servico | null>(null);
+  const realtimeRefreshRef = useRef<number | null>(null);
+
+  const handleTabChange = useCallback((value: string) => {
+    setActiveTab(value);
+    sessionStorage.setItem("uat_servicos_tab", value);
+  }, []);
 
   useEffect(() => {
-    if (!authLoading && !user) navigate("/login", { replace: true });
-  }, [authLoading, user, navigate]);
+    if (!authLoading && !userId) navigate("/login", { replace: true });
+  }, [authLoading, userId, navigate]);
 
-  const fetchAprovadas = useCallback(async () => {
-    if (!user) return;
-    const { data } = await supabase
+  const fetchAprovadas = useCallback(async (showLoading = false) => {
+    if (!userId) {
+      setAprovadas([]);
+      return;
+    }
+    if (showLoading) setLoadingAprovadas(true);
+    setErroAprovadas(null);
+    const { data, error } = await supabase
       .from("candidaturas")
       .select(
         "id, status, presenca_confirmada_em, chegada_confirmada_em, servico:servicos(id, titulo, descricao, categoria, valor, cidade, estado, data_servico, horario, requisitos, empresa_nome)"
       )
-      .eq("user_id", user.id)
+      .eq("user_id", userId)
       .in("status", ["aprovada", "concluida"])
-      .order("created_at", { ascending: false });
-    setAprovadas((data as unknown as Aprovada[]) || []);
-  }, [user]);
+      .order("created_at", { ascending: false })
+      .limit(50);
+
+    if (error) {
+      setErroAprovadas("Não foi possível carregar seus serviços aprovados.");
+    } else {
+      setAprovadas((data as unknown as Aprovada[]) || []);
+    }
+    if (showLoading) setLoadingAprovadas(false);
+  }, [userId]);
 
   useEffect(() => {
-    if (!user) return;
+    if (!userId) return;
     let cancelled = false;
     (async () => {
-      const [{ data: svc }] = await Promise.all([
+      setLoading(true);
+      setLoadingAprovadas(true);
+      setErroServicos(null);
+      setErroAprovadas(null);
+      const [{ data: svc, error: svcError }, { data: apr, error: aprError }] = await Promise.all([
         supabase
           .from("servicos")
-          .select("*")
+          .select("id, titulo, descricao, categoria, valor, cidade, estado, data_servico, horario, requisitos, empresa_nome")
           .eq("ativo", true)
-          .order("created_at", { ascending: false }),
-        fetchAprovadas(),
+          .order("created_at", { ascending: false })
+          .limit(60),
+        supabase
+          .from("candidaturas")
+          .select(
+            "id, status, presenca_confirmada_em, chegada_confirmada_em, servico:servicos(id, titulo, descricao, categoria, valor, cidade, estado, data_servico, horario, requisitos, empresa_nome)"
+          )
+          .eq("user_id", userId)
+          .in("status", ["aprovada", "concluida"])
+          .order("created_at", { ascending: false })
+          .limit(50),
       ]);
       if (cancelled) return;
-      setServicos((svc as Servico[]) || []);
+      if (svcError) setErroServicos("Não foi possível carregar os serviços disponíveis.");
+      else setServicos((svc as Servico[]) || []);
+      if (aprError) setErroAprovadas("Não foi possível carregar seus serviços aprovados.");
+      else setAprovadas((apr as unknown as Aprovada[]) || []);
       setLoading(false);
+      setLoadingAprovadas(false);
     })();
     return () => {
       cancelled = true;
     };
-  }, [user, fetchAprovadas]);
+  }, [userId]);
 
   // Realtime: atualiza quando a empresa confirmar chegada / status mudar
   useEffect(() => {
-    if (!user) return;
+    if (!userId) return;
     const channel = supabase
-      .channel(`cand-user-${user.id}`)
+      .channel(`cand-user-${userId}`)
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "candidaturas", filter: `user_id=eq.${user.id}` },
-        () => fetchAprovadas()
+        { event: "*", schema: "public", table: "candidaturas", filter: `user_id=eq.${userId}` },
+        () => {
+          if (realtimeRefreshRef.current) window.clearTimeout(realtimeRefreshRef.current);
+          realtimeRefreshRef.current = window.setTimeout(() => fetchAprovadas(false), 350);
+        }
       )
       .subscribe();
     return () => {
+      if (realtimeRefreshRef.current) window.clearTimeout(realtimeRefreshRef.current);
       supabase.removeChannel(channel);
     };
-  }, [user, fetchAprovadas]);
+  }, [userId, fetchAprovadas]);
 
   const confirmarPresenca = async (cId: string) => {
+    setConfirmandoId(cId);
+    const confirmadoEm = new Date().toISOString();
     const { error } = await supabase
       .from("candidaturas")
-      .update({ presenca_confirmada_em: new Date().toISOString() })
+      .update({ presenca_confirmada_em: confirmadoEm })
       .eq("id", cId);
+    setConfirmandoId(null);
     if (error) toast.error("Erro ao confirmar presença");
     else {
       toast.success("Presença confirmada!");
-      fetchAprovadas();
+      setActiveTab("aprovados");
+      sessionStorage.setItem("uat_servicos_tab", "aprovados");
+      setAprovadas((prev) =>
+        prev.map((item) => (item.id === cId ? { ...item, presenca_confirmada_em: confirmadoEm } : item))
+      );
     }
   };
 
@@ -129,7 +184,7 @@ const Servicos = () => {
           <p className="mt-2 text-muted-foreground">Veja as diárias disponíveis e acompanhe seus serviços aprovados.</p>
         </div>
 
-        <Tabs defaultValue="disponiveis" className="space-y-6">
+        <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
           <TabsList className="grid w-full grid-cols-2 sm:max-w-sm">
             <TabsTrigger value="disponiveis">Disponíveis</TabsTrigger>
             <TabsTrigger value="aprovados">
@@ -140,6 +195,15 @@ const Servicos = () => {
           <TabsContent value="disponiveis">
             {loading ? (
               <p className="text-muted-foreground">Carregando serviços...</p>
+            ) : erroServicos ? (
+              <Card>
+                <CardContent className="py-10 text-center">
+                  <p className="text-sm text-muted-foreground">{erroServicos}</p>
+                  <Button variant="outline" className="mt-4" onClick={() => window.location.reload()}>
+                    Tentar novamente
+                  </Button>
+                </CardContent>
+              </Card>
             ) : servicos.length === 0 ? (
               <Card>
                 <CardContent className="flex flex-col items-center justify-center py-16 text-center">
@@ -212,7 +276,18 @@ const Servicos = () => {
           </TabsContent>
 
           <TabsContent value="aprovados">
-            {aprovadas.length === 0 ? (
+            {loadingAprovadas ? (
+              <p className="text-muted-foreground">Carregando serviços aprovados...</p>
+            ) : erroAprovadas ? (
+              <Card>
+                <CardContent className="py-10 text-center">
+                  <p className="text-sm text-muted-foreground">{erroAprovadas}</p>
+                  <Button variant="outline" className="mt-4" onClick={() => fetchAprovadas(true)}>
+                    Tentar novamente
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : aprovadas.length === 0 ? (
               <Card>
                 <CardContent className="flex flex-col items-center justify-center py-16 text-center">
                   <CheckCircle2 className="mb-4 h-12 w-12 text-muted-foreground" />
@@ -268,9 +343,9 @@ const Servicos = () => {
                       </CardContent>
                       <CardFooter>
                         {!presenca ? (
-                          <Button className="w-full" onClick={() => confirmarPresenca(a.id)}>
+                          <Button className="w-full" onClick={() => confirmarPresenca(a.id)} disabled={confirmandoId === a.id}>
                             <CheckCircle2 className="mr-2 h-4 w-4" />
-                            Confirmar Presença
+                            {confirmandoId === a.id ? "Confirmando..." : "Confirmar Presença"}
                           </Button>
                         ) : !chegada ? (
                           <Button className="w-full" variant="outline" disabled>

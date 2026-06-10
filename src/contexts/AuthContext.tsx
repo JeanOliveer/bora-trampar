@@ -13,6 +13,7 @@ type Profile = {
   cidade: string | null;
   estado: string | null;
   chave_pix: string | null;
+  pontuacao?: number | null;
 };
 
 type AuthContextType = {
@@ -46,16 +47,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   const [profileLoading, setProfileLoading] = useState(true);
-  const fetchInFlight = useRef<string | null>(null);
+  const fetchInFlight = useRef<{ userId: string; promise: Promise<void> } | null>(null);
 
   const fetchProfile = useCallback(async (userId: string) => {
-    // Avoid concurrent duplicate fetches for the same user
-    if (fetchInFlight.current === userId) return;
-    fetchInFlight.current = userId;
+    if (fetchInFlight.current?.userId === userId) return fetchInFlight.current.promise;
     setProfileLoading(true);
-    try {
+    const promise = (async () => {
       const [{ data: profileData }, { data: roleData }] = await Promise.all([
-        supabase.from("profiles").select("*").eq("user_id", userId).maybeSingle(),
+        supabase
+          .from("profiles")
+          .select("id, user_id, user_type, nome_completo, cpf, data_nascimento, estado_civil, cidade, estado, chave_pix, pontuacao")
+          .eq("user_id", userId)
+          .maybeSingle(),
         supabase
           .from("user_roles")
           .select("role")
@@ -65,6 +68,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       ]);
       setProfile(profileData as unknown as Profile | null);
       setIsAdmin(!!roleData);
+    })();
+    fetchInFlight.current = { userId, promise };
+    try {
+      await promise;
+    } catch {
+      setProfile(null);
+      setIsAdmin(false);
     } finally {
       setProfileLoading(false);
       fetchInFlight.current = null;

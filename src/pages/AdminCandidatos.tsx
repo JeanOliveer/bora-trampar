@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Users, Phone, MapPin, FileText, ExternalLink, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -50,59 +50,77 @@ const initials = (name: string | null | undefined) => {
 
 const AdminCandidatos = () => {
   const { id: servicoId } = useParams<{ id: string }>();
-  const { user, isAdmin, loading: authLoading } = useAuth();
+  const { user, isAdmin, loading: authLoading, profileLoading } = useAuth();
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
   const [servico, setServico] = useState<Servico | null>(null);
   const [candidaturas, setCandidaturas] = useState<Candidatura[]>([]);
   const [profilesMap, setProfilesMap] = useState<Record<string, ProfileLite>>({});
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!authLoading) {
-      if (!user) navigate("/login");
-      else if (!isAdmin) navigate("/servicos");
+    if (authLoading) return;
+    if (!user) {
+      navigate("/login", { replace: true });
+      return;
     }
-  }, [authLoading, user, isAdmin, navigate]);
+    if (profileLoading) return;
+    if (!isAdmin) navigate("/inicio", { replace: true });
+  }, [authLoading, profileLoading, user, isAdmin, navigate]);
 
-  useEffect(() => {
-    const load = async () => {
-      if (!servicoId || !isAdmin) return;
-      setLoading(true);
+  const load = useCallback(async (cancelledRef?: { value: boolean }) => {
+    if (!servicoId || !isAdmin) return;
+    setLoading(true);
+    setErrorMessage(null);
 
-      const { data: srv } = await supabase
+    const [{ data: srv, error: srvError }, { data: cands, error: candError }] = await Promise.all([
+      supabase
         .from("servicos")
         .select("id, titulo, categoria, cidade, estado")
         .eq("id", servicoId)
-        .maybeSingle();
-      setServico((srv as Servico) || null);
-
-      const { data: cands } = await supabase
+        .maybeSingle(),
+      supabase
         .from("candidaturas")
-        .select("*")
+        .select("id, user_id, telefone, cidade, bairro, rua, numero, documento_url, status, created_at, aprovada_em")
         .eq("servico_id", servicoId)
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: false })
+        .limit(100),
+    ]);
 
-      const list = (cands as Candidatura[]) || [];
-      setCandidaturas(list);
-
-      const ids = Array.from(new Set(list.map((c) => c.user_id)));
-      if (ids.length > 0) {
-        const { data: profs } = await supabase
-          .from("profiles")
-          .select("user_id, nome_completo, cidade, estado, pontuacao")
-          .in("user_id", ids);
-        const map: Record<string, ProfileLite> = {};
-        (profs as ProfileLite[] | null)?.forEach((p) => (map[p.user_id] = p));
-        setProfilesMap(map);
-      } else {
-        setProfilesMap({});
-      }
-
+    if (cancelledRef?.value) return;
+    if (srvError || candError) {
+      setErrorMessage("Não foi possível carregar os candidatos.");
       setLoading(false);
-    };
-    load();
+      return;
+    }
+    setServico((srv as Servico) || null);
+
+    const list = (cands as Candidatura[]) || [];
+    setCandidaturas(list);
+
+    const ids = Array.from(new Set(list.map((c) => c.user_id)));
+    if (ids.length > 0) {
+      const { data: profs } = await supabase
+        .from("profiles")
+        .select("user_id, nome_completo, cidade, estado, pontuacao")
+        .in("user_id", ids);
+      if (cancelledRef?.value) return;
+      const map: Record<string, ProfileLite> = {};
+      (profs as ProfileLite[] | null)?.forEach((p) => (map[p.user_id] = p));
+      setProfilesMap(map);
+    } else {
+      setProfilesMap({});
+    }
+
+    setLoading(false);
   }, [servicoId, isAdmin]);
+
+  useEffect(() => {
+    const cancelledRef = { value: false };
+    load(cancelledRef);
+    return () => { cancelledRef.value = true; };
+  }, [load]);
 
   const contratar = async (c: Candidatura) => {
     if (c.status === "aprovada") return;
@@ -120,7 +138,7 @@ const AdminCandidatos = () => {
     );
   };
 
-  if (authLoading || !isAdmin) {
+  if (authLoading || profileLoading || !isAdmin) {
     return <div className="flex min-h-screen items-center justify-center">Carregando...</div>;
   }
 
@@ -155,6 +173,13 @@ const AdminCandidatos = () => {
 
         {loading ? (
           <p className="text-muted-foreground">Carregando candidatos...</p>
+        ) : errorMessage ? (
+          <Card>
+            <CardContent className="flex flex-col items-center justify-center gap-3 py-16 text-center">
+              <p className="text-sm text-muted-foreground">{errorMessage}</p>
+              <Button variant="outline" onClick={() => load()}>Tentar novamente</Button>
+            </CardContent>
+          </Card>
         ) : candidaturas.length === 0 ? (
           <Card>
             <CardContent className="flex flex-col items-center justify-center py-16 text-center">

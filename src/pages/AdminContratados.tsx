@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, CheckCircle2, MapPin, Phone, Users, UserCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -49,9 +49,10 @@ type Servico = { id: string; titulo: string; cidade: string | null; estado: stri
 type ProfileLite = { user_id: string; nome_completo: string | null; pontuacao: number };
 
 const AdminContratados = () => {
-  const { user, isAdmin, loading: authLoading } = useAuth();
+  const { user, isAdmin, loading: authLoading, profileLoading } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [servicos, setServicos] = useState<Servico[]>([]);
   const [candsByServico, setCandsByServico] = useState<Record<string, Candidatura[]>>({});
   const [profilesMap, setProfilesMap] = useState<Record<string, ProfileLite>>({});
@@ -63,19 +64,31 @@ const AdminContratados = () => {
   }, []);
 
   useEffect(() => {
-    if (!authLoading) {
-      if (!user) navigate("/login");
-      else if (!isAdmin) navigate("/servicos");
+    if (authLoading) return;
+    if (!user) {
+      navigate("/login", { replace: true });
+      return;
     }
-  }, [authLoading, user, isAdmin, navigate]);
+    if (profileLoading) return;
+    if (!isAdmin) navigate("/inicio", { replace: true });
+  }, [authLoading, profileLoading, user, isAdmin, navigate]);
 
-  const load = async () => {
+  const load = useCallback(async (cancelledRef?: { value: boolean }) => {
+    if (!isAdmin) return;
     setLoading(true);
-    const { data: cands } = await supabase
+    setErrorMessage(null);
+    const { data: cands, error: candError } = await supabase
       .from("candidaturas")
-      .select("*")
+      .select("id, user_id, servico_id, telefone, cidade, status, aprovada_em, aprovada_pela_empresa, checkin_em, presenca_confirmada_em, expediente_encerrado_em")
       .eq("status", "aprovada")
-      .order("aprovada_em", { ascending: false });
+      .order("aprovada_em", { ascending: false })
+      .limit(120);
+    if (cancelledRef?.value) return;
+    if (candError) {
+      setErrorMessage("Não foi possível carregar os contratados.");
+      setLoading(false);
+      return;
+    }
     const list = (cands as Candidatura[]) || [];
 
     const servicoIds = Array.from(new Set(list.map((c) => c.servico_id)));
@@ -89,6 +102,7 @@ const AdminContratados = () => {
         ? supabase.from("profiles").select("user_id, nome_completo, pontuacao").in("user_id", userIds)
         : Promise.resolve({ data: [] as ProfileLite[] }),
     ]);
+    if (cancelledRef?.value) return;
 
     const grouped: Record<string, Candidatura[]> = {};
     list.forEach((c) => {
@@ -102,11 +116,13 @@ const AdminContratados = () => {
     setCandsByServico(grouped);
     setProfilesMap(pmap);
     setLoading(false);
-  };
+  }, [isAdmin]);
 
   useEffect(() => {
-    if (isAdmin) load();
-  }, [isAdmin]);
+    const cancelledRef = { value: false };
+    load(cancelledRef);
+    return () => { cancelledRef.value = true; };
+  }, [load]);
 
   const confirmarChegada = async (c: Candidatura) => {
     const now = new Date().toISOString();
@@ -139,7 +155,7 @@ const AdminContratados = () => {
     load();
   };
 
-  if (authLoading || !isAdmin) {
+  if (authLoading || profileLoading || !isAdmin) {
     return <div className="flex min-h-screen items-center justify-center">Carregando...</div>;
   }
 
@@ -171,6 +187,13 @@ const AdminContratados = () => {
 
         {loading ? (
           <p className="text-muted-foreground">Carregando...</p>
+        ) : errorMessage ? (
+          <Card>
+            <CardContent className="flex flex-col items-center justify-center gap-3 py-16 text-center">
+              <p className="text-sm text-muted-foreground">{errorMessage}</p>
+              <Button variant="outline" onClick={() => load()}>Tentar novamente</Button>
+            </CardContent>
+          </Card>
         ) : servicos.length === 0 ? (
           <Card>
             <CardContent className="flex flex-col items-center justify-center py-16 text-center">
