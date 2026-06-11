@@ -216,52 +216,75 @@ const Servicos = () => {
             ) : (
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {servicos.map((s) => (
-                  <Card key={s.id} className="rounded-2xl shadow-[var(--shadow-card)] transition-shadow hover:shadow-md">
-                    <CardHeader>
+                  <Card
+                    key={s.id}
+                    className="flex h-full flex-col overflow-hidden rounded-2xl border border-border/60 shadow-[var(--shadow-card)] transition-all hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-md"
+                  >
+                    <CardHeader className="space-y-2 pb-3">
                       <div className="flex items-start justify-between gap-2">
-                        <CardTitle className="text-lg">{s.titulo}</CardTitle>
-                        {s.categoria && <Badge variant="secondary">{s.categoria}</Badge>}
+                        <CardTitle className="text-base font-semibold leading-snug line-clamp-2">
+                          {s.titulo}
+                        </CardTitle>
+                        {s.categoria && (
+                          <Badge variant="secondary" className="shrink-0 capitalize">
+                            {s.categoria}
+                          </Badge>
+                        )}
                       </div>
-                      {s.descricao && <CardDescription className="line-clamp-2">{s.descricao}</CardDescription>}
+                      {s.empresa_nome && (
+                        <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                          <Building2 className="h-3.5 w-3.5 shrink-0" />
+                          <span className="truncate">{s.empresa_nome}</span>
+                        </p>
+                      )}
+                      {s.descricao && (
+                        <CardDescription className="line-clamp-2 text-sm">
+                          {s.descricao}
+                        </CardDescription>
+                      )}
                     </CardHeader>
-                    <CardContent className="space-y-2 text-sm">
+                    <CardContent className="flex flex-1 flex-col gap-2.5 pb-4 text-sm">
                       {s.valor != null && (
-                        <div className="flex items-center gap-2 font-medium text-primary">
-                          <DollarSign className="h-4 w-4" />
-                          R$ {Number(s.valor).toFixed(2)}
+                        <div className="flex items-baseline gap-1 text-primary">
+                          <DollarSign className="h-4 w-4 self-center" />
+                          <span className="text-lg font-bold">R$ {Number(s.valor).toFixed(2)}</span>
+                          <span className="text-xs font-normal text-muted-foreground">/diária</span>
                         </div>
                       )}
-                      {(s.cidade || s.estado) && (
-                        <div className="flex items-center gap-2 text-muted-foreground">
-                          <MapPin className="h-4 w-4" />
-                          {[s.cidade, s.estado].filter(Boolean).join(" - ")}
-                        </div>
-                      )}
-                      {s.data_servico && (
-                        <div className="flex items-center gap-2 text-muted-foreground">
-                          <Calendar className="h-4 w-4" />
-                          {new Date(s.data_servico).toLocaleDateString("pt-BR")}
-                        </div>
-                      )}
-                      {s.horario && (
-                        <div className="flex items-center gap-2 text-muted-foreground">
-                          <Clock className="h-4 w-4" />
-                          {s.horario}
-                        </div>
-                      )}
+                      <div className="space-y-1.5 text-muted-foreground">
+                        {(s.cidade || s.estado) && (
+                          <div className="flex items-center gap-2">
+                            <MapPin className="h-4 w-4 shrink-0" />
+                            <span className="truncate">{[s.cidade, s.estado].filter(Boolean).join(" - ")}</span>
+                          </div>
+                        )}
+                        {s.data_servico && (
+                          <div className="flex items-center gap-2">
+                            <Calendar className="h-4 w-4 shrink-0" />
+                            <span className="truncate">
+                              {new Date(s.data_servico).toLocaleDateString("pt-BR")}
+                            </span>
+                          </div>
+                        )}
+                        {s.horario && (
+                          <div className="flex items-center gap-2">
+                            <Clock className="h-4 w-4 shrink-0" />
+                            <span className="truncate">{s.horario}</span>
+                          </div>
+                        )}
+                      </div>
                       {s.requisitos && (
-                        <p className="pt-2 text-xs text-muted-foreground">
-                          <strong>Requisitos:</strong> {s.requisitos}
+                        <p className="mt-auto line-clamp-2 rounded-md bg-muted/50 p-2 text-xs text-muted-foreground">
+                          <strong className="font-medium text-foreground">Requisitos:</strong> {s.requisitos}
                         </p>
                       )}
                     </CardContent>
-                    <CardFooter className="flex flex-col gap-2">
-                      {!isAdmin && (
+                    <CardFooter className="mt-auto pt-0">
+                      {!isAdmin ? (
                         <Button className="w-full" onClick={() => setServicoSelecionado(s)}>
                           Candidatar-se
                         </Button>
-                      )}
-                      {isAdmin && (
+                      ) : (
                         <Link to={`/admin/servicos/${s.id}/candidatos`} className="w-full">
                           <Button variant="outline" className="w-full">
                             <Users className="mr-2 h-4 w-4" />
