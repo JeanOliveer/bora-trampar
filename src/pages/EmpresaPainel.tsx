@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { Briefcase, Calendar, MapPin, Users, Star, CheckCircle2, RotateCcw, MapPinCheck, Clock } from "lucide-react";
+import { useParams, useNavigate } from "react-router-dom";
+import { ArrowLeft, Briefcase, Calendar, MapPin, Users, Star, CheckCircle2, RotateCcw, MapPinCheck, Clock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -85,6 +85,7 @@ const StarPicker = ({ value, onChange }: { value: number; onChange: (n: number) 
 
 const EmpresaPainel = () => {
   const { token } = useParams<{ token: string }>();
+  const navigate = useNavigate();
   const [servico, setServico] = useState<Servico | null>(null);
   const [candidatos, setCandidatos] = useState<Candidato[]>([]);
   const [loading, setLoading] = useState(true);
@@ -274,13 +275,23 @@ const EmpresaPainel = () => {
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b bg-card">
-        <div className="container flex items-center justify-between py-4">
-          <div>
-            <p className="text-xs uppercase tracking-wide text-muted-foreground">Painel da Empresa</p>
-            <h1 className="text-xl font-bold">{servico.empresa_nome ?? "Empresa contratante"}</h1>
+        <div className="container flex items-center justify-between gap-3 py-4">
+          <div className="flex min-w-0 items-center gap-3">
+            <button
+              type="button"
+              aria-label="Voltar"
+              onClick={() => (window.history.length > 1 ? navigate(-1) : navigate("/"))}
+              className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-muted text-foreground transition-colors hover:bg-muted/80"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </button>
+            <div className="min-w-0">
+              <p className="text-xs uppercase tracking-wide text-muted-foreground">Painel da Empresa</p>
+              <h1 className="truncate text-xl font-bold">{servico.empresa_nome ?? "Empresa contratante"}</h1>
+            </div>
           </div>
           {servico.empresa_total_avaliacoes > 0 && (
-            <Badge variant="secondary" className="gap-1">
+            <Badge variant="secondary" className="shrink-0 gap-1">
               <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
               {servico.empresa_pontuacao} pts • {servico.empresa_total_avaliacoes} aval.
             </Badge>

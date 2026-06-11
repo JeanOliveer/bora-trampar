@@ -83,6 +83,7 @@ const Perfil = () => {
         eyebrow="UaiTrampo"
         title="Meu Perfil"
         subtitle={profile?.nome_completo || user?.email || ""}
+        backTo="/inicio"
       />
       <main className="container flex-1 py-6 pb-24 md:py-10 md:pb-10">
         <Link to="/servicos" className="mb-6 hidden items-center gap-1 text-sm text-muted-foreground hover:text-foreground md:inline-flex">
