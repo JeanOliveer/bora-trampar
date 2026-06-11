@@ -85,6 +85,7 @@ const StarPicker = ({ value, onChange }: { value: number; onChange: (n: number) 
 
 const EmpresaPainel = () => {
   const { token } = useParams<{ token: string }>();
+  const navigate = useNavigate();
   const [servico, setServico] = useState<Servico | null>(null);
   const [candidatos, setCandidatos] = useState<Candidato[]>([]);
   const [loading, setLoading] = useState(true);
