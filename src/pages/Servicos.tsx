@@ -177,6 +177,7 @@ const Servicos = () => {
         eyebrow="UaiTrampo"
         title="Serviços"
         subtitle={`${totalDisponiveis} ${totalDisponiveis === 1 ? "vaga disponível" : "vagas disponíveis"}`}
+        backTo="/inicio"
       />
       <main className="container flex-1 py-6 pb-24 md:py-10 md:pb-10">
         <div className="mb-6 hidden md:block">
