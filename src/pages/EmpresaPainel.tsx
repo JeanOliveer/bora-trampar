@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { Briefcase, Calendar, MapPin, Users, Star, CheckCircle2, RotateCcw, MapPinCheck, Clock } from "lucide-react";
+import { useParams, useNavigate } from "react-router-dom";
+import { ArrowLeft, Briefcase, Calendar, MapPin, Users, Star, CheckCircle2, RotateCcw, MapPinCheck, Clock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
