@@ -114,6 +114,15 @@ const Login = () => {
             />
           </div>
 
+          <div className="flex justify-end">
+            <Link
+              to="/esqueci-senha"
+              className="text-[12px] font-medium text-white/80 underline-offset-4 hover:text-white hover:underline"
+            >
+              Esqueci minha senha
+            </Link>
+          </div>
+
           <button
             onClick={handleLogin}
             disabled={loading}
