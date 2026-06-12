@@ -7,6 +7,8 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import RootRoute from "@/components/RootRoute";
 import Index from "./pages/Index.tsx";
 import Login from "./pages/Login.tsx";
+import EsqueciSenha from "./pages/EsqueciSenha.tsx";
+import RedefinirSenha from "./pages/RedefinirSenha.tsx";
 import Cadastro from "./pages/Cadastro.tsx";
 import ComoFunciona from "./pages/ComoFunciona.tsx";
 import Perfil from "./pages/Perfil.tsx";
