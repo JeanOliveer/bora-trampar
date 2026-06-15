@@ -303,9 +303,10 @@ const EmpresaPainel = () => {
         <Card>
           <CardHeader>
             <div className="flex flex-wrap items-start justify-between gap-2">
-              <div>
-                <CardTitle className="flex items-center gap-2">
-                  <Briefcase className="h-5 w-5 text-primary" /> {servico.titulo}
+              <div className="min-w-0 flex-1">
+                <CardTitle className="flex items-start gap-2 break-words">
+                  <Briefcase className="mt-1 h-5 w-5 shrink-0 text-primary" />
+                  <span className="min-w-0 break-words">{servico.titulo}</span>
                 </CardTitle>
                 {servico.categoria && (
                   <Badge variant="secondary" className="mt-2">{servico.categoria}</Badge>
