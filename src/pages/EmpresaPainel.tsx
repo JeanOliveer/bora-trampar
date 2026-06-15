@@ -366,15 +366,15 @@ const EmpresaPainel = () => {
                     <div
                       key={c.candidatura_id}
                       className={cn(
-                        "flex flex-col gap-3 rounded-lg border p-4 sm:flex-row sm:items-center sm:justify-between",
+                        "flex w-full min-w-0 flex-col gap-3 overflow-hidden rounded-lg border p-4 sm:flex-row sm:items-start sm:justify-between",
                         c.aprovada_pela_empresa && "border-primary/40 bg-primary/5"
                       )}
                     >
-                      <div className="flex items-center gap-3 min-w-0">
+                      <div className="flex min-w-0 flex-1 items-start gap-3">
                         <RankedAvatar nome={c.nome_completo} pontuacao={c.pontuacao} size="md" />
-                        <div className="min-w-0">
+                        <div className="min-w-0 flex-1">
                           <div className="flex flex-wrap items-center gap-2">
-                            <span className="font-medium truncate">{c.nome_completo ?? "Sem nome"}</span>
+                            <span className="break-words font-medium">{c.nome_completo ?? "Sem nome"}</span>
                             <Badge className={nivel.badgeClass}>{nivel.label}</Badge>
                             {c.aprovada_pela_empresa && (
                               <Badge variant="default" className="gap-1">
@@ -392,11 +392,11 @@ const EmpresaPainel = () => {
                               </Badge>
                             )}
                           </div>
-                          <p className="text-xs text-muted-foreground">
+                          <p className="break-words text-xs text-muted-foreground">
                             {c.telefone} • {[c.bairro, c.cidade].filter(Boolean).join(", ")}
                           </p>
                           {c.checkin_em && (
-                            <p className="mt-1 text-xs text-muted-foreground">
+                            <p className="mt-1 break-words text-xs text-muted-foreground">
                               Check-in em {new Date(c.checkin_em).toLocaleString("pt-BR")}
                             </p>
                           )}
@@ -404,6 +404,11 @@ const EmpresaPainel = () => {
                             <p className="mt-1 text-xs">
                               <Star className="mr-1 inline h-3 w-3 fill-amber-400 text-amber-400" />
                               Avaliado: {c.estrelas} estrelas
+                            </p>
+                          )}
+                          {c.justificativa && (
+                            <p className="mt-2 whitespace-pre-wrap break-words rounded-md bg-muted/50 p-2 text-xs text-muted-foreground">
+                              "{c.justificativa}"
                             </p>
                           )}
                         </div>
