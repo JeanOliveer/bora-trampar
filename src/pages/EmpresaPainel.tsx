@@ -414,7 +414,7 @@ const EmpresaPainel = () => {
                           )}
                         </div>
                       </div>
-                      <div className="flex flex-wrap gap-2">
+                      <div className="flex w-full flex-wrap gap-2 sm:w-auto sm:shrink-0 sm:justify-end">
                         {!c.aprovada_pela_empresa && (
                           <Button size="sm" onClick={() => aprovar(c)}>
                             Aprovar
