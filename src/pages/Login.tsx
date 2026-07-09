@@ -147,7 +147,7 @@ const Login = () => {
         >
           Não tem conta?{" "}
           <Link
-            to="/cadastro"
+            to={cadastroHref}
             className="font-semibold text-white underline-offset-4 hover:underline"
           >
             Cadastre-se
