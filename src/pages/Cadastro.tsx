@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Briefcase, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
@@ -38,6 +38,9 @@ const itemVariants = {
 
 const Cadastro = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const nextParam = searchParams.get("next");
+  const safeNext = nextParam && nextParam.startsWith("/") && !nextParam.startsWith("//") ? nextParam : null;
   const [loading, setLoading] = useState(false);
   const [nome, setNome] = useState("");
   const [cpf, setCpf] = useState("");
@@ -61,7 +64,7 @@ const Cadastro = () => {
       email,
       password: senha,
       options: {
-        emailRedirectTo: `${window.location.origin}/`,
+        emailRedirectTo: `${window.location.origin}${safeNext ?? "/"}`,
         data: {
           user_type: "trabalhador",
           nome_completo: nome,
@@ -89,6 +92,10 @@ const Cadastro = () => {
 
     setLoading(false);
     toast.success("Conta criada com sucesso!");
+    if (safeNext) {
+      window.location.href = safeNext;
+      return;
+    }
     navigate("/servicos");
   };
 

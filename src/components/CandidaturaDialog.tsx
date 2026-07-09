@@ -301,7 +301,7 @@ const CandidaturaDialog = ({ open, onOpenChange, servicoId, servicoTitulo }: Pro
 
     const fieldErrors: Record<string, string> = {};
     if (!result.success) {
-      for (const issue of result.error.errors) {
+      for (const issue of result.error.issues) {
         const k = issue.path[0] as string;
         if (!fieldErrors[k]) fieldErrors[k] = issue.message;
       }

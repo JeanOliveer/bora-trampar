@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Briefcase, ArrowLeft, Mail, Lock } from "lucide-react";
 import { toast } from "sonner";
@@ -29,6 +29,9 @@ const Login = () => {
   const [senha, setSenha] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const nextParam = searchParams.get("next");
+  const safeNext = nextParam && nextParam.startsWith("/") && !nextParam.startsWith("//") ? nextParam : null;
 
   const handleLogin = async () => {
     if (!email || !senha) {
@@ -52,8 +55,14 @@ const Login = () => {
     }
 
     toast.success("Login realizado com sucesso!");
+    if (safeNext) {
+      window.location.href = safeNext;
+      return;
+    }
     navigate("/servicos");
   };
+
+  const cadastroHref = safeNext ? `/cadastro?next=${encodeURIComponent(safeNext)}` : "/cadastro";
 
   return (
     <div className="relative flex min-h-screen flex-col overflow-hidden bg-gradient-to-b from-[#005e91] via-[#004a73] to-[#00314d] text-white">
@@ -138,7 +147,7 @@ const Login = () => {
         >
           Não tem conta?{" "}
           <Link
-            to="/cadastro"
+            to={cadastroHref}
             className="font-semibold text-white underline-offset-4 hover:underline"
           >
             Cadastre-se
