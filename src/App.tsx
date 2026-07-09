@@ -20,6 +20,7 @@ import AdminCandidatoPerfil from "./pages/AdminCandidatoPerfil.tsx";
 import AdminContratados from "./pages/AdminContratados.tsx";
 import Carreira from "./pages/Carreira.tsx";
 import EmpresaPainel from "./pages/EmpresaPainel.tsx";
+import OAuthConsent from "./pages/OAuthConsent.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -48,6 +49,7 @@ const App = () => (
             <Route path="/admin/servicos/:id/candidatos" element={<AdminCandidatos />} />
             <Route path="/admin/candidatos/:id" element={<AdminCandidatoPerfil />} />
             <Route path="/empresa/:token" element={<EmpresaPainel />} />
+            <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
