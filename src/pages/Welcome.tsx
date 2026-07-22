@@ -136,7 +136,7 @@ const Welcome = () => {
       >
         <p className="text-[10px] leading-relaxed text-white/35">
           Ao continuar, você concorda com nossos{" "}
-          <span className="underline hover:text-white/60 cursor-pointer">Termos de Uso</span>{" "}
+          <Link to="/termos-de-uso" className="underline hover:text-white/60">Termos de Uso</Link>{" "}
           e{" "}
           <span className="underline hover:text-white/60 cursor-pointer">Política de Privacidade</span>.
         </p>
