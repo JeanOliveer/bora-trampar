@@ -22,6 +22,7 @@ import Carreira from "./pages/Carreira.tsx";
 import EmpresaPainel from "./pages/EmpresaPainel.tsx";
 import OAuthConsent from "./pages/OAuthConsent.tsx";
 import NotFound from "./pages/NotFound.tsx";
+import TermosDeUso from "./pages/TermosDeUso.tsx";
 
 const queryClient = new QueryClient();
 
@@ -50,6 +51,7 @@ const App = () => (
             <Route path="/admin/candidatos/:id" element={<AdminCandidatoPerfil />} />
             <Route path="/empresa/:token" element={<EmpresaPainel />} />
             <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
+            <Route path="/termos-de-uso" element={<TermosDeUso />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

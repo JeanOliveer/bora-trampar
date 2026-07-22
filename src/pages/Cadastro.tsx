@@ -266,7 +266,7 @@ const Cadastro = () => {
           className="mt-8 max-w-xs px-2 text-center text-[10px] leading-relaxed text-white/35"
         >
           Ao continuar, você concorda com nossos{" "}
-          <span className="underline hover:text-white/60 cursor-pointer">Termos de Uso</span> e{" "}
+          <Link to="/termos-de-uso" className="underline hover:text-white/60">Termos de Uso</Link> e{" "}
           <span className="underline hover:text-white/60 cursor-pointer">Política de Privacidade</span>.
         </motion.p>
       </motion.div>
