@@ -51,6 +51,7 @@ const App = () => (
             <Route path="/admin/candidatos/:id" element={<AdminCandidatoPerfil />} />
             <Route path="/empresa/:token" element={<EmpresaPainel />} />
             <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
+            <Route path="/termos-de-uso" element={<TermosDeUso />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
