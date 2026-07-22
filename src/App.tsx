@@ -22,6 +22,7 @@ import Carreira from "./pages/Carreira.tsx";
 import EmpresaPainel from "./pages/EmpresaPainel.tsx";
 import OAuthConsent from "./pages/OAuthConsent.tsx";
 import NotFound from "./pages/NotFound.tsx";
+import TermosDeUso from "./pages/TermosDeUso.tsx";
 
 const queryClient = new QueryClient();
 
