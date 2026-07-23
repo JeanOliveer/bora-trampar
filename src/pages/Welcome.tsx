@@ -138,7 +138,7 @@ const Welcome = () => {
           Ao continuar, você concorda com nossos{" "}
           <Link to="/termos-de-uso" className="underline hover:text-white/60">Termos de Uso</Link>{" "}
           e{" "}
-          <span className="underline hover:text-white/60 cursor-pointer">Política de Privacidade</span>.
+          <Link to="/politica-de-privacidade" className="underline hover:text-white/60">Política de Privacidade</Link>.
         </p>
       </motion.div>
     </div>

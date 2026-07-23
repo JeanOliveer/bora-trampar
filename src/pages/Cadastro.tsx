@@ -51,9 +51,18 @@ const Cadastro = () => {
   const [chavePix, setChavePix] = useState("");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
+  const [aceitouTermos, setAceitouTermos] = useState(false);
+  const [aceitouPrivacidade, setAceitouPrivacidade] = useState(false);
+
+  const TERMS_VERSION = "2026-07-22";
+  const PRIVACY_VERSION = "2026-07-22";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!aceitouTermos || !aceitouPrivacidade) {
+      toast.error("É necessário aceitar os Termos de Uso e a Política de Privacidade.");
+      return;
+    }
     if (senha.length < 6) {
       toast.error("A senha deve ter no mínimo 6 caracteres.");
       return;
@@ -88,6 +97,11 @@ const Cadastro = () => {
         estado,
         chave_pix: chavePix || null,
       }).eq("user_id", user.id);
+
+      await supabase.from("user_acceptances").insert([
+        { user_id: user.id, document_type: "termos_uso", version: TERMS_VERSION },
+        { user_id: user.id, document_type: "politica_privacidade", version: PRIVACY_VERSION },
+      ]);
     }
 
     setLoading(false);
@@ -242,10 +256,41 @@ const Cadastro = () => {
             />
           </div>
 
+          <div className="space-y-2.5 pt-1">
+            <label className="flex items-start gap-2.5 text-[12px] leading-relaxed text-white/80">
+              <input
+                type="checkbox"
+                checked={aceitouTermos}
+                onChange={(e) => setAceitouTermos(e.target.checked)}
+                className="mt-0.5 h-4 w-4 shrink-0 rounded border-white/30 bg-white/10 accent-white"
+              />
+              <span>
+                Li e concordo com os{" "}
+                <Link to="/termos-de-uso" target="_blank" className="font-semibold text-white underline underline-offset-2">
+                  Termos de Uso
+                </Link>
+              </span>
+            </label>
+            <label className="flex items-start gap-2.5 text-[12px] leading-relaxed text-white/80">
+              <input
+                type="checkbox"
+                checked={aceitouPrivacidade}
+                onChange={(e) => setAceitouPrivacidade(e.target.checked)}
+                className="mt-0.5 h-4 w-4 shrink-0 rounded border-white/30 bg-white/10 accent-white"
+              />
+              <span>
+                Li e estou ciente da{" "}
+                <Link to="/politica-de-privacidade" target="_blank" className="font-semibold text-white underline underline-offset-2">
+                  Política de Privacidade
+                </Link>
+              </span>
+            </label>
+          </div>
+
           <button
             type="submit"
-            disabled={loading}
-            className="flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-[#061426] text-sm font-semibold text-white shadow-xl transition-all active:scale-[0.97] hover:bg-[#0a1d3a] disabled:opacity-60"
+            disabled={loading || !aceitouTermos || !aceitouPrivacidade}
+            className="flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-[#061426] text-sm font-semibold text-white shadow-xl transition-all active:scale-[0.97] hover:bg-[#0a1d3a] disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {loading ? "Criando conta..." : "Criar conta"}
           </button>
@@ -267,7 +312,7 @@ const Cadastro = () => {
         >
           Ao continuar, você concorda com nossos{" "}
           <Link to="/termos-de-uso" className="underline hover:text-white/60">Termos de Uso</Link> e{" "}
-          <span className="underline hover:text-white/60 cursor-pointer">Política de Privacidade</span>.
+          <Link to="/politica-de-privacidade" className="underline hover:text-white/60">Política de Privacidade</Link>.
         </motion.p>
       </motion.div>
     </div>
