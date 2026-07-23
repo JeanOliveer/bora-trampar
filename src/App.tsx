@@ -23,6 +23,7 @@ import EmpresaPainel from "./pages/EmpresaPainel.tsx";
 import OAuthConsent from "./pages/OAuthConsent.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import TermosDeUso from "./pages/TermosDeUso.tsx";
+import PoliticaPrivacidade from "./pages/PoliticaPrivacidade.tsx";
 
 const queryClient = new QueryClient();
 
