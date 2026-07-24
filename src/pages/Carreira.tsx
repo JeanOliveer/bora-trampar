@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, Star, TrendingUp, Award, MessageSquare, Building2, MapPin, MapPinCheck, Clock } from "lucide-react";
+import { ArrowLeft, Star, TrendingUp, Award, MessageSquare, Building2, MapPin, MapPinCheck, Clock, Briefcase, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
