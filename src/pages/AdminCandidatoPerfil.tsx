@@ -301,23 +301,24 @@ const AdminCandidatoPerfil = () => {
                   {confirmandoChegada ? "Confirmando..." : "Confirmar Chegada"}
                 </Button>
               )}
-              {cand.chegada_confirmada_em && (
-                <div className="rounded-md border border-emerald-300 bg-emerald-50 p-3 text-xs text-emerald-800">
-                  <div className="flex items-center gap-2 font-medium">
-                    <CheckCircle2 className="h-4 w-4" /> Chegada confirmada
-                  </div>
-                  <p className="mt-1">
-                    <span className="font-medium">Entrada:</span>{" "}
-                    {new Date(cand.chegada_confirmada_em).toLocaleString("pt-BR")}
-                  </p>
-                  {cand.expediente_encerrado_em && (
+              {cand.chegada_confirmada_em && (() => {
+                const { inicio, fim } = parseHorario(servico?.horario ?? null);
+                const entrada = formatDataHora(servico?.data_servico ?? null, inicio);
+                const saida = formatDataHora(servico?.data_servico ?? null, fim);
+                return (
+                  <div className="rounded-md border border-emerald-300 bg-emerald-50 p-3 text-xs text-emerald-800">
+                    <div className="flex items-center gap-2 font-medium">
+                      <CheckCircle2 className="h-4 w-4" /> Chegada confirmada
+                    </div>
                     <p className="mt-1">
-                      <span className="font-medium">Saída:</span>{" "}
-                      {new Date(cand.expediente_encerrado_em).toLocaleString("pt-BR")}
+                      <span className="font-medium">Horário de entrada:</span> {entrada || "—"}
                     </p>
-                  )}
-                </div>
-              )}
+                    <p className="mt-1">
+                      <span className="font-medium">Horário de saída:</span> {saida || "—"}
+                    </p>
+                  </div>
+                );
+              })()}
             </CardContent>
           </Card>
 
