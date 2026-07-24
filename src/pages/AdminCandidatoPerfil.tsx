@@ -32,6 +32,7 @@ type Candidatura = {
   checkin_em: string | null;
   presenca_confirmada_em: string | null;
   chegada_confirmada_em: string | null;
+  expediente_encerrado_em: string | null;
 };
 
 type Resposta = { id: string; resposta: string; pergunta: { id: string; texto: string; tipo: string } };
