@@ -303,13 +303,31 @@ const Carreira = () => {
           </CardContent>
         </Card>
 
-        <div className="mb-6 grid gap-4 sm:grid-cols-3">
+        <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
           <Card>
             <CardContent className="flex items-center gap-3 p-5">
               <Award className="h-8 w-8 text-primary" />
               <div>
                 <div className="text-xs uppercase text-muted-foreground">Nível atual</div>
                 <div className="font-semibold">{nivel.label}</div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="flex items-center gap-3 p-5">
+              <Briefcase className="h-8 w-8 text-primary" />
+              <div>
+                <div className="text-xs uppercase text-muted-foreground">Serviços realizados</div>
+                <div className="font-semibold">{servicosRealizados}</div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="flex items-center gap-3 p-5">
+              <CheckCircle2 className="h-8 w-8 text-emerald-600" />
+              <div>
+                <div className="text-xs uppercase text-muted-foreground">Presenças confirmadas</div>
+                <div className="font-semibold">{presencasConfirmadas}</div>
               </div>
             </CardContent>
           </Card>
