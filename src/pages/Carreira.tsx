@@ -72,6 +72,8 @@ const Carreira = () => {
   const [refreshKey, setRefreshKey] = useState(0);
   const [checkins, setCheckins] = useState<CheckinItem[]>([]);
   const [checkinSaving, setCheckinSaving] = useState<string | null>(null);
+  const [servicosRealizados, setServicosRealizados] = useState(0);
+  const [presencasConfirmadas, setPresencasConfirmadas] = useState(0);
 
   const fazerCheckin = async (candidaturaId: string) => {
     setCheckinSaving(candidaturaId);
