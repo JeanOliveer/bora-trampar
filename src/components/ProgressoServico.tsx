@@ -33,27 +33,27 @@ const ProgressoServico = ({
   };
 
   return (
-    <div className={cn("w-full overflow-x-auto", className)}>
-      <div className="flex min-w-max items-center gap-2">
+    <div className={cn("w-full", className)}>
+      <div className="flex w-full items-start gap-1 sm:gap-2">
         {steps.map((s, i) => {
           const done = completedMap[s.key];
           const Icon = done ? Check : s.icon;
           return (
-            <div key={s.key} className="flex items-center gap-2">
-              <div className="flex flex-col items-center gap-1">
+            <div key={s.key} className="flex flex-1 items-start gap-1 sm:gap-2">
+              <div className="flex min-w-0 flex-col items-center gap-1">
                 <div
                   className={cn(
-                    "grid h-9 w-9 place-items-center rounded-full border-2 transition-colors",
+                    "grid h-8 w-8 shrink-0 place-items-center rounded-full border-2 transition-colors sm:h-9 sm:w-9",
                     done
                       ? "border-primary bg-primary text-primary-foreground"
                       : "border-muted bg-card text-muted-foreground"
                   )}
                 >
-                  <Icon className="h-4 w-4" />
+                  <Icon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                 </div>
                 <span
                   className={cn(
-                    "text-[10px] font-medium",
+                    "text-[10px] font-medium leading-tight text-center",
                     done ? "text-foreground" : "text-muted-foreground"
                   )}
                 >
@@ -63,7 +63,7 @@ const ProgressoServico = ({
               {i < steps.length - 1 && (
                 <div
                   className={cn(
-                    "h-0.5 w-8 rounded-full transition-colors",
+                    "mt-4 h-0.5 flex-1 rounded-full transition-colors sm:mt-[18px]",
                     completedMap[steps[i + 1].key] ? "bg-primary" : "bg-muted"
                   )}
                 />
@@ -75,5 +75,6 @@ const ProgressoServico = ({
     </div>
   );
 };
+
 
 export default ProgressoServico;
