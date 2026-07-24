@@ -237,6 +237,15 @@ const Carreira = () => {
         setCheckins([]);
       }
 
+      // Estatísticas: serviços realizados e presenças confirmadas
+      const { data: statsData } = await supabase
+        .from("candidaturas")
+        .select("presenca_confirmada_em, expediente_encerrado_em, status")
+        .eq("user_id", user.id);
+      const stats = (statsData as Array<{ presenca_confirmada_em: string | null; expediente_encerrado_em: string | null; status: string }> | null) ?? [];
+      setPresencasConfirmadas(stats.filter((s) => !!s.presenca_confirmada_em).length);
+      setServicosRealizados(stats.filter((s) => !!s.expediente_encerrado_em || s.status === "concluida").length);
+
       setLoading(false);
     };
     load();
