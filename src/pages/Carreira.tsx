@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, Star, TrendingUp, Award, MessageSquare, Building2, MapPin, MapPinCheck, Clock } from "lucide-react";
+import { ArrowLeft, Star, TrendingUp, Award, MessageSquare, Building2, MapPin, MapPinCheck, Clock, Briefcase, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -72,6 +72,8 @@ const Carreira = () => {
   const [refreshKey, setRefreshKey] = useState(0);
   const [checkins, setCheckins] = useState<CheckinItem[]>([]);
   const [checkinSaving, setCheckinSaving] = useState<string | null>(null);
+  const [servicosRealizados, setServicosRealizados] = useState(0);
+  const [presencasConfirmadas, setPresencasConfirmadas] = useState(0);
 
   const fazerCheckin = async (candidaturaId: string) => {
     setCheckinSaving(candidaturaId);
@@ -235,6 +237,15 @@ const Carreira = () => {
         setCheckins([]);
       }
 
+      // Estatísticas: serviços realizados e presenças confirmadas
+      const { data: statsData } = await supabase
+        .from("candidaturas")
+        .select("presenca_confirmada_em, expediente_encerrado_em, status")
+        .eq("user_id", user.id);
+      const stats = (statsData as Array<{ presenca_confirmada_em: string | null; expediente_encerrado_em: string | null; status: string }> | null) ?? [];
+      setPresencasConfirmadas(stats.filter((s) => !!s.presenca_confirmada_em).length);
+      setServicosRealizados(stats.filter((s) => !!s.expediente_encerrado_em || s.status === "concluida").length);
+
       setLoading(false);
     };
     load();
@@ -292,13 +303,31 @@ const Carreira = () => {
           </CardContent>
         </Card>
 
-        <div className="mb-6 grid gap-4 sm:grid-cols-3">
+        <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
           <Card>
             <CardContent className="flex items-center gap-3 p-5">
               <Award className="h-8 w-8 text-primary" />
               <div>
                 <div className="text-xs uppercase text-muted-foreground">Nível atual</div>
                 <div className="font-semibold">{nivel.label}</div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="flex items-center gap-3 p-5">
+              <Briefcase className="h-8 w-8 text-primary" />
+              <div>
+                <div className="text-xs uppercase text-muted-foreground">Serviços realizados</div>
+                <div className="font-semibold">{servicosRealizados}</div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="flex items-center gap-3 p-5">
+              <CheckCircle2 className="h-8 w-8 text-emerald-600" />
+              <div>
+                <div className="text-xs uppercase text-muted-foreground">Presenças confirmadas</div>
+                <div className="font-semibold">{presencasConfirmadas}</div>
               </div>
             </CardContent>
           </Card>
