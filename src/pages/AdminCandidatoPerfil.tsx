@@ -32,6 +32,7 @@ type Candidatura = {
   checkin_em: string | null;
   presenca_confirmada_em: string | null;
   chegada_confirmada_em: string | null;
+  expediente_encerrado_em: string | null;
 };
 
 type Resposta = { id: string; resposta: string; pergunta: { id: string; texto: string; tipo: string } };
@@ -103,7 +104,7 @@ const AdminCandidatoPerfil = () => {
 
     const { data: c, error: candError } = await supabase
         .from("candidaturas")
-        .select("id, user_id, servico_id, telefone, cidade, bairro, rua, numero, documento_url, selfie_url, status, created_at, aprovada_pela_empresa, checkin_em, presenca_confirmada_em, chegada_confirmada_em")
+        .select("id, user_id, servico_id, telefone, cidade, bairro, rua, numero, documento_url, selfie_url, status, created_at, aprovada_pela_empresa, checkin_em, presenca_confirmada_em, chegada_confirmada_em, expediente_encerrado_em")
         .eq("id", candidaturaId)
         .maybeSingle();
       if (cancelledRef?.value) return;
@@ -287,7 +288,16 @@ const AdminCandidatoPerfil = () => {
                   <div className="flex items-center gap-2 font-medium">
                     <CheckCircle2 className="h-4 w-4" /> Chegada confirmada
                   </div>
-                  <p className="mt-1">{new Date(cand.chegada_confirmada_em).toLocaleString("pt-BR")}</p>
+                  <p className="mt-1">
+                    <span className="font-medium">Entrada:</span>{" "}
+                    {new Date(cand.chegada_confirmada_em).toLocaleString("pt-BR")}
+                  </p>
+                  {cand.expediente_encerrado_em && (
+                    <p className="mt-1">
+                      <span className="font-medium">Saída:</span>{" "}
+                      {new Date(cand.expediente_encerrado_em).toLocaleString("pt-BR")}
+                    </p>
+                  )}
                 </div>
               )}
             </CardContent>
