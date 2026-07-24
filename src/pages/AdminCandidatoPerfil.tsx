@@ -104,7 +104,7 @@ const AdminCandidatoPerfil = () => {
 
     const { data: c, error: candError } = await supabase
         .from("candidaturas")
-        .select("id, user_id, servico_id, telefone, cidade, bairro, rua, numero, documento_url, selfie_url, status, created_at, aprovada_pela_empresa, checkin_em, presenca_confirmada_em, chegada_confirmada_em")
+        .select("id, user_id, servico_id, telefone, cidade, bairro, rua, numero, documento_url, selfie_url, status, created_at, aprovada_pela_empresa, checkin_em, presenca_confirmada_em, chegada_confirmada_em, expediente_encerrado_em")
         .eq("id", candidaturaId)
         .maybeSingle();
       if (cancelledRef?.value) return;
