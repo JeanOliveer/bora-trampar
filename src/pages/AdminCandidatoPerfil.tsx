@@ -49,7 +49,25 @@ type Profile = {
   pontuacao: number;
 };
 
-type Servico = { id: string; titulo: string };
+type Servico = { id: string; titulo: string; data_servico: string | null; horario: string | null };
+
+const parseHorario = (horario: string | null): { inicio: string | null; fim: string | null } => {
+  if (!horario) return { inicio: null, fim: null };
+  const matches = [...horario.matchAll(/(\d{1,2})(?:[:h](\d{2}))?/g)];
+  const fmt = (m: RegExpMatchArray) => `${m[1].padStart(2, "0")}:${(m[2] ?? "00").padStart(2, "0")}`;
+  return {
+    inicio: matches[0] ? fmt(matches[0]) : null,
+    fim: matches[1] ? fmt(matches[1]) : null,
+  };
+};
+
+const formatDataHora = (data: string | null, hora: string | null): string | null => {
+  if (!hora) return null;
+  if (!data) return hora;
+  const [y, m, d] = data.split("-");
+  if (!y || !m || !d) return hora;
+  return `${d}/${m}/${y} ${hora}`;
+};
 
 const initials = (name: string | null | undefined) => {
   if (!name) return "?";
@@ -119,7 +137,7 @@ const AdminCandidatoPerfil = () => {
       if (candidatura) {
         const [{ data: p }, { data: s }, { data: aval }, { data: resp }] = await Promise.all([
           supabase.from("profiles").select("*").eq("user_id", candidatura.user_id).maybeSingle(),
-          supabase.from("servicos").select("id, titulo").eq("id", candidatura.servico_id).maybeSingle(),
+          supabase.from("servicos").select("id, titulo, data_servico, horario").eq("id", candidatura.servico_id).maybeSingle(),
           supabase.from("avaliacoes").select("id, estrelas, justificativa").eq("candidatura_id", candidatura.id).maybeSingle(),
           supabase
             .from("candidatura_respostas")
@@ -283,23 +301,24 @@ const AdminCandidatoPerfil = () => {
                   {confirmandoChegada ? "Confirmando..." : "Confirmar Chegada"}
                 </Button>
               )}
-              {cand.chegada_confirmada_em && (
-                <div className="rounded-md border border-emerald-300 bg-emerald-50 p-3 text-xs text-emerald-800">
-                  <div className="flex items-center gap-2 font-medium">
-                    <CheckCircle2 className="h-4 w-4" /> Chegada confirmada
-                  </div>
-                  <p className="mt-1">
-                    <span className="font-medium">Entrada:</span>{" "}
-                    {new Date(cand.chegada_confirmada_em).toLocaleString("pt-BR")}
-                  </p>
-                  {cand.expediente_encerrado_em && (
+              {cand.chegada_confirmada_em && (() => {
+                const { inicio, fim } = parseHorario(servico?.horario ?? null);
+                const entrada = formatDataHora(servico?.data_servico ?? null, inicio);
+                const saida = formatDataHora(servico?.data_servico ?? null, fim);
+                return (
+                  <div className="rounded-md border border-emerald-300 bg-emerald-50 p-3 text-xs text-emerald-800">
+                    <div className="flex items-center gap-2 font-medium">
+                      <CheckCircle2 className="h-4 w-4" /> Chegada confirmada
+                    </div>
                     <p className="mt-1">
-                      <span className="font-medium">Saída:</span>{" "}
-                      {new Date(cand.expediente_encerrado_em).toLocaleString("pt-BR")}
+                      <span className="font-medium">Horário de entrada:</span> {entrada || "—"}
                     </p>
-                  )}
-                </div>
-              )}
+                    <p className="mt-1">
+                      <span className="font-medium">Horário de saída:</span> {saida || "—"}
+                    </p>
+                  </div>
+                );
+              })()}
             </CardContent>
           </Card>
 
