@@ -137,7 +137,7 @@ const AdminCandidatoPerfil = () => {
       if (candidatura) {
         const [{ data: p }, { data: s }, { data: aval }, { data: resp }] = await Promise.all([
           supabase.from("profiles").select("*").eq("user_id", candidatura.user_id).maybeSingle(),
-          supabase.from("servicos").select("id, titulo").eq("id", candidatura.servico_id).maybeSingle(),
+          supabase.from("servicos").select("id, titulo, data_servico, horario").eq("id", candidatura.servico_id).maybeSingle(),
           supabase.from("avaliacoes").select("id, estrelas, justificativa").eq("candidatura_id", candidatura.id).maybeSingle(),
           supabase
             .from("candidatura_respostas")
