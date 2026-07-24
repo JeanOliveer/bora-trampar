@@ -288,7 +288,16 @@ const AdminCandidatoPerfil = () => {
                   <div className="flex items-center gap-2 font-medium">
                     <CheckCircle2 className="h-4 w-4" /> Chegada confirmada
                   </div>
-                  <p className="mt-1">{new Date(cand.chegada_confirmada_em).toLocaleString("pt-BR")}</p>
+                  <p className="mt-1">
+                    <span className="font-medium">Entrada:</span>{" "}
+                    {new Date(cand.chegada_confirmada_em).toLocaleString("pt-BR")}
+                  </p>
+                  {cand.expediente_encerrado_em && (
+                    <p className="mt-1">
+                      <span className="font-medium">Saída:</span>{" "}
+                      {new Date(cand.expediente_encerrado_em).toLocaleString("pt-BR")}
+                    </p>
+                  )}
                 </div>
               )}
             </CardContent>
