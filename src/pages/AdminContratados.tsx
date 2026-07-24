@@ -300,12 +300,16 @@ const AdminContratados = () => {
                               </p>
                             ) : null}
                           </div>
-                          <Link
-                            to={`/admin/candidatos/${c.id}`}
-                            className="mt-2 block text-center text-xs text-muted-foreground underline-offset-2 hover:underline"
+                          <Button
+                            asChild
+                            variant="outline"
+                            size="sm"
+                            className="mt-3 w-full border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground"
                           >
-                            Ver perfil completo
-                          </Link>
+                            <Link to={`/admin/candidatos/${c.id}`}>
+                              Ver perfil completo
+                            </Link>
+                          </Button>
                         </div>
                       );
                     })}
