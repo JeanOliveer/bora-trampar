@@ -49,7 +49,25 @@ type Profile = {
   pontuacao: number;
 };
 
-type Servico = { id: string; titulo: string };
+type Servico = { id: string; titulo: string; data_servico: string | null; horario: string | null };
+
+const parseHorario = (horario: string | null): { inicio: string | null; fim: string | null } => {
+  if (!horario) return { inicio: null, fim: null };
+  const matches = [...horario.matchAll(/(\d{1,2})(?:[:h](\d{2}))?/g)];
+  const fmt = (m: RegExpMatchArray) => `${m[1].padStart(2, "0")}:${(m[2] ?? "00").padStart(2, "0")}`;
+  return {
+    inicio: matches[0] ? fmt(matches[0]) : null,
+    fim: matches[1] ? fmt(matches[1]) : null,
+  };
+};
+
+const formatDataHora = (data: string | null, hora: string | null): string | null => {
+  if (!hora) return null;
+  if (!data) return hora;
+  const [y, m, d] = data.split("-");
+  if (!y || !m || !d) return hora;
+  return `${d}/${m}/${y} ${hora}`;
+};
 
 const initials = (name: string | null | undefined) => {
   if (!name) return "?";
