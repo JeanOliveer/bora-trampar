@@ -24,6 +24,7 @@ import OAuthConsent from "./pages/OAuthConsent.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import TermosDeUso from "./pages/TermosDeUso.tsx";
 import PoliticaPrivacidade from "./pages/PoliticaPrivacidade.tsx";
+import Notificacoes from "./pages/Notificacoes.tsx";
 
 const queryClient = new QueryClient();
 
