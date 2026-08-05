@@ -202,6 +202,45 @@ export type Database = {
           },
         ]
       }
+      notificacoes: {
+        Row: {
+          created_at: string
+          descricao: string | null
+          entidade_id: string | null
+          id: string
+          lida: boolean
+          rota: string | null
+          tipo: Database["public"]["Enums"]["notificacao_tipo"]
+          titulo: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          descricao?: string | null
+          entidade_id?: string | null
+          id?: string
+          lida?: boolean
+          rota?: string | null
+          tipo?: Database["public"]["Enums"]["notificacao_tipo"]
+          titulo: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          descricao?: string | null
+          entidade_id?: string | null
+          id?: string
+          lida?: boolean
+          rota?: string | null
+          tipo?: Database["public"]["Enums"]["notificacao_tipo"]
+          titulo?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           chave_pix: string | null
@@ -426,6 +465,16 @@ export type Database = {
     Enums: {
       app_role: "admin" | "trabalhador"
       avaliacao_tipo: "empresa_para_trabalhador" | "trabalhador_para_empresa"
+      notificacao_tipo:
+        | "nova_diaria"
+        | "candidatura_aceita"
+        | "candidatura_recusada"
+        | "mensagem_empresa"
+        | "servico_iniciado"
+        | "servico_finalizado"
+        | "avaliacao_recebida"
+        | "conta_atualizada"
+        | "aviso_importante"
       user_type: "trabalhador"
     }
     CompositeTypes: {
@@ -556,6 +605,17 @@ export const Constants = {
     Enums: {
       app_role: ["admin", "trabalhador"],
       avaliacao_tipo: ["empresa_para_trabalhador", "trabalhador_para_empresa"],
+      notificacao_tipo: [
+        "nova_diaria",
+        "candidatura_aceita",
+        "candidatura_recusada",
+        "mensagem_empresa",
+        "servico_iniciado",
+        "servico_finalizado",
+        "avaliacao_recebida",
+        "conta_atualizada",
+        "aviso_importante",
+      ],
       user_type: ["trabalhador"],
     },
   },
