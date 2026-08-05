@@ -74,12 +74,18 @@ const Index = () => {
               </p>
             )}
           </div>
-          <button
-            className="grid h-10 w-10 place-items-center rounded-full bg-white/15 active:scale-95 transition-transform"
-            aria-label="Notificações"
+          <Link
+            to="/notificacoes"
+            className="relative grid h-10 w-10 place-items-center rounded-full bg-white/15 active:scale-95 transition-transform"
+            aria-label={naoLidas > 0 ? `Notificações, ${naoLidas} não lidas` : "Notificações"}
           >
             <Bell className="h-5 w-5" />
-          </button>
+            {naoLidas > 0 && (
+              <span className="absolute -right-0.5 -top-0.5 grid min-w-[18px] place-items-center rounded-full bg-destructive px-1 text-[10px] font-bold leading-[18px] text-destructive-foreground">
+                {badgeTexto(naoLidas)}
+              </span>
+            )}
+          </Link>
         </div>
 
         <div className="relative mt-4">
