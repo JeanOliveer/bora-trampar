@@ -12,6 +12,8 @@ import BottomTabBar from "@/components/BottomTabBar";
 import { mockJobs } from "@/data/mockJobs";
 import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
+import { useNotificacoesNaoLidas } from "@/hooks/useNotificacoes";
+import { badgeTexto } from "@/lib/notificacoes";
 
 const categorias = [
   { key: "todas", label: "Todas", icon: LayoutGrid, tint: "bg-primary/10 text-primary" },
