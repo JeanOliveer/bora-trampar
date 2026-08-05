@@ -27,6 +27,7 @@ const Index = () => {
   const navigate = useNavigate();
   const [busca, setBusca] = useState("");
   const [categoriaAtiva, setCategoriaAtiva] = useState("todas");
+  const naoLidas = useNotificacoesNaoLidas();
 
   const jobsFiltrados = useMemo(() => {
     const q = busca.toLowerCase();
