@@ -15,6 +15,7 @@ import RankedAvatar from "@/components/RankedAvatar";
 import AvaliacaoEmpresaDialog from "@/components/AvaliacaoEmpresaDialog";
 import { getNivel, proximoLimite } from "@/lib/career";
 import { cn } from "@/lib/utils";
+import VoltarButton from "@/components/VoltarButton";
 
 type Avaliacao = {
   id: string;
