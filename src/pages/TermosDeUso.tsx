@@ -375,7 +375,7 @@ const TermosDeUso = () => {
             to="/"
             className="mt-6 inline-flex h-11 items-center justify-center rounded-2xl bg-white/10 px-6 text-sm font-semibold text-white ring-1 ring-white/20 backdrop-blur-md transition-all active:scale-[0.97] hover:bg-white/15"
           >
-            Voltar ao início
+            Voltar
           </Link>
         </div>
       </main>

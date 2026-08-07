@@ -12,6 +12,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import PerguntasEditor, { type PerguntaDraft } from "@/components/PerguntasEditor";
+import VoltarButton from "@/components/VoltarButton";
 
 const estadosBR = ["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"];
 
@@ -121,9 +122,7 @@ const NovoServico = () => {
     <div className="flex min-h-screen flex-col">
       <Header />
       <main className="container flex-1 py-10">
-        <Link to="/admin" className="mb-6 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
-          <ArrowLeft className="h-4 w-4" /> Voltar ao painel
-        </Link>
+        <VoltarButton to="/admin" />
 
         <Card className="mx-auto max-w-2xl">
           <CardHeader>

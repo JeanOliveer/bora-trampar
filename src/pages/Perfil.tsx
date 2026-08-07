@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import BottomTabBar from "@/components/BottomTabBar";
 import AppMobileHeader from "@/components/AppMobileHeader";
+import VoltarButton from "@/components/VoltarButton";
 
 const estadosBR = [
   "AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG",
@@ -86,9 +87,7 @@ const Perfil = () => {
         backTo="/inicio"
       />
       <main className="container flex-1 py-6 pb-24 md:py-10 md:pb-10">
-        <Link to="/servicos" className="mb-6 hidden items-center gap-1 text-sm text-muted-foreground hover:text-foreground md:inline-flex">
-          <ArrowLeft className="h-4 w-4" /> Voltar
-        </Link>
+        <VoltarButton to="/servicos" className="hidden md:inline-flex" />
 
         <Card className="mx-auto max-w-lg">
           <CardHeader>

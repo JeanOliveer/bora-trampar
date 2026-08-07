@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import RankedAvatar from "@/components/RankedAvatar";
 import { getNivel } from "@/lib/career";
+import VoltarButton from "@/components/VoltarButton";
 
 type Candidatura = {
   id: string;
@@ -146,12 +147,7 @@ const AdminCandidatos = () => {
     <div className="flex min-h-screen flex-col">
       <Header />
       <main className="container flex-1 py-10">
-        <Link
-          to="/admin"
-          className="mb-6 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
-        >
-          <ArrowLeft className="h-4 w-4" /> Voltar para o painel
-        </Link>
+        <VoltarButton to="/admin" />
 
         <div className="mb-8 flex flex-col gap-4 rounded-lg border bg-card p-6 shadow-sm sm:flex-row sm:items-center sm:justify-between">
           <div>

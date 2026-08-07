@@ -14,6 +14,7 @@ import ProgressoServico from "@/components/ProgressoServico";
 import { StatusBadge } from "@/components/StatusBadge";
 import { getNivel } from "@/lib/career";
 import { cn } from "@/lib/utils";
+import VoltarButton from "@/components/VoltarButton";
 
 type Candidatura = {
   id: string;
@@ -225,12 +226,7 @@ const AdminCandidatoPerfil = () => {
     <div className="flex min-h-screen flex-col">
       <Header />
       <main className="container flex-1 py-10">
-        <Link
-          to={`/admin/servicos/${cand.servico_id}/candidatos`}
-          className="mb-6 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
-        >
-          <ArrowLeft className="h-4 w-4" /> Voltar para candidatos
-        </Link>
+        <VoltarButton to={`/admin/servicos/${cand.servico_id}/candidatos`} />
 
         <div className="grid gap-6 lg:grid-cols-3">
           <Card className={cn("lg:col-span-1", profile && `border-2 ${getNivel(profile.pontuacao ?? 0).borderClass}`)}>

@@ -94,7 +94,7 @@ const EsqueciSenha = () => {
             to="/login"
             className="mt-8 flex h-14 w-full max-w-xs items-center justify-center gap-2.5 rounded-2xl bg-[#061426] text-sm font-semibold text-white shadow-xl transition-all active:scale-[0.97] hover:bg-[#0a1d3a]"
           >
-            Voltar para o login
+            Voltar
           </Link>
         )}
 

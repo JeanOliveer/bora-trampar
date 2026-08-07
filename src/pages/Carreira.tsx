@@ -15,6 +15,7 @@ import RankedAvatar from "@/components/RankedAvatar";
 import AvaliacaoEmpresaDialog from "@/components/AvaliacaoEmpresaDialog";
 import { getNivel, proximoLimite } from "@/lib/career";
 import { cn } from "@/lib/utils";
+import VoltarButton from "@/components/VoltarButton";
 
 type Avaliacao = {
   id: string;
@@ -270,9 +271,7 @@ const Carreira = () => {
         backTo="/inicio"
       />
       <main className="container flex-1 py-6 pb-24 md:py-10 md:pb-10">
-        <Link to="/perfil" className="mb-6 hidden items-center gap-1 text-sm text-muted-foreground hover:text-foreground md:inline-flex">
-          <ArrowLeft className="h-4 w-4" /> Voltar
-        </Link>
+        <VoltarButton to="/perfil" className="hidden md:inline-flex" />
 
         <div className="mb-6 hidden md:block">
           <h1 className="text-3xl font-bold">Carreira</h1>
