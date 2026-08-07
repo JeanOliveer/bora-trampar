@@ -19,22 +19,24 @@ export const useNotificacoesNaoLidas = () => {
     setNaoLidas(count ?? 0);
   }, []);
 
+  const userId = user?.id;
+
   useEffect(() => {
-    if (!user) {
+    if (!userId) {
       setNaoLidas(0);
       return;
     }
-    carregar(user.id);
+    carregar(userId);
 
     let timer: ReturnType<typeof setTimeout>;
     const channel = supabase
-      .channel(`notificacoes-badge-${user.id}`)
+      .channel(`notificacoes-badge-${userId}`)
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "notificacoes", filter: `user_id=eq.${user.id}` },
+        { event: "*", schema: "public", table: "notificacoes", filter: `user_id=eq.${userId}` },
         () => {
           clearTimeout(timer);
-          timer = setTimeout(() => carregar(user.id), 350);
+          timer = setTimeout(() => carregar(userId), 250);
         }
       )
       .subscribe();
@@ -43,7 +45,8 @@ export const useNotificacoesNaoLidas = () => {
       clearTimeout(timer);
       supabase.removeChannel(channel);
     };
-  }, [user, carregar]);
+  }, [userId, carregar]);
+
 
   return naoLidas;
 };
@@ -51,6 +54,7 @@ export const useNotificacoesNaoLidas = () => {
 /** Lista paginada + ações. */
 export const useNotificacoes = () => {
   const { user } = useAuth();
+  const userId = user?.id;
   const [itens, setItens] = useState<Notificacao[]>([]);
   const [loading, setLoading] = useState(true);
   const [carregandoMais, setCarregandoMais] = useState(false);
@@ -58,11 +62,11 @@ export const useNotificacoes = () => {
   const offset = useRef(0);
 
   const buscar = useCallback(
-    async (userId: string, inicio: number) => {
+    async (uid: string, inicio: number) => {
       const { data, error } = await supabase
         .from("notificacoes")
         .select("id, user_id, tipo, titulo, descricao, rota, entidade_id, lida, created_at")
-        .eq("user_id", userId)
+        .eq("user_id", uid)
         .order("created_at", { ascending: false })
         .range(inicio, inicio + PAGINA - 1);
       if (error) return [];
@@ -73,48 +77,63 @@ export const useNotificacoes = () => {
   );
 
   const recarregar = useCallback(async () => {
-    if (!user) return;
+    if (!userId) return;
     offset.current = 0;
-    const data = await buscar(user.id, 0);
+    const data = await buscar(userId, 0);
     setItens(data);
     setLoading(false);
-  }, [user, buscar]);
+  }, [userId, buscar]);
 
   useEffect(() => {
-    if (!user) {
+    if (!userId) {
       setItens([]);
       setLoading(false);
       return;
     }
     recarregar();
 
-    let timer: ReturnType<typeof setTimeout>;
     const channel = supabase
-      .channel(`notificacoes-lista-${user.id}`)
+      .channel(`notificacoes-lista-${userId}`)
       .on(
         "postgres_changes",
-        { event: "INSERT", schema: "public", table: "notificacoes", filter: `user_id=eq.${user.id}` },
-        () => {
-          clearTimeout(timer);
-          timer = setTimeout(recarregar, 350);
+        { event: "INSERT", schema: "public", table: "notificacoes", filter: `user_id=eq.${userId}` },
+        (payload) => {
+          const nova = payload.new as Notificacao;
+          setItens((prev) => (prev.some((n) => n.id === nova.id) ? prev : [nova, ...prev]));
+        }
+      )
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "notificacoes", filter: `user_id=eq.${userId}` },
+        (payload) => {
+          const atual = payload.new as Notificacao;
+          setItens((prev) => prev.map((n) => (n.id === atual.id ? { ...n, ...atual } : n)));
+        }
+      )
+      .on(
+        "postgres_changes",
+        { event: "DELETE", schema: "public", table: "notificacoes" },
+        (payload) => {
+          const antigo = payload.old as Partial<Notificacao>;
+          if (!antigo?.id) return;
+          setItens((prev) => prev.filter((n) => n.id !== antigo.id));
         }
       )
       .subscribe();
 
     return () => {
-      clearTimeout(timer);
       supabase.removeChannel(channel);
     };
-  }, [user, recarregar]);
+  }, [userId, recarregar]);
 
   const carregarMais = useCallback(async () => {
-    if (!user || carregandoMais) return;
+    if (!userId || carregandoMais) return;
     setCarregandoMais(true);
     offset.current += PAGINA;
-    const data = await buscar(user.id, offset.current);
+    const data = await buscar(userId, offset.current);
     setItens((prev) => [...prev, ...data]);
     setCarregandoMais(false);
-  }, [user, carregandoMais, buscar]);
+  }, [userId, carregandoMais, buscar]);
 
   const marcarComoLida = useCallback(
     async (id: string) => {
@@ -125,10 +144,10 @@ export const useNotificacoes = () => {
   );
 
   const marcarTodasComoLidas = useCallback(async () => {
-    if (!user) return;
+    if (!userId) return;
     setItens((prev) => prev.map((n) => ({ ...n, lida: true })));
-    await supabase.from("notificacoes").update({ lida: true }).eq("user_id", user.id).eq("lida", false);
-  }, [user]);
+    await supabase.from("notificacoes").update({ lida: true }).eq("user_id", userId).eq("lida", false);
+  }, [userId]);
 
   const excluir = useCallback(async (id: string) => {
     setItens((prev) => prev.filter((n) => n.id !== id));
@@ -136,11 +155,12 @@ export const useNotificacoes = () => {
   }, []);
 
   const excluirTodas = useCallback(async () => {
-    if (!user) return;
+    if (!userId) return;
     setItens([]);
     setTemMais(false);
-    await supabase.from("notificacoes").delete().eq("user_id", user.id);
-  }, [user]);
+    await supabase.from("notificacoes").delete().eq("user_id", userId);
+  }, [userId]);
+
 
   return {
     itens,
