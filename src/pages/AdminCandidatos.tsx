@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import RankedAvatar from "@/components/RankedAvatar";
 import { getNivel } from "@/lib/career";
+import VoltarButton from "@/components/VoltarButton";
 
 type Candidatura = {
   id: string;
