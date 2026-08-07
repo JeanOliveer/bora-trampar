@@ -19,22 +19,24 @@ export const useNotificacoesNaoLidas = () => {
     setNaoLidas(count ?? 0);
   }, []);
 
+  const userId = user?.id;
+
   useEffect(() => {
-    if (!user) {
+    if (!userId) {
       setNaoLidas(0);
       return;
     }
-    carregar(user.id);
+    carregar(userId);
 
     let timer: ReturnType<typeof setTimeout>;
     const channel = supabase
-      .channel(`notificacoes-badge-${user.id}`)
+      .channel(`notificacoes-badge-${userId}`)
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "notificacoes", filter: `user_id=eq.${user.id}` },
+        { event: "*", schema: "public", table: "notificacoes", filter: `user_id=eq.${userId}` },
         () => {
           clearTimeout(timer);
-          timer = setTimeout(() => carregar(user.id), 350);
+          timer = setTimeout(() => carregar(userId), 250);
         }
       )
       .subscribe();
@@ -43,7 +45,8 @@ export const useNotificacoesNaoLidas = () => {
       clearTimeout(timer);
       supabase.removeChannel(channel);
     };
-  }, [user, carregar]);
+  }, [userId, carregar]);
+
 
   return naoLidas;
 };
