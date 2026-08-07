@@ -126,15 +126,14 @@ export const useNotificacoes = () => {
     };
   }, [userId, recarregar]);
 
-
   const carregarMais = useCallback(async () => {
-    if (!user || carregandoMais) return;
+    if (!userId || carregandoMais) return;
     setCarregandoMais(true);
     offset.current += PAGINA;
-    const data = await buscar(user.id, offset.current);
+    const data = await buscar(userId, offset.current);
     setItens((prev) => [...prev, ...data]);
     setCarregandoMais(false);
-  }, [user, carregandoMais, buscar]);
+  }, [userId, carregandoMais, buscar]);
 
   const marcarComoLida = useCallback(
     async (id: string) => {
@@ -145,10 +144,10 @@ export const useNotificacoes = () => {
   );
 
   const marcarTodasComoLidas = useCallback(async () => {
-    if (!user) return;
+    if (!userId) return;
     setItens((prev) => prev.map((n) => ({ ...n, lida: true })));
-    await supabase.from("notificacoes").update({ lida: true }).eq("user_id", user.id).eq("lida", false);
-  }, [user]);
+    await supabase.from("notificacoes").update({ lida: true }).eq("user_id", userId).eq("lida", false);
+  }, [userId]);
 
   const excluir = useCallback(async (id: string) => {
     setItens((prev) => prev.filter((n) => n.id !== id));
@@ -156,11 +155,12 @@ export const useNotificacoes = () => {
   }, []);
 
   const excluirTodas = useCallback(async () => {
-    if (!user) return;
+    if (!userId) return;
     setItens([]);
     setTemMais(false);
-    await supabase.from("notificacoes").delete().eq("user_id", user.id);
-  }, [user]);
+    await supabase.from("notificacoes").delete().eq("user_id", userId);
+  }, [userId]);
+
 
   return {
     itens,
