@@ -122,9 +122,7 @@ const NovoServico = () => {
     <div className="flex min-h-screen flex-col">
       <Header />
       <main className="container flex-1 py-10">
-        <Link to="/admin" className="mb-6 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
-          <ArrowLeft className="h-4 w-4" /> Voltar ao painel
-        </Link>
+        <VoltarButton to="/admin" />
 
         <Card className="mx-auto max-w-2xl">
           <CardHeader>
