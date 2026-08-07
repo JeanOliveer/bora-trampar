@@ -14,6 +14,7 @@ import ProgressoServico from "@/components/ProgressoServico";
 import { StatusBadge } from "@/components/StatusBadge";
 import { getNivel } from "@/lib/career";
 import { cn } from "@/lib/utils";
+import VoltarButton from "@/components/VoltarButton";
 
 type Candidatura = {
   id: string;
