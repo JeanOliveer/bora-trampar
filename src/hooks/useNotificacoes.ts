@@ -54,6 +54,7 @@ export const useNotificacoesNaoLidas = () => {
 /** Lista paginada + ações. */
 export const useNotificacoes = () => {
   const { user } = useAuth();
+  const userId = user?.id;
   const [itens, setItens] = useState<Notificacao[]>([]);
   const [loading, setLoading] = useState(true);
   const [carregandoMais, setCarregandoMais] = useState(false);
@@ -61,11 +62,11 @@ export const useNotificacoes = () => {
   const offset = useRef(0);
 
   const buscar = useCallback(
-    async (userId: string, inicio: number) => {
+    async (uid: string, inicio: number) => {
       const { data, error } = await supabase
         .from("notificacoes")
         .select("id, user_id, tipo, titulo, descricao, rota, entidade_id, lida, created_at")
-        .eq("user_id", userId)
+        .eq("user_id", uid)
         .order("created_at", { ascending: false })
         .range(inicio, inicio + PAGINA - 1);
       if (error) return [];
@@ -76,39 +77,55 @@ export const useNotificacoes = () => {
   );
 
   const recarregar = useCallback(async () => {
-    if (!user) return;
+    if (!userId) return;
     offset.current = 0;
-    const data = await buscar(user.id, 0);
+    const data = await buscar(userId, 0);
     setItens(data);
     setLoading(false);
-  }, [user, buscar]);
+  }, [userId, buscar]);
 
   useEffect(() => {
-    if (!user) {
+    if (!userId) {
       setItens([]);
       setLoading(false);
       return;
     }
     recarregar();
 
-    let timer: ReturnType<typeof setTimeout>;
     const channel = supabase
-      .channel(`notificacoes-lista-${user.id}`)
+      .channel(`notificacoes-lista-${userId}`)
       .on(
         "postgres_changes",
-        { event: "INSERT", schema: "public", table: "notificacoes", filter: `user_id=eq.${user.id}` },
-        () => {
-          clearTimeout(timer);
-          timer = setTimeout(recarregar, 350);
+        { event: "INSERT", schema: "public", table: "notificacoes", filter: `user_id=eq.${userId}` },
+        (payload) => {
+          const nova = payload.new as Notificacao;
+          setItens((prev) => (prev.some((n) => n.id === nova.id) ? prev : [nova, ...prev]));
+        }
+      )
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "notificacoes", filter: `user_id=eq.${userId}` },
+        (payload) => {
+          const atual = payload.new as Notificacao;
+          setItens((prev) => prev.map((n) => (n.id === atual.id ? { ...n, ...atual } : n)));
+        }
+      )
+      .on(
+        "postgres_changes",
+        { event: "DELETE", schema: "public", table: "notificacoes" },
+        (payload) => {
+          const antigo = payload.old as Partial<Notificacao>;
+          if (!antigo?.id) return;
+          setItens((prev) => prev.filter((n) => n.id !== antigo.id));
         }
       )
       .subscribe();
 
     return () => {
-      clearTimeout(timer);
       supabase.removeChannel(channel);
     };
-  }, [user, recarregar]);
+  }, [userId, recarregar]);
+
 
   const carregarMais = useCallback(async () => {
     if (!user || carregandoMais) return;
