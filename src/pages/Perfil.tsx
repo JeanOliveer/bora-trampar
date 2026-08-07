@@ -159,8 +159,7 @@ const Perfil = () => {
               className="w-full border-destructive/30 text-destructive hover:bg-destructive/10 hover:text-destructive"
               onClick={async () => {
                 await signOut();
-                toast.success("Você saiu da sua conta.");
-                navigate("/login");
+                navigate("/login", { replace: true });
               }}
             >
               <LogOut className="mr-2 h-4 w-4" />
