@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import BottomTabBar from "@/components/BottomTabBar";
 import AppMobileHeader from "@/components/AppMobileHeader";
+import VoltarButton from "@/components/VoltarButton";
 
 const estadosBR = [
   "AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG",
