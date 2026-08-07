@@ -54,12 +54,11 @@ const Login = () => {
       return;
     }
 
-    toast.success("Login realizado com sucesso!");
     if (safeNext) {
       window.location.href = safeNext;
       return;
     }
-    navigate("/servicos");
+    navigate("/inicio", { replace: true });
   };
 
   const cadastroHref = safeNext ? `/cadastro?next=${encodeURIComponent(safeNext)}` : "/cadastro";
