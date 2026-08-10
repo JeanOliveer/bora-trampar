@@ -304,12 +304,20 @@ const Carreira = () => {
 
         <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
           <Card>
-            <CardContent className="flex items-center gap-3 p-5">
-              <Award className="h-8 w-8 text-primary" />
-              <div>
-                <div className="text-xs uppercase text-muted-foreground">Nível atual</div>
-                <div className="font-semibold">{nivel.label}</div>
+            <CardContent className="flex flex-col gap-3 p-5">
+              <div className="flex items-center gap-3">
+                <Award className="h-8 w-8 text-primary" />
+                <div>
+                  <div className="text-xs uppercase text-muted-foreground">Nível atual</div>
+                  <div className="font-semibold">{nivel.label}</div>
+                </div>
               </div>
+              <Link
+                to="/carreira/meus-pontos"
+                className="inline-flex h-10 items-center justify-center rounded-2xl border border-primary/30 bg-card px-4 text-sm font-semibold text-primary transition-all active:scale-[0.97] hover:bg-primary/5"
+              >
+                Ver Meus Pontos
+              </Link>
             </CardContent>
           </Card>
           <Card>
