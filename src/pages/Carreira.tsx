@@ -313,14 +313,23 @@ const Carreira = () => {
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="flex items-center gap-3 p-5">
-              <Briefcase className="h-8 w-8 text-primary" />
-              <div>
-                <div className="text-xs uppercase text-muted-foreground">Serviços realizados</div>
-                <div className="font-semibold">{servicosRealizados}</div>
+            <CardContent className="flex flex-col gap-3 p-5">
+              <div className="flex items-center gap-3">
+                <Briefcase className="h-8 w-8 text-primary" />
+                <div>
+                  <div className="text-xs uppercase text-muted-foreground">Serviços realizados</div>
+                  <div className="font-semibold">{servicosRealizados}</div>
+                </div>
               </div>
+              <Link
+                to="/carreira/servicos-realizados"
+                className="inline-flex h-10 items-center justify-center rounded-2xl border border-primary/30 bg-card px-4 text-sm font-semibold text-primary transition-all active:scale-[0.97] hover:bg-primary/5"
+              >
+                Ver todos os serviços
+              </Link>
             </CardContent>
           </Card>
+
           <Card>
             <CardContent className="flex items-center gap-3 p-5">
               <CheckCircle2 className="h-8 w-8 text-emerald-600" />

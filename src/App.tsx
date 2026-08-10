@@ -19,6 +19,7 @@ import AdminCandidatos from "./pages/AdminCandidatos.tsx";
 import AdminCandidatoPerfil from "./pages/AdminCandidatoPerfil.tsx";
 import AdminContratados from "./pages/AdminContratados.tsx";
 import Carreira from "./pages/Carreira.tsx";
+import ServicosRealizados from "./pages/ServicosRealizados.tsx";
 import EmpresaPainel from "./pages/EmpresaPainel.tsx";
 import OAuthConsent from "./pages/OAuthConsent.tsx";
 import NotFound from "./pages/NotFound.tsx";
@@ -45,6 +46,7 @@ const App = () => (
             <Route path="/como-funciona" element={<ComoFunciona />} />
             <Route path="/perfil" element={<Perfil />} />
             <Route path="/carreira" element={<Carreira />} />
+            <Route path="/carreira/servicos-realizados" element={<ServicosRealizados />} />
             <Route path="/servicos" element={<Servicos />} />
             <Route path="/notificacoes" element={<Notificacoes />} />
             <Route path="/admin" element={<Admin />} />
