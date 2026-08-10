@@ -20,6 +20,7 @@ import AdminCandidatoPerfil from "./pages/AdminCandidatoPerfil.tsx";
 import AdminContratados from "./pages/AdminContratados.tsx";
 import Carreira from "./pages/Carreira.tsx";
 import ServicosRealizados from "./pages/ServicosRealizados.tsx";
+import MeusPontos from "./pages/MeusPontos.tsx";
 import EmpresaPainel from "./pages/EmpresaPainel.tsx";
 import OAuthConsent from "./pages/OAuthConsent.tsx";
 import NotFound from "./pages/NotFound.tsx";
