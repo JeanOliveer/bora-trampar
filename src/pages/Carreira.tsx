@@ -339,30 +339,54 @@ const Carreira = () => {
           </Card>
 
           <Card>
-            <CardContent className="flex items-center gap-3 p-5">
-              <CheckCircle2 className="h-8 w-8 text-emerald-600" />
-              <div>
-                <div className="text-xs uppercase text-muted-foreground">Presenças confirmadas</div>
-                <div className="font-semibold">{presencasConfirmadas}</div>
+            <CardContent className="flex flex-col gap-3 p-5">
+              <div className="flex items-center gap-3">
+                <CheckCircle2 className="h-8 w-8 text-emerald-600" />
+                <div>
+                  <div className="text-xs uppercase text-muted-foreground">Presenças confirmadas</div>
+                  <div className="font-semibold">{presencasConfirmadas}</div>
+                </div>
               </div>
+              <Link
+                to="/carreira/presencas-confirmadas"
+                className="inline-flex h-10 items-center justify-center rounded-2xl border border-primary/30 bg-card px-4 text-sm font-semibold text-primary transition-all active:scale-[0.97] hover:bg-primary/5"
+              >
+                Verificar presenças confirmadas
+              </Link>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="flex items-center gap-3 p-5">
-              <Star className="h-8 w-8 fill-amber-400 text-amber-400" />
-              <div>
-                <div className="text-xs uppercase text-muted-foreground">Média de estrelas</div>
-                <div className="font-semibold">{total > 0 ? media.toFixed(1) : "—"}</div>
+            <CardContent className="flex flex-col gap-3 p-5">
+              <div className="flex items-center gap-3">
+                <Star className="h-8 w-8 fill-amber-400 text-amber-400" />
+                <div>
+                  <div className="text-xs uppercase text-muted-foreground">Média de estrelas</div>
+                  <div className="font-semibold">{total > 0 ? media.toFixed(1) : "—"}</div>
+                </div>
               </div>
+              <Link
+                to="/carreira/media-estrelas"
+                className="inline-flex h-10 items-center justify-center rounded-2xl border border-primary/30 bg-card px-4 text-sm font-semibold text-primary transition-all active:scale-[0.97] hover:bg-primary/5"
+              >
+                Ver média de estrelas
+              </Link>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="flex items-center gap-3 p-5">
-              <TrendingUp className="h-8 w-8 text-primary" />
-              <div>
-                <div className="text-xs uppercase text-muted-foreground">Avaliações</div>
-                <div className="font-semibold">{total}</div>
+            <CardContent className="flex flex-col gap-3 p-5">
+              <div className="flex items-center gap-3">
+                <TrendingUp className="h-8 w-8 text-primary" />
+                <div>
+                  <div className="text-xs uppercase text-muted-foreground">Avaliações</div>
+                  <div className="font-semibold">{total}</div>
+                </div>
               </div>
+              <Link
+                to="/carreira/avaliacoes"
+                className="inline-flex h-10 items-center justify-center rounded-2xl border border-primary/30 bg-card px-4 text-sm font-semibold text-primary transition-all active:scale-[0.97] hover:bg-primary/5"
+              >
+                Verificar avaliações
+              </Link>
             </CardContent>
           </Card>
         </div>
