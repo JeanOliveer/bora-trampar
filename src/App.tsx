@@ -21,6 +21,9 @@ import AdminContratados from "./pages/AdminContratados.tsx";
 import Carreira from "./pages/Carreira.tsx";
 import ServicosRealizados from "./pages/ServicosRealizados.tsx";
 import MeusPontos from "./pages/MeusPontos.tsx";
+import PresencasConfirmadas from "./pages/PresencasConfirmadas.tsx";
+import MediaEstrelas from "./pages/MediaEstrelas.tsx";
+import MinhasAvaliacoes from "./pages/MinhasAvaliacoes.tsx";
 import EmpresaPainel from "./pages/EmpresaPainel.tsx";
 import OAuthConsent from "./pages/OAuthConsent.tsx";
 import NotFound from "./pages/NotFound.tsx";
@@ -49,6 +52,9 @@ const App = () => (
             <Route path="/carreira" element={<Carreira />} />
             <Route path="/carreira/servicos-realizados" element={<ServicosRealizados />} />
             <Route path="/carreira/meus-pontos" element={<MeusPontos />} />
+            <Route path="/carreira/presencas-confirmadas" element={<PresencasConfirmadas />} />
+            <Route path="/carreira/media-estrelas" element={<MediaEstrelas />} />
+            <Route path="/carreira/avaliacoes" element={<MinhasAvaliacoes />} />
 
             <Route path="/servicos" element={<Servicos />} />
             <Route path="/notificacoes" element={<Notificacoes />} />
