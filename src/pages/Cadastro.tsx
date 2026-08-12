@@ -222,7 +222,7 @@ const Cadastro = ({ tipo = "trabalhador" }: { tipo?: "trabalhador" | "contratant
           </div>
           <h1 className="mt-5 text-2xl font-extrabold tracking-tight">UaiTrampo</h1>
           <p className="mt-1.5 text-center text-[13px] font-medium text-white/75">
-            Crie sua conta de trabalhador
+            {isContratante ? "Crie sua conta de contratante" : "Crie sua conta de trabalhador"}
           </p>
         </motion.div>
 
