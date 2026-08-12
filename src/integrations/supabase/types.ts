@@ -463,7 +463,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "trabalhador"
+      app_role: "admin" | "trabalhador" | "contratante"
       avaliacao_tipo: "empresa_para_trabalhador" | "trabalhador_para_empresa"
       notificacao_tipo:
         | "nova_diaria"
@@ -475,7 +475,7 @@ export type Database = {
         | "avaliacao_recebida"
         | "conta_atualizada"
         | "aviso_importante"
-      user_type: "trabalhador"
+      user_type: "trabalhador" | "contratante"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -603,7 +603,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "trabalhador"],
+      app_role: ["admin", "trabalhador", "contratante"],
       avaliacao_tipo: ["empresa_para_trabalhador", "trabalhador_para_empresa"],
       notificacao_tipo: [
         "nova_diaria",
@@ -616,7 +616,7 @@ export const Constants = {
         "conta_atualizada",
         "aviso_importante",
       ],
-      user_type: ["trabalhador"],
+      user_type: ["trabalhador", "contratante"],
     },
   },
 } as const
