@@ -51,7 +51,8 @@ const initials = (name: string | null | undefined) => {
 
 const AdminCandidatos = () => {
   const { id: servicoId } = useParams<{ id: string }>();
-  const { user, isAdmin, loading: authLoading, profileLoading } = useAuth();
+  const { user, isAdmin: isAdminRole, isContratante, loading: authLoading, profileLoading } = useAuth();
+  const isAdmin = isAdminRole || isContratante;
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);

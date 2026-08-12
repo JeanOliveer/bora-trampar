@@ -29,7 +29,8 @@ const categorias = [
 ];
 
 const NovoServico = () => {
-  const { user, isAdmin, loading: authLoading } = useAuth();
+  const { user, isAdmin: isAdminRole, isContratante, loading: authLoading } = useAuth();
+  const isAdmin = isAdminRole || isContratante;
   const navigate = useNavigate();
   const [saving, setSaving] = useState(false);
 

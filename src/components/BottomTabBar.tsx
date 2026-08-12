@@ -4,13 +4,13 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 
 const BottomTabBar = () => {
-  const { user, isAdmin } = useAuth();
+  const { user, isAdmin, isContratante } = useAuth();
   if (!user) return null;
 
   const tabs = [
     { to: "/inicio", label: "Início", icon: Home, end: true, show: true },
     { to: "/servicos", label: "Serviços", icon: Briefcase, show: true },
-    { to: "/admin", label: "Empresa", icon: Building2, show: isAdmin },
+    { to: "/admin", label: "Empresa", icon: Building2, show: isAdmin || isContratante },
     { to: "/carreira", label: "Carreira", icon: TrendingUp, show: true },
     { to: "/perfil", label: "Perfil", icon: User, show: true },
   ].filter((t) => t.show);

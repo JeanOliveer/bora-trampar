@@ -10,6 +10,7 @@ import Login from "./pages/Login.tsx";
 import EsqueciSenha from "./pages/EsqueciSenha.tsx";
 import RedefinirSenha from "./pages/RedefinirSenha.tsx";
 import Cadastro from "./pages/Cadastro.tsx";
+import EscolherTipoConta from "./pages/EscolherTipoConta.tsx";
 import ComoFunciona from "./pages/ComoFunciona.tsx";
 import Perfil from "./pages/Perfil.tsx";
 import Servicos from "./pages/Servicos.tsx";
@@ -46,7 +47,9 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             <Route path="/esqueci-senha" element={<EsqueciSenha />} />
             <Route path="/redefinir-senha" element={<RedefinirSenha />} />
-            <Route path="/cadastro" element={<Cadastro />} />
+            <Route path="/cadastro" element={<EscolherTipoConta />} />
+            <Route path="/cadastro/trabalhador" element={<Cadastro tipo="trabalhador" />} />
+            <Route path="/cadastro/contratante" element={<Cadastro tipo="contratante" />} />
             <Route path="/como-funciona" element={<ComoFunciona />} />
             <Route path="/perfil" element={<Perfil />} />
             <Route path="/carreira" element={<Carreira />} />

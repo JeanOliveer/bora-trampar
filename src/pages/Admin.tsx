@@ -44,7 +44,8 @@ const emptyForm = {
 };
 
 const Admin = () => {
-  const { user, isAdmin, loading: authLoading, profileLoading } = useAuth();
+  const { user, isAdmin: isAdminRole, isContratante, loading: authLoading, profileLoading } = useAuth();
+  const isAdmin = isAdminRole || isContratante;
   const navigate = useNavigate();
   const [servicos, setServicos] = useState<Servico[]>([]);
   const [loading, setLoading] = useState(true);

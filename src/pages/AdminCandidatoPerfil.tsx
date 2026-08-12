@@ -88,7 +88,8 @@ const InfoRow = ({ icon: Icon, label, value }: { icon: any; label: string; value
 
 const AdminCandidatoPerfil = () => {
   const { id: candidaturaId } = useParams<{ id: string }>();
-  const { user, isAdmin, loading: authLoading, profileLoading } = useAuth();
+  const { user, isAdmin: isAdminRole, isContratante, loading: authLoading, profileLoading } = useAuth();
+  const isAdmin = isAdminRole || isContratante;
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
