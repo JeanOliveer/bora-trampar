@@ -307,15 +307,18 @@ const Cadastro = ({ tipo = "trabalhador" }: { tipo?: "trabalhador" | "contratant
             </div>
           </div>
 
-          <div>
-            <label className={labelClass}>Chave PIX (opcional)</label>
-            <input
-              value={chavePix}
-              onChange={(e) => setChavePix(e.target.value)}
-              placeholder="CPF, e-mail, telefone ou aleatória"
-              className={inputClass}
-            />
-          </div>
+          {!isContratante && (
+            <div>
+              <label className={labelClass}>Chave PIX (opcional)</label>
+              <input
+                value={chavePix}
+                onChange={(e) => setChavePix(e.target.value)}
+                placeholder="CPF, e-mail, telefone ou aleatória"
+                className={inputClass}
+              />
+            </div>
+          )}
+
 
           <div>
             <label className={labelClass}>E-mail *</label>
