@@ -449,6 +449,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      assumir_papel_contratante: { Args: { _codigo: string }; Returns: boolean }
       calcular_pontos_estrelas: { Args: { _estrelas: number }; Returns: number }
       has_role: {
         Args: {
@@ -461,9 +462,13 @@ export type Database = {
         Args: { _servico_id: string; _token: string }
         Returns: boolean
       }
+      validar_codigo_contratante: {
+        Args: { _codigo: string }
+        Returns: boolean
+      }
     }
     Enums: {
-      app_role: "admin" | "trabalhador"
+      app_role: "admin" | "trabalhador" | "contratante"
       avaliacao_tipo: "empresa_para_trabalhador" | "trabalhador_para_empresa"
       notificacao_tipo:
         | "nova_diaria"
@@ -475,7 +480,7 @@ export type Database = {
         | "avaliacao_recebida"
         | "conta_atualizada"
         | "aviso_importante"
-      user_type: "trabalhador"
+      user_type: "trabalhador" | "contratante"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -603,7 +608,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "trabalhador"],
+      app_role: ["admin", "trabalhador", "contratante"],
       avaliacao_tipo: ["empresa_para_trabalhador", "trabalhador_para_empresa"],
       notificacao_tipo: [
         "nova_diaria",
@@ -616,7 +621,7 @@ export const Constants = {
         "conta_atualizada",
         "aviso_importante",
       ],
-      user_type: ["trabalhador"],
+      user_type: ["trabalhador", "contratante"],
     },
   },
 } as const

@@ -21,6 +21,7 @@ type AuthContextType = {
   session: Session | null;
   profile: Profile | null;
   isAdmin: boolean;
+  isContratante: boolean;
   loading: boolean;
   profileLoading: boolean;
   signOut: () => Promise<void>;
@@ -32,6 +33,7 @@ const AuthContext = createContext<AuthContextType>({
   session: null,
   profile: null,
   isAdmin: false,
+  isContratante: false,
   loading: true,
   profileLoading: true,
   signOut: async () => {},
@@ -45,6 +47,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isContratante, setIsContratante] = useState(false);
   const [loading, setLoading] = useState(true);
   const [profileLoading, setProfileLoading] = useState(true);
   const fetchInFlight = useRef<{ userId: string; promise: Promise<void> } | null>(null);
@@ -62,12 +65,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         supabase
           .from("user_roles")
           .select("role")
-          .eq("user_id", userId)
-          .eq("role", "admin")
-          .maybeSingle(),
+          .eq("user_id", userId),
       ]);
       setProfile(profileData as unknown as Profile | null);
-      setIsAdmin(!!roleData);
+      const roles = (roleData ?? []).map((r: { role: string }) => r.role);
+      setIsAdmin(roles.includes("admin"));
+      setIsContratante(roles.includes("contratante"));
     })();
     fetchInFlight.current = { userId, promise };
     try {
@@ -75,6 +78,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     } catch {
       setProfile(null);
       setIsAdmin(false);
+      setIsContratante(false);
     } finally {
       setProfileLoading(false);
       fetchInFlight.current = null;
@@ -101,6 +105,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       } else {
         setProfile(null);
         setIsAdmin(false);
+        setIsContratante(false);
         setProfileLoading(false);
       }
       setLoading(false);
@@ -129,11 +134,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     await supabase.auth.signOut();
     setProfile(null);
     setIsAdmin(false);
+    setIsContratante(false);
   }, []);
 
   const value = useMemo(
-    () => ({ user, session, profile, isAdmin, loading, profileLoading, signOut, refreshProfile }),
-    [user, session, profile, isAdmin, loading, profileLoading, signOut, refreshProfile]
+    () => ({ user, session, profile, isAdmin, isContratante, loading, profileLoading, signOut, refreshProfile }),
+    [user, session, profile, isAdmin, isContratante, loading, profileLoading, signOut, refreshProfile]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

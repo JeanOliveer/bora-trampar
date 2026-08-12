@@ -50,7 +50,8 @@ type Servico = { id: string; titulo: string; cidade: string | null; estado: stri
 type ProfileLite = { user_id: string; nome_completo: string | null; pontuacao: number };
 
 const AdminContratados = () => {
-  const { user, isAdmin, loading: authLoading, profileLoading } = useAuth();
+  const { user, isAdmin: isAdminRole, isContratante, loading: authLoading, profileLoading } = useAuth();
+  const isAdmin = isAdminRole || isContratante;
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
