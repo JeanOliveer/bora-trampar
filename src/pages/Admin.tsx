@@ -68,22 +68,20 @@ const Admin = () => {
     if (!isAdmin) return;
     let cancelled = false;
     (async () => {
-      const { data } = await supabase
-        .from("servicos")
-        .select("*")
-        .order("created_at", { ascending: false });
+      let query = supabase.from("servicos").select("*").order("created_at", { ascending: false });
+      if (!isAdminRole && user) query = query.eq("created_by", user.id);
+      const { data } = await query;
       if (cancelled) return;
       setServicos((data as Servico[]) || []);
       setLoading(false);
     })();
     return () => { cancelled = true; };
-  }, [isAdmin]);
+  }, [isAdmin, isAdminRole, user]);
 
   const load = async () => {
-    const { data } = await supabase
-      .from("servicos")
-      .select("*")
-      .order("created_at", { ascending: false });
+    let query = supabase.from("servicos").select("*").order("created_at", { ascending: false });
+    if (!isAdminRole && user) query = query.eq("created_by", user.id);
+    const { data } = await query;
     setServicos((data as Servico[]) || []);
     setLoading(false);
   };

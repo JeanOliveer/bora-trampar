@@ -29,7 +29,7 @@ const categorias = [
 ];
 
 const NovoServico = () => {
-  const { user, isAdmin: isAdminRole, isContratante, loading: authLoading } = useAuth();
+  const { user, isAdmin: isAdminRole, isContratante, loading: authLoading, profileLoading } = useAuth();
   const isAdmin = isAdminRole || isContratante;
   const navigate = useNavigate();
   const [saving, setSaving] = useState(false);
@@ -50,11 +50,14 @@ const NovoServico = () => {
   const [perguntas, setPerguntas] = useState<PerguntaDraft[]>([]);
 
   useEffect(() => {
-    if (!authLoading) {
-      if (!user) navigate("/login");
-      else if (!isAdmin) navigate("/servicos");
+    if (authLoading) return;
+    if (!user) {
+      navigate("/login", { replace: true });
+      return;
     }
-  }, [authLoading, user, isAdmin, navigate]);
+    if (profileLoading) return;
+    if (!isAdmin) navigate("/servicos", { replace: true });
+  }, [authLoading, profileLoading, user, isAdmin, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -115,7 +118,7 @@ const NovoServico = () => {
     toast.success("Serviço publicado! Compartilhe o link com a empresa.");
   };
 
-  if (authLoading || !isAdmin) {
+  if (authLoading || profileLoading || !isAdmin) {
     return <div className="flex min-h-screen items-center justify-center">Carregando...</div>;
   }
 
