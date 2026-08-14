@@ -1,16 +1,22 @@
 import { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Briefcase, ArrowLeft } from "lucide-react";
+import { Briefcase, ArrowLeft, Check, X } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-
-const estadosBR = [
-  "AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG",
-  "PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO",
-];
+import {
+  estadosBR,
+  apenasDigitos,
+  formatarCPF,
+  cpfValido,
+  maiorDeIdade,
+  requisitosSenha,
+  senhaValida,
+} from "@/lib/validacaoCadastro";
+import { useCidades } from "@/hooks/useCidades";
 
 const estadosCivis = ["Solteiro(a)", "Casado(a)", "Divorciado(a)", "Viúvo(a)"];
+
 
 const inputClass =
   "h-12 w-full rounded-xl border border-white/15 bg-white/10 px-4 text-sm font-medium text-white placeholder:text-white/50 backdrop-blur-md outline-none transition-all focus:border-white/40 focus:bg-white/15";
