@@ -306,8 +306,8 @@ const Cadastro = ({ tipo = "trabalhador" }: { tipo?: "trabalhador" | "contratant
                 className={inputClass}
               >
                 <option value="" className="bg-[#004a73]">UF</option>
-                {estadosBR.map((uf) => (
-                  <option key={uf} value={uf} className="bg-[#004a73]">{uf}</option>
+                {estadosBR.map(({ uf, nome }) => (
+                  <option key={uf} value={uf} className="bg-[#004a73]">{uf} - {nome}</option>
                 ))}
               </select>
             </div>
