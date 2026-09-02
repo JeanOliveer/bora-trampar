@@ -80,14 +80,14 @@ const Welcome = () => {
         {/* Logo */}
         <motion.div variants={logoVariants} className="mt-10">
           <div className="relative">
-            <div className="flex h-36 w-36 items-center justify-center rounded-[2.2rem] bg-white/10 shadow-2xl ring-1 ring-white/20 backdrop-blur-md">
-              <Briefcase className="h-16 w-16 text-white" strokeWidth={1.4} />
+            <div className="flex h-36 w-36 items-center justify-center rounded-[2.2rem] bg-primary-foreground shadow-2xl ring-1 ring-primary-foreground/70 backdrop-blur-md">
+              <Briefcase className="h-16 w-16 text-primary" strokeWidth={1.4} />
             </div>
             {/* Subtle pulse ring */}
             <motion.div
               animate={{ scale: [1, 1.08, 1], opacity: [0.15, 0.05, 0.15] }}
               transition={{ repeat: Infinity, duration: 3.5, ease: "easeInOut" }}
-              className="absolute inset-0 rounded-[2.2rem] bg-white"
+               className="absolute inset-0 rounded-[2.2rem] bg-primary"
             />
           </div>
         </motion.div>
