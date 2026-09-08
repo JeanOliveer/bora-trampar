@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 type Profile = {
   id: string;
   user_id: string;
-  user_type: "trabalhador";
+  user_type: "trabalhador" | "contratante";
   nome_completo: string | null;
   cpf: string | null;
   data_nascimento: string | null;
@@ -70,7 +70,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setProfile(profileData as unknown as Profile | null);
       const roles = (roleData ?? []).map((r: { role: string }) => r.role);
       setIsAdmin(roles.includes("admin"));
-      setIsContratante(roles.includes("contratante"));
+      setIsContratante(
+        roles.includes("contratante") ||
+          (profileData as { user_type?: string } | null)?.user_type === "contratante"
+      );
     })();
     fetchInFlight.current = { userId, promise };
     try {
