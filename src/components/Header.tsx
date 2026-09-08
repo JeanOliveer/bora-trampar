@@ -36,9 +36,9 @@ const Header = () => {
               Carreira
             </Link>
           )}
-          {isAdmin && (
+          {(isAdmin || isContratante) && (
             <Link to="/admin" className="text-sm font-medium text-primary transition-colors hover:text-foreground">
-              Admin
+              {isAdmin ? "Admin" : "Empresa"}
             </Link>
           )}
         </nav>
