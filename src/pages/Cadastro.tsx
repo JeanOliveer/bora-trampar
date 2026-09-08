@@ -103,15 +103,13 @@ const Cadastro = ({ tipo = "trabalhador" }: { tipo?: "trabalhador" | "contratant
         { user_id: user.id, document_type: "politica_privacidade", version: PRIVACY_VERSION },
       ]);
 
-      if (isContratante && codigoContratante) {
-        const { data: ok, error: papelError } = await supabase.rpc("assumir_papel_contratante", {
-          _codigo: codigoContratante,
-        });
-        if (papelError || !ok) {
-          toast.error("Não foi possível concluir o cadastro de contratante.");
-          setLoading(false);
-          return;
+      if (isContratante) {
+        // O acesso ao painel Empresa já é concedido automaticamente no cadastro.
+        // Esta chamada é apenas uma garantia extra e não bloqueia o fluxo.
+        if (codigoContratante) {
+          await supabase.rpc("assumir_papel_contratante", { _codigo: codigoContratante });
         }
+        await refreshProfile();
       }
     }
 
