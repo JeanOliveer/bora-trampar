@@ -96,9 +96,9 @@ const Header = () => {
                 Carreira
               </Link>
             )}
-            {isAdmin && (
+            {(isAdmin || isContratante) && (
               <Link to="/admin" className="rounded-md px-3 py-2 text-sm font-medium text-primary hover:bg-muted" onClick={() => setMenuOpen(false)}>
-                Admin
+                {isAdmin ? "Admin" : "Empresa"}
               </Link>
             )}
             <div className="mt-2 flex flex-col gap-2">
