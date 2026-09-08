@@ -26,11 +26,11 @@ const PoliticaPrivacidade = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="relative min-h-screen overflow-x-hidden bg-gradient-to-b from-[#005e91] via-[#004a73] to-[#00314d] text-white">
+    <div className="relative min-h-screen overflow-x-hidden bg-gradient-to-b from-[#2563EA] via-[#1E4FD0] to-[#16357F] text-white">
       <div className="pointer-events-none absolute -top-24 -right-24 h-72 w-72 rounded-full bg-white/[0.04]" />
       <div className="pointer-events-none absolute -bottom-40 -left-24 h-96 w-96 rounded-full bg-white/[0.03]" />
 
-      <header className="sticky top-0 z-10 flex items-center gap-3 border-b border-white/10 bg-[#005e91]/70 px-4 py-3 backdrop-blur-md">
+      <header className="sticky top-0 z-10 flex items-center gap-3 border-b border-white/10 bg-[#2563EA]/70 px-4 py-3 backdrop-blur-md">
         <button
           onClick={() => (window.history.length > 1 ? navigate(-1) : navigate("/"))}
           className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 ring-1 ring-white/20 transition-all active:scale-95"

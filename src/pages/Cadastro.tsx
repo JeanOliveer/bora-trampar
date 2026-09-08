@@ -152,7 +152,7 @@ const Cadastro = ({ tipo = "trabalhador" }: { tipo?: "trabalhador" | "contratant
 
   if (etapaCodigo) {
     return (
-      <div className="relative flex min-h-screen flex-col overflow-hidden bg-gradient-to-b from-[#005e91] via-[#004a73] to-[#00314d] text-white">
+      <div className="relative flex min-h-screen flex-col overflow-hidden bg-gradient-to-b from-[#2563EA] via-[#1E4FD0] to-[#16357F] text-white">
         <div className="pointer-events-none absolute -top-24 -right-24 h-72 w-72 rounded-full bg-white/[0.04]" />
         <div className="pointer-events-none absolute -bottom-40 -left-24 h-96 w-96 rounded-full bg-white/[0.03]" />
 
@@ -190,7 +190,7 @@ const Cadastro = ({ tipo = "trabalhador" }: { tipo?: "trabalhador" | "contratant
             <button
               type="submit"
               disabled={loading || !codigo}
-              className="flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-[#061426] text-sm font-semibold text-white shadow-xl transition-all active:scale-[0.97] hover:bg-[#0a1d3a] disabled:opacity-60 disabled:cursor-not-allowed"
+              className="flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-[#16357F] text-sm font-semibold text-white shadow-xl transition-all active:scale-[0.97] hover:bg-[#1E4FD0] disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {loading ? "Validando..." : "Validar código"}
             </button>
@@ -202,7 +202,7 @@ const Cadastro = ({ tipo = "trabalhador" }: { tipo?: "trabalhador" | "contratant
 
 
   return (
-    <div className="relative flex min-h-screen flex-col overflow-hidden bg-gradient-to-b from-[#005e91] via-[#004a73] to-[#00314d] text-white">
+    <div className="relative flex min-h-screen flex-col overflow-hidden bg-gradient-to-b from-[#2563EA] via-[#1E4FD0] to-[#16357F] text-white">
       <div className="pointer-events-none absolute -top-24 -right-24 h-72 w-72 rounded-full bg-white/[0.04]" />
       <div className="pointer-events-none absolute -bottom-40 -left-24 h-96 w-96 rounded-full bg-white/[0.03]" />
 
@@ -275,9 +275,9 @@ const Cadastro = ({ tipo = "trabalhador" }: { tipo?: "trabalhador" | "contratant
                 onChange={(e) => setEstadoCivil(e.target.value)}
                 className={inputClass}
               >
-                <option value="" className="bg-[#004a73]">Selecione</option>
+                <option value="" className="bg-[#1E4FD0]">Selecione</option>
                 {estadosCivis.map((ec) => (
-                  <option key={ec} value={ec} className="bg-[#004a73]">{ec}</option>
+                  <option key={ec} value={ec} className="bg-[#1E4FD0]">{ec}</option>
                 ))}
               </select>
             </div>
@@ -302,9 +302,9 @@ const Cadastro = ({ tipo = "trabalhador" }: { tipo?: "trabalhador" | "contratant
                 onChange={(e) => setEstado(e.target.value)}
                 className={inputClass}
               >
-                <option value="" className="bg-[#004a73]">UF</option>
+                <option value="" className="bg-[#1E4FD0]">UF</option>
                 {estadosBR.map(({ uf, nome }) => (
-                  <option key={uf} value={uf} className="bg-[#004a73]">{uf} - {nome}</option>
+                  <option key={uf} value={uf} className="bg-[#1E4FD0]">{uf} - {nome}</option>
                 ))}
               </select>
             </div>
@@ -381,7 +381,7 @@ const Cadastro = ({ tipo = "trabalhador" }: { tipo?: "trabalhador" | "contratant
           <button
             type="submit"
             disabled={loading || !aceitouTermos || !aceitouPrivacidade}
-            className="flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-[#061426] text-sm font-semibold text-white shadow-xl transition-all active:scale-[0.97] hover:bg-[#0a1d3a] disabled:opacity-60 disabled:cursor-not-allowed"
+            className="flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-[#16357F] text-sm font-semibold text-white shadow-xl transition-all active:scale-[0.97] hover:bg-[#1E4FD0] disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {loading ? "Criando conta..." : "Criar conta"}
           </button>

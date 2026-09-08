@@ -44,7 +44,7 @@ export const getNivel = (pontuacao: number): NivelInfo => {
       bgClass: "bg-blue-50",
       textClass: "text-blue-700",
       badgeClass: "bg-blue-500 text-white hover:bg-blue-500",
-      color: "#3B82F6",
+      color: "#2563EA",
     };
   }
   if (pontuacao <= -5) {

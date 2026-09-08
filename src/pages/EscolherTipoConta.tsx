@@ -16,7 +16,7 @@ const itemVariants = {
 
 const EscolherTipoConta = () => {
   return (
-    <div className="relative flex min-h-screen flex-col overflow-hidden bg-gradient-to-b from-[#005e91] via-[#004a73] to-[#00314d] text-white">
+    <div className="relative flex min-h-screen flex-col overflow-hidden bg-gradient-to-b from-[#2563EA] via-[#1E4FD0] to-[#16357F] text-white">
       <div className="pointer-events-none absolute -top-24 -right-24 h-72 w-72 rounded-full bg-white/[0.04]" />
       <div className="pointer-events-none absolute -bottom-40 -left-24 h-96 w-96 rounded-full bg-white/[0.03]" />
 
@@ -46,12 +46,12 @@ const EscolherTipoConta = () => {
         <motion.div variants={itemVariants} className="mt-10 w-full max-w-sm space-y-3">
           <Link to="/cadastro/trabalhador" className="block">
             <button className="flex w-full items-center gap-4 rounded-2xl bg-white p-4 text-left shadow-xl transition-all active:scale-[0.97] hover:bg-white/95">
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#005e91]/10">
-                <HardHat className="h-5 w-5 text-[#005e91]" />
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#2563EA]/10">
+                <HardHat className="h-5 w-5 text-[#2563EA]" />
               </span>
               <span className="min-w-0">
-                <span className="block text-sm font-semibold text-[#005e91]">Trabalhador</span>
-                <span className="block text-[12px] leading-snug text-[#005e91]/70">
+                <span className="block text-sm font-semibold text-[#2563EA]">Trabalhador</span>
+                <span className="block text-[12px] leading-snug text-[#2563EA]/70">
                   Candidate-se a diárias e construa sua carreira
                 </span>
               </span>

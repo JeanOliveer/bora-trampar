@@ -32,7 +32,7 @@ const EsqueciSenha = () => {
   };
 
   return (
-    <div className="relative flex min-h-screen flex-col overflow-hidden bg-gradient-to-b from-[#005e91] via-[#004a73] to-[#00314d] text-white">
+    <div className="relative flex min-h-screen flex-col overflow-hidden bg-gradient-to-b from-[#2563EA] via-[#1E4FD0] to-[#16357F] text-white">
       <Link
         to="/login"
         className="absolute left-5 top-5 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 backdrop-blur-md ring-1 ring-white/20 transition-all active:scale-95"
@@ -82,7 +82,7 @@ const EsqueciSenha = () => {
             <button
               onClick={handleSubmit}
               disabled={loading}
-              className="flex h-14 w-full items-center justify-center gap-2.5 rounded-2xl bg-[#061426] text-sm font-semibold text-white shadow-xl transition-all active:scale-[0.97] hover:bg-[#0a1d3a] disabled:opacity-60"
+              className="flex h-14 w-full items-center justify-center gap-2.5 rounded-2xl bg-[#16357F] text-sm font-semibold text-white shadow-xl transition-all active:scale-[0.97] hover:bg-[#1E4FD0] disabled:opacity-60"
             >
               {loading ? "Enviando..." : "Enviar link de recuperação"}
             </button>
@@ -92,7 +92,7 @@ const EsqueciSenha = () => {
         {sent && (
           <Link
             to="/login"
-            className="mt-8 flex h-14 w-full max-w-xs items-center justify-center gap-2.5 rounded-2xl bg-[#061426] text-sm font-semibold text-white shadow-xl transition-all active:scale-[0.97] hover:bg-[#0a1d3a]"
+            className="mt-8 flex h-14 w-full max-w-xs items-center justify-center gap-2.5 rounded-2xl bg-[#16357F] text-sm font-semibold text-white shadow-xl transition-all active:scale-[0.97] hover:bg-[#1E4FD0]"
           >
             Voltar
           </Link>
