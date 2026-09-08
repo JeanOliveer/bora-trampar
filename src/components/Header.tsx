@@ -12,7 +12,7 @@ import {
 
 const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
-  const { user, profile, isAdmin, signOut } = useAuth();
+  const { user, profile, isAdmin, isContratante, signOut } = useAuth();
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-card/80 backdrop-blur-lg">
