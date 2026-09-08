@@ -57,7 +57,7 @@ const Welcome = () => {
   };
 
   return (
-    <div className="relative flex min-h-screen flex-col overflow-hidden bg-gradient-to-b from-[#005e91] via-[#004a73] to-[#00314d] text-white">
+    <div className="relative flex min-h-screen flex-col overflow-hidden bg-gradient-to-b from-[#2563EA] via-[#1E4FD0] to-[#16357F] text-white">
       {/* Decorative soft circles */}
       <div className="pointer-events-none absolute -top-24 -right-24 h-72 w-72 rounded-full bg-white/[0.04]" />
       <div className="pointer-events-none absolute -bottom-40 -left-24 h-96 w-96 rounded-full bg-white/[0.03]" />
@@ -103,14 +103,14 @@ const Welcome = () => {
         {/* Action buttons */}
         <motion.div variants={itemVariants} className="mt-12 w-full max-w-xs space-y-3">
           <Link to="/login" className="block">
-            <button className="flex h-14 w-full items-center justify-center gap-2.5 rounded-2xl bg-[#061426] text-sm font-semibold text-white shadow-xl transition-all active:scale-[0.97] hover:bg-[#0a1d3a]">
+            <button className="flex h-14 w-full items-center justify-center gap-2.5 rounded-2xl bg-[#16357F] text-sm font-semibold text-white shadow-xl transition-all active:scale-[0.97] hover:bg-[#1E4FD0]">
               <User className="h-4 w-4" />
               Já tenho login
             </button>
           </Link>
 
           <Link to="/cadastro" className="block">
-            <button className="flex h-14 w-full items-center justify-center gap-2.5 rounded-2xl border-2 border-white/80 bg-white text-sm font-semibold text-[#005e91] shadow-xl transition-all active:scale-[0.97] hover:bg-white/95">
+            <button className="flex h-14 w-full items-center justify-center gap-2.5 rounded-2xl border-2 border-white/80 bg-white text-sm font-semibold text-[#2563EA] shadow-xl transition-all active:scale-[0.97] hover:bg-white/95">
               <UserPlus className="h-4 w-4" />
               Registrar-se
             </button>

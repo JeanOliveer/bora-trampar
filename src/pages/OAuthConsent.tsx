@@ -83,7 +83,7 @@ export default function OAuthConsent() {
     (details?.scope ? details.scope.split(/\s+/).filter(Boolean) : []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#005e91] via-[#004a73] to-[#00314d] px-5 py-10 text-white">
+    <div className="min-h-screen bg-gradient-to-b from-[#2563EA] via-[#1E4FD0] to-[#16357F] px-5 py-10 text-white">
       <div className="mx-auto flex max-w-md flex-col items-center">
         <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 ring-1 ring-white/20 backdrop-blur">
           <Briefcase className="h-7 w-7" strokeWidth={1.5} />
@@ -132,7 +132,7 @@ export default function OAuthConsent() {
                 <button
                   disabled={busy}
                   onClick={() => decide(true)}
-                  className="h-12 rounded-2xl bg-[#061426] text-sm font-semibold text-white shadow-xl transition active:scale-[0.97] hover:bg-[#0a1d3a] disabled:opacity-60"
+                  className="h-12 rounded-2xl bg-[#16357F] text-sm font-semibold text-white shadow-xl transition active:scale-[0.97] hover:bg-[#1E4FD0] disabled:opacity-60"
                 >
                   {busy ? "Processando…" : "Aprovar e conectar"}
                 </button>

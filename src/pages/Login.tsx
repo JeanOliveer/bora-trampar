@@ -64,7 +64,7 @@ const Login = () => {
   const cadastroHref = safeNext ? `/cadastro?next=${encodeURIComponent(safeNext)}` : "/cadastro";
 
   return (
-    <div className="relative flex min-h-screen flex-col overflow-hidden bg-gradient-to-b from-[#005e91] via-[#004a73] to-[#00314d] text-white">
+    <div className="relative flex min-h-screen flex-col overflow-hidden bg-gradient-to-b from-[#2563EA] via-[#1E4FD0] to-[#16357F] text-white">
       <div className="pointer-events-none absolute -top-24 -right-24 h-72 w-72 rounded-full bg-white/[0.04]" />
       <div className="pointer-events-none absolute -bottom-40 -left-24 h-96 w-96 rounded-full bg-white/[0.03]" />
       <div className="pointer-events-none absolute top-1/2 left-1/2 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/[0.02]" />
@@ -134,7 +134,7 @@ const Login = () => {
           <button
             onClick={handleLogin}
             disabled={loading}
-            className="flex h-14 w-full items-center justify-center gap-2.5 rounded-2xl bg-[#061426] text-sm font-semibold text-white shadow-xl transition-all active:scale-[0.97] hover:bg-[#0a1d3a] disabled:opacity-60"
+            className="flex h-14 w-full items-center justify-center gap-2.5 rounded-2xl bg-[#16357F] text-sm font-semibold text-white shadow-xl transition-all active:scale-[0.97] hover:bg-[#1E4FD0] disabled:opacity-60"
           >
             {loading ? "Entrando..." : "Entrar"}
           </button>
