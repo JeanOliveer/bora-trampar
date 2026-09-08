@@ -109,7 +109,6 @@ const Cadastro = ({ tipo = "trabalhador" }: { tipo?: "trabalhador" | "contratant
         if (codigoContratante) {
           await supabase.rpc("assumir_papel_contratante", { _codigo: codigoContratante });
         }
-        await refreshProfile();
       }
     }
 
