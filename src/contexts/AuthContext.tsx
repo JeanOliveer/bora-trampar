@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 type Profile = {
   id: string;
   user_id: string;
-  user_type: "trabalhador";
+  user_type: "trabalhador" | "contratante";
   nome_completo: string | null;
   cpf: string | null;
   data_nascimento: string | null;
