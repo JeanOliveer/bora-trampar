@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Briefcase, ArrowLeft, Check, X } from "lucide-react";
+import { ArrowLeft, Check, X } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import logo from "@/assets/uaitrampo-logo.png";
 import {
   estadosBR,
   apenasDigitos,
@@ -164,9 +165,7 @@ const Cadastro = ({ tipo = "trabalhador" }: { tipo?: "trabalhador" | "contratant
         </button>
 
         <div className="flex flex-1 flex-col items-center justify-center px-6 py-16">
-          <div className="flex h-20 w-20 items-center justify-center rounded-[1.5rem] bg-white/10 shadow-2xl ring-1 ring-white/20 backdrop-blur-md">
-            <Briefcase className="h-9 w-9 text-white" strokeWidth={1.4} />
-          </div>
+          <img src={logo} alt="UaiTrampo" className="h-auto w-32 object-contain" />
           <h1 className="mt-5 max-w-[18rem] text-center text-xl font-extrabold tracking-tight">
             Digite o código de acesso do contratante
           </h1>
@@ -220,10 +219,7 @@ const Cadastro = ({ tipo = "trabalhador" }: { tipo?: "trabalhador" | "contratant
         className="flex flex-1 flex-col items-center px-6 pb-10 pt-16"
       >
         <motion.div variants={itemVariants} className="flex flex-col items-center">
-          <div className="flex h-20 w-20 items-center justify-center rounded-[1.5rem] bg-white/10 shadow-2xl ring-1 ring-white/20 backdrop-blur-md">
-            <Briefcase className="h-9 w-9 text-white" strokeWidth={1.4} />
-          </div>
-          <h1 className="mt-5 text-2xl font-extrabold tracking-tight">UaiTrampo</h1>
+          <img src={logo} alt="UaiTrampo — conectando trabalho e oportunidades" className="h-auto w-32 object-contain" />
           <p className="mt-1.5 text-center text-[13px] font-medium text-white/75">
             {isContratante ? "Crie sua conta de contratante" : "Crie sua conta de trabalhador"}
           </p>
