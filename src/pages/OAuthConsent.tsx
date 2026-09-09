@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Briefcase } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import logo from "@/assets/uaitrampo-logo.png";
 
 type AuthorizationDetails = {
   client?: { name?: string; client_name?: string; redirect_uri?: string } | null;
@@ -85,9 +85,7 @@ export default function OAuthConsent() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#2563EA] via-[#1E4FD0] to-[#16357F] px-5 py-10 text-white">
       <div className="mx-auto flex max-w-md flex-col items-center">
-        <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 ring-1 ring-white/20 backdrop-blur">
-          <Briefcase className="h-7 w-7" strokeWidth={1.5} />
-        </div>
+        <img src={logo} alt="UaiTrampo" className="mb-6 h-auto w-32 object-contain" />
 
         <div className="w-full rounded-3xl bg-white/10 p-6 ring-1 ring-white/15 backdrop-blur-lg">
           {error ? (

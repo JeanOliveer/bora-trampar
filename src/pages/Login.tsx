@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Briefcase, ArrowLeft, Mail, Lock } from "lucide-react";
+import { ArrowLeft, Mail, Lock } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import logo from "@/assets/uaitrampo-logo.png";
 
 const springTransition = {
   type: "spring" as const,
@@ -82,14 +83,8 @@ const Login = () => {
         animate="visible"
         className="flex flex-1 flex-col items-center justify-center px-8 pt-16"
       >
-        <motion.h1 variants={itemVariants} className="text-3xl font-extrabold tracking-tight">
-          UaiTrampo
-        </motion.h1>
-
-        <motion.div variants={itemVariants} className="mt-8">
-          <div className="flex h-24 w-24 items-center justify-center rounded-[1.7rem] bg-white/10 shadow-2xl ring-1 ring-white/20 backdrop-blur-md">
-            <Briefcase className="h-11 w-11 text-white" strokeWidth={1.4} />
-          </div>
+        <motion.div variants={itemVariants} className="w-full max-w-[12rem]">
+          <img src={logo} alt="UaiTrampo — conectando trabalho e oportunidades" className="h-auto w-full object-contain" />
         </motion.div>
 
         <motion.p

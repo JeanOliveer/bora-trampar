@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Menu, X, Briefcase, User, LogOut } from "lucide-react";
+import { Menu, X, User, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
+import logo from "@/assets/uaitrampo-logo.png";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,29 +16,26 @@ const Header = () => {
   const { user, profile, isAdmin, isContratante, signOut } = useAuth();
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border bg-card/80 backdrop-blur-lg">
+    <header className="sticky top-0 z-50 border-b border-primary bg-primary text-primary-foreground">
       <div className="container flex h-16 items-center justify-between">
-        <Link to="/" className="flex items-center gap-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
-            <Briefcase className="h-5 w-5 text-primary-foreground" />
-          </div>
-          <span className="text-xl font-bold text-foreground">UaiTrampo</span>
+        <Link to="/" aria-label="UaiTrampo" className="flex h-14 items-center">
+          <img src={logo} alt="UaiTrampo" className="h-12 w-auto object-contain" />
         </Link>
 
         <nav className="hidden items-center gap-6 md:flex">
-          <Link to="/servicos" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
+          <Link to="/servicos" className="text-sm font-medium text-primary-foreground/80 transition-colors hover:text-primary-foreground">
             Serviços
           </Link>
-          <Link to="/como-funciona" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
+          <Link to="/como-funciona" className="text-sm font-medium text-primary-foreground/80 transition-colors hover:text-primary-foreground">
             Como Funciona
           </Link>
           {user && (
-            <Link to="/carreira" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
+            <Link to="/carreira" className="text-sm font-medium text-primary-foreground/80 transition-colors hover:text-primary-foreground">
               Carreira
             </Link>
           )}
           {(isAdmin || isContratante) && (
-            <Link to="/admin" className="text-sm font-medium text-primary transition-colors hover:text-foreground">
+            <Link to="/admin" className="text-sm font-medium text-primary-foreground transition-colors hover:text-primary-foreground/80">
               {isAdmin ? "Admin" : "Empresa"}
             </Link>
           )}
@@ -47,7 +45,7 @@ const Header = () => {
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="gap-2">
+                <Button variant="ghost" size="sm" className="gap-2 text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground">
                   <User className="h-4 w-4" />
                   {profile?.nome_completo || user.email}
                 </Button>
@@ -65,7 +63,7 @@ const Header = () => {
           ) : (
             <>
               <Link to="/login">
-                <Button variant="ghost" size="sm">Entrar</Button>
+                <Button variant="ghost" size="sm" className="text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground">Entrar</Button>
               </Link>
               <Link to="/cadastro">
                 <Button size="sm">Cadastrar</Button>
@@ -83,21 +81,21 @@ const Header = () => {
       </div>
 
       {menuOpen && (
-        <div className="animate-fade-in border-t border-border bg-card px-4 pb-4 pt-2 md:hidden">
+        <div className="animate-fade-in border-t border-primary-foreground/20 bg-primary px-4 pb-4 pt-2 md:hidden">
           <nav className="flex flex-col gap-3">
-            <Link to="/servicos" className="rounded-md px-3 py-2 text-sm font-medium text-foreground hover:bg-muted" onClick={() => setMenuOpen(false)}>
+            <Link to="/servicos" className="rounded-md px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-primary-foreground/10" onClick={() => setMenuOpen(false)}>
               Serviços
             </Link>
-            <Link to="/como-funciona" className="rounded-md px-3 py-2 text-sm font-medium text-foreground hover:bg-muted" onClick={() => setMenuOpen(false)}>
+            <Link to="/como-funciona" className="rounded-md px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-primary-foreground/10" onClick={() => setMenuOpen(false)}>
               Como Funciona
             </Link>
             {user && (
-              <Link to="/carreira" className="rounded-md px-3 py-2 text-sm font-medium text-foreground hover:bg-muted" onClick={() => setMenuOpen(false)}>
+              <Link to="/carreira" className="rounded-md px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-primary-foreground/10" onClick={() => setMenuOpen(false)}>
                 Carreira
               </Link>
             )}
             {(isAdmin || isContratante) && (
-              <Link to="/admin" className="rounded-md px-3 py-2 text-sm font-medium text-primary hover:bg-muted" onClick={() => setMenuOpen(false)}>
+              <Link to="/admin" className="rounded-md px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-primary-foreground/10" onClick={() => setMenuOpen(false)}>
                 {isAdmin ? "Admin" : "Empresa"}
               </Link>
             )}

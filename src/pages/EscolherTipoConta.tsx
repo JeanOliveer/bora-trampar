@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, Briefcase, HardHat, Building2 } from "lucide-react";
+import { ArrowLeft, HardHat, Building2 } from "lucide-react";
+import logo from "@/assets/uaitrampo-logo.png";
 
 const springTransition = { type: "spring" as const, stiffness: 120, damping: 14 };
 
@@ -34,10 +35,7 @@ const EscolherTipoConta = () => {
         className="flex flex-1 flex-col items-center justify-center px-6 py-16"
       >
         <motion.div variants={itemVariants} className="flex flex-col items-center">
-          <div className="flex h-20 w-20 items-center justify-center rounded-[1.5rem] bg-white/10 shadow-2xl ring-1 ring-white/20 backdrop-blur-md">
-            <Briefcase className="h-9 w-9 text-white" strokeWidth={1.4} />
-          </div>
-          <h1 className="mt-5 text-2xl font-extrabold tracking-tight">UaiTrampo</h1>
+          <img src={logo} alt="UaiTrampo — conectando trabalho e oportunidades" className="h-auto w-36 object-contain" />
           <p className="mt-1.5 max-w-[16rem] text-center text-[13px] font-medium text-white/75">
             Qual tipo de conta você deseja criar?
           </p>
