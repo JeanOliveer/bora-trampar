@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import logo from "@/assets/uaitrampo-logo.png";
+import logo from "@/assets/uaitrampo-symbol.png";
 
 const Footer = () => {
   return (

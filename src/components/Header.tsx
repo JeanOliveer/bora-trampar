@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Menu, X, User, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
-import logo from "@/assets/uaitrampo-logo.png";
+import logo from "@/assets/uaitrampo-symbol.png";
 import {
   DropdownMenu,
   DropdownMenuContent,
