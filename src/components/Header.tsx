@@ -66,7 +66,7 @@ const Header = () => {
                 <Button variant="ghost" size="sm" className="text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground">Entrar</Button>
               </Link>
               <Link to="/cadastro">
-                <Button size="sm">Cadastrar</Button>
+                <Button size="sm" className="bg-primary-foreground text-primary hover:bg-primary-foreground/90">Cadastrar</Button>
               </Link>
             </>
           )}
