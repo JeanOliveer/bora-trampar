@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import logo from "@/assets/uaitrampo-logo.png";
+import logo from "@/assets/uaitrampo-symbol.png";
 
 type AuthorizationDetails = {
   client?: { name?: string; client_name?: string; redirect_uri?: string } | null;

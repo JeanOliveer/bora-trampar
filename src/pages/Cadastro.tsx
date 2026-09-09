@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { ArrowLeft, Check, X } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import logo from "@/assets/uaitrampo-logo.png";
+import logo from "@/assets/uaitrampo-symbol.png";
 import {
   estadosBR,
   apenasDigitos,

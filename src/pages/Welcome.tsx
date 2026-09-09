@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { User, UserPlus } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useEffect } from "react";
-import logo from "@/assets/uaitrampo-logo.png";
+import logo from "@/assets/uaitrampo-symbol.png";
 
 const springTransition = {
   type: "spring" as const,
@@ -70,9 +70,13 @@ const Welcome = () => {
         animate="visible"
         className="flex flex-1 flex-col items-center justify-center px-8"
       >
+        <motion.h1 variants={itemVariants} className="text-3xl font-extrabold">
+          UaiTrampo
+        </motion.h1>
+
         {/* Logo */}
-        <motion.div variants={logoVariants} className="w-full max-w-[17rem]">
-          <img src={logo} alt="UaiTrampo — conectando trabalho e oportunidades" className="h-auto w-full object-contain" />
+        <motion.div variants={logoVariants} className="mt-8 h-40">
+          <img src={logo} alt="Símbolo UaiTrampo" className="h-full w-auto object-contain" />
         </motion.div>
 
         {/* Tagline */}

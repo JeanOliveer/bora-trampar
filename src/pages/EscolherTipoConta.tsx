@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft, HardHat, Building2 } from "lucide-react";
-import logo from "@/assets/uaitrampo-logo.png";
+import logo from "@/assets/uaitrampo-symbol.png";
 
 const springTransition = { type: "spring" as const, stiffness: 120, damping: 14 };
 
