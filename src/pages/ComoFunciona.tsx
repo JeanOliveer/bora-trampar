@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import BottomTabBar from "@/components/BottomTabBar";
 
 const steps = [
   {
@@ -32,7 +33,7 @@ const ComoFunciona = () => {
     <div className="flex min-h-screen flex-col">
       <Header />
       <main className="flex-1">
-        <section className="container py-16 md:py-24">
+        <section className="container pb-28 pt-16 md:py-24">
           <div className="mx-auto max-w-2xl text-center">
             <h1 className="mb-4 text-3xl font-bold text-foreground md:text-4xl">
               Como o UaiTrampo funciona?
@@ -66,6 +67,7 @@ const ComoFunciona = () => {
         </section>
       </main>
       <Footer />
+      <BottomTabBar />
     </div>
   );
 };
