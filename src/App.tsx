@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
 import RootRoute from "@/components/RootRoute";
+import CarreiraRoute from "@/components/CarreiraRoute";
 import Index from "./pages/Index.tsx";
 import Login from "./pages/Login.tsx";
 import EsqueciSenha from "./pages/EsqueciSenha.tsx";
@@ -52,12 +53,12 @@ const App = () => (
             <Route path="/cadastro/contratante" element={<Cadastro tipo="contratante" />} />
             <Route path="/como-funciona" element={<ComoFunciona />} />
             <Route path="/perfil" element={<Perfil />} />
-            <Route path="/carreira" element={<Carreira />} />
-            <Route path="/carreira/servicos-realizados" element={<ServicosRealizados />} />
-            <Route path="/carreira/meus-pontos" element={<MeusPontos />} />
-            <Route path="/carreira/presencas-confirmadas" element={<PresencasConfirmadas />} />
-            <Route path="/carreira/media-estrelas" element={<MediaEstrelas />} />
-            <Route path="/carreira/avaliacoes" element={<MinhasAvaliacoes />} />
+            <Route path="/carreira" element={<CarreiraRoute><Carreira /></CarreiraRoute>} />
+            <Route path="/carreira/servicos-realizados" element={<CarreiraRoute><ServicosRealizados /></CarreiraRoute>} />
+            <Route path="/carreira/meus-pontos" element={<CarreiraRoute><MeusPontos /></CarreiraRoute>} />
+            <Route path="/carreira/presencas-confirmadas" element={<CarreiraRoute><PresencasConfirmadas /></CarreiraRoute>} />
+            <Route path="/carreira/media-estrelas" element={<CarreiraRoute><MediaEstrelas /></CarreiraRoute>} />
+            <Route path="/carreira/avaliacoes" element={<CarreiraRoute><MinhasAvaliacoes /></CarreiraRoute>} />
 
             <Route path="/servicos" element={<Servicos />} />
             <Route path="/notificacoes" element={<Notificacoes />} />
