@@ -11,7 +11,7 @@ const BottomTabBar = () => {
     { to: "/inicio", label: "Início", icon: Home, end: true, show: true },
     { to: "/servicos", label: "Serviços", icon: Briefcase, show: true },
     { to: "/admin", label: "Empresa", icon: Building2, show: isAdmin || isContratante },
-    { to: "/carreira", label: "Carreira", icon: TrendingUp, show: true },
+    { to: "/carreira", label: "Carreira", icon: TrendingUp, show: !isContratante || isAdmin },
     { to: "/como-funciona", label: "Como funciona", icon: CircleHelp, show: true },
     { to: "/perfil", label: "Perfil", icon: User, show: true },
   ].filter((t) => t.show);

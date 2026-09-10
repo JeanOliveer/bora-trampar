@@ -29,7 +29,7 @@ const Header = () => {
           <Link to="/como-funciona" className="text-sm font-medium text-primary-foreground/80 transition-colors hover:text-primary-foreground">
             Como Funciona
           </Link>
-          {user && (
+          {user && (!isContratante || isAdmin) && (
             <Link to="/carreira" className="text-sm font-medium text-primary-foreground/80 transition-colors hover:text-primary-foreground">
               Carreira
             </Link>
@@ -89,7 +89,7 @@ const Header = () => {
             <Link to="/como-funciona" className="rounded-md px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-primary-foreground/10" onClick={() => setMenuOpen(false)}>
               Como Funciona
             </Link>
-            {user && (
+            {user && (!isContratante || isAdmin) && (
               <Link to="/carreira" className="rounded-md px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-primary-foreground/10" onClick={() => setMenuOpen(false)}>
                 Carreira
               </Link>
