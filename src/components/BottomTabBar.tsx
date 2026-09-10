@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { Home, Briefcase, Building2, TrendingUp, User } from "lucide-react";
+import { Home, Briefcase, Building2, TrendingUp, CircleHelp, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -12,6 +12,7 @@ const BottomTabBar = () => {
     { to: "/servicos", label: "Serviços", icon: Briefcase, show: true },
     { to: "/admin", label: "Empresa", icon: Building2, show: isAdmin || isContratante },
     { to: "/carreira", label: "Carreira", icon: TrendingUp, show: true },
+    { to: "/como-funciona", label: "Como funciona", icon: CircleHelp, show: true },
     { to: "/perfil", label: "Perfil", icon: User, show: true },
   ].filter((t) => t.show);
 
@@ -42,7 +43,7 @@ const BottomTabBar = () => {
                     )}
                     strokeWidth={isActive ? 2.4 : 2}
                   />
-                  <span className="truncate">{t.label}</span>
+                  <span className="max-w-full truncate">{t.label}</span>
                 </>
               )}
             </NavLink>
