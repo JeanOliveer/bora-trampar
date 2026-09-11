@@ -52,54 +52,56 @@ const ComoFunciona = () => {
             </p>
           </div>
 
-          <div className="relative mx-auto mt-12 max-w-2xl">
-            <div
-              className="absolute top-5 bottom-5 w-px border-l-2 border-dashed border-primary/25 md:top-6 md:bottom-6"
-              style={{ left: "19px" }}
-              aria-hidden="true"
-            />
+          <div className="mx-auto mt-12 max-w-2xl">
+            <div className="relative">
+              <div
+                className="absolute top-5 bottom-5 w-px border-l-2 border-dashed border-primary/25 md:top-6 md:bottom-6"
+                style={{ left: "19px" }}
+                aria-hidden="true"
+              />
 
-            <div className="space-y-8 md:space-y-10">
-              {steps.map((step, i) => {
-                const isLast = i === steps.length - 1;
-                const Icon = step.icon;
-                return (
-                  <div
-                    key={step.titulo}
-                    className="animate-fade-in relative flex items-start gap-4 md:gap-6"
-                    style={{ animationDelay: `${i * 100}ms` }}
-                  >
+              <div className="space-y-8 md:space-y-10">
+                {steps.map((step, i) => {
+                  const isLast = i === steps.length - 1;
+                  const Icon = step.icon;
+                  return (
                     <div
-                      className={cn(
-                        "relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl text-white shadow-lg md:h-12 md:w-12",
-                        isLast
-                          ? "bg-gradient-to-br from-emerald-400 to-green-600"
-                          : "bg-gradient-to-br from-primary to-blue-700"
-                      )}
+                      key={step.titulo}
+                      className="animate-fade-in relative flex items-start gap-4 md:gap-6"
+                      style={{ animationDelay: `${i * 100}ms` }}
                     >
-                      <Icon className="h-5 w-5 md:h-6 md:w-6" strokeWidth={2.5} />
-                    </div>
-
-                    <div className="relative flex-1 rounded-2xl border border-border bg-card p-5 shadow-sm md:p-6">
                       <div
-                        className="absolute top-1/2 hidden h-5 w-5 -translate-y-1/2 rounded-full border border-border bg-background sm:block md:h-6 md:w-6"
-                        style={{ left: "-10px" }}
-                        aria-hidden="true"
-                      />
+                        className={cn(
+                          "relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl text-white shadow-lg md:h-12 md:w-12",
+                          isLast
+                            ? "bg-gradient-to-br from-emerald-400 to-green-600"
+                            : "bg-gradient-to-br from-primary to-blue-700"
+                        )}
+                      >
+                        <Icon className="h-5 w-5 md:h-6 md:w-6" strokeWidth={2.5} />
+                      </div>
 
-                      <span className="text-xs font-bold uppercase tracking-wide text-primary">
-                        Passo {i + 1}
-                      </span>
-                      <h3 className="mt-1 text-lg font-bold text-foreground md:text-xl">
-                        {step.titulo}
-                      </h3>
-                      <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground md:text-base">
-                        {step.descricao}
-                      </p>
+                      <div className="relative flex-1 rounded-2xl border border-border bg-card p-5 shadow-sm md:p-6">
+                        <div
+                          className="absolute top-1/2 hidden h-5 w-5 -translate-y-1/2 rounded-full border border-border bg-background sm:block md:h-6 md:w-6"
+                          style={{ left: "-10px" }}
+                          aria-hidden="true"
+                        />
+
+                        <span className="text-xs font-bold uppercase tracking-wide text-primary">
+                          Passo {i + 1}
+                        </span>
+                        <h3 className="mt-1 text-lg font-bold text-foreground md:text-xl">
+                          {step.titulo}
+                        </h3>
+                        <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground md:text-base">
+                          {step.descricao}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
 
             <div className="mt-10 flex items-start gap-4 rounded-2xl border border-dashed border-primary/30 bg-primary/5 p-5 md:p-6">
