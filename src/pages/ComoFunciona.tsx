@@ -1,8 +1,8 @@
 import { Search, UserCheck, Briefcase, Check, Star, CircleDot } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import BottomTabBar from "@/components/BottomTabBar";
+
 
 
 const steps = [
