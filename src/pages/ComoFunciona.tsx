@@ -1,9 +1,6 @@
-import { Search, UserCheck, Briefcase, Check, Star, CircleDot, ArrowRight } from "lucide-react";
-import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
+import { Search, UserCheck, Briefcase, Check, Star, CircleDot } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import BottomTabBar from "@/components/BottomTabBar";
 
 const steps = [
@@ -112,18 +109,9 @@ const ComoFunciona = () => {
                 Todo trabalhador e empresa passa por verificação antes de iniciar um trampo.
               </p>
             </div>
-
-            <div className="mt-12 text-center">
-              <Link to="/cadastro">
-                <Button size="lg" className="gap-2 rounded-full px-8">
-                  Começar Agora <ArrowRight className="h-4 w-4" />
-                </Button>
-              </Link>
-            </div>
           </div>
         </section>
       </main>
-      <Footer />
       <BottomTabBar />
     </div>
   );
