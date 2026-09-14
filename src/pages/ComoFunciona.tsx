@@ -3,8 +3,6 @@ import { cn } from "@/lib/utils";
 import Header from "@/components/Header";
 import BottomTabBar from "@/components/BottomTabBar";
 
-
-
 const steps = [
   {
     icon: UserCheck,
