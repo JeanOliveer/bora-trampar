@@ -2,6 +2,7 @@ import { Search, UserCheck, Briefcase, Check, Star, CircleDot } from "lucide-rea
 import { cn } from "@/lib/utils";
 import Header from "@/components/Header";
 import BottomTabBar from "@/components/BottomTabBar";
+import AppMobileHeader from "@/components/AppMobileHeader";
 
 const steps = [
   {
