@@ -1,16 +1,15 @@
 import { useEffect, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import Header from "@/components/Header";
 import PerguntasEditor, { type PerguntaDraft } from "@/components/PerguntasEditor";
 import VoltarButton from "@/components/VoltarButton";
 
@@ -67,29 +66,34 @@ const NovoServico = () => {
       return;
     }
     if (!categoria) { toast.error("Selecione uma categoria."); return; }
+    if (!descricao.trim()) { toast.error("Preencha a descrição do serviço."); return; }
+    if (descricao.length > 2000) { toast.error("Descrição muito longa."); return; }
     if (!cidade.trim()) { toast.error("Informe a cidade."); return; }
     if (!estado) { toast.error("Selecione o estado."); return; }
-    if (descricao.length > 2000) { toast.error("Descrição muito longa."); return; }
+    if (!dataServico) { toast.error("Selecione a data do serviço."); return; }
+    if (!horarioInicio) { toast.error("Informe o horário de início."); return; }
+    if (!horarioFim) { toast.error("Informe o horário de término."); return; }
+    if (!valor || Number(valor) <= 0) { toast.error("Informe o valor da diária."); return; }
+    if (!requisitos.trim()) { toast.error("Informe os requisitos do serviço."); return; }
     if (!empresaNome.trim()) { toast.error("Informe o nome da empresa contratante."); return; }
+    if (!empresaEmail.trim()) { toast.error("Informe o e-mail da empresa contratante."); return; }
 
     setSaving(true);
-    const horario = horarioInicio && horarioFim
-      ? `${horarioInicio} às ${horarioFim}`
-      : horarioInicio || null;
+    const horario = `${horarioInicio} às ${horarioFim}`;
 
     const { data: inserted, error } = await supabase.from("servicos").insert({
       titulo: titulo.trim(),
       categoria,
-      descricao: descricao.trim() || null,
+      descricao: descricao.trim(),
       cidade: cidade.trim(),
       estado,
-      data_servico: dataServico || null,
+      data_servico: dataServico,
       horario,
-      valor: valor ? Number(valor) : null,
-      requisitos: requisitos.trim() || null,
+      valor: Number(valor),
+      requisitos: requisitos.trim(),
       created_by: user!.id,
       empresa_nome: empresaNome.trim(),
-      empresa_email: empresaEmail.trim() || null,
+      empresa_email: empresaEmail.trim(),
     }).select("id, empresa_token").single();
 
     if (error || !inserted) {
@@ -124,16 +128,11 @@ const NovoServico = () => {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <Header />
-      <main className="container flex-1 py-10">
+      <main className="container flex-1 py-6 md:py-10">
         <VoltarButton to="/admin" />
 
         <Card className="mx-auto max-w-2xl">
-          <CardHeader>
-            <CardTitle>Nova Diária</CardTitle>
-            <CardDescription>Preencha os dados do serviço a ser publicado para os trabalhadores.</CardDescription>
-          </CardHeader>
-          <CardContent>
+          <CardContent className="pt-6">
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label>Título *</Label>
@@ -157,8 +156,9 @@ const NovoServico = () => {
               </div>
 
               <div className="space-y-2">
-                <Label>Descrição</Label>
+                <Label>Descrição *</Label>
                 <Textarea
+                  required
                   maxLength={2000}
                   rows={4}
                   value={descricao}
@@ -191,25 +191,26 @@ const NovoServico = () => {
 
               <div className="grid gap-4 sm:grid-cols-3">
                 <div className="space-y-2">
-                  <Label>Data</Label>
-                  <Input type="date" value={dataServico} onChange={(e) => setDataServico(e.target.value)} />
+                  <Label>Data *</Label>
+                  <Input type="date" required value={dataServico} onChange={(e) => setDataServico(e.target.value)} />
                 </div>
                 <div className="space-y-2">
-                  <Label>Início</Label>
-                  <Input type="time" value={horarioInicio} onChange={(e) => setHorarioInicio(e.target.value)} />
+                  <Label>Início *</Label>
+                  <Input type="time" required value={horarioInicio} onChange={(e) => setHorarioInicio(e.target.value)} />
                 </div>
                 <div className="space-y-2">
-                  <Label>Término</Label>
-                  <Input type="time" value={horarioFim} onChange={(e) => setHorarioFim(e.target.value)} />
+                  <Label>Término *</Label>
+                  <Input type="time" required value={horarioFim} onChange={(e) => setHorarioFim(e.target.value)} />
                 </div>
               </div>
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
-                  <Label>Valor da diária (R$)</Label>
+                  <Label>Valor da diária (R$) *</Label>
                   <Input
                     type="number"
-                    min="0"
+                    required
+                    min="0.01"
                     step="0.01"
                     value={valor}
                     onChange={(e) => setValor(e.target.value)}
@@ -217,8 +218,9 @@ const NovoServico = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Requisitos</Label>
+                  <Label>Requisitos *</Label>
                   <Input
+                    required
                     maxLength={300}
                     value={requisitos}
                     onChange={(e) => setRequisitos(e.target.value)}
@@ -239,9 +241,10 @@ const NovoServico = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>E-mail da empresa</Label>
+                  <Label>E-mail da empresa *</Label>
                   <Input
                     type="email"
+                    required
                     maxLength={160}
                     value={empresaEmail}
                     onChange={(e) => setEmpresaEmail(e.target.value)}
@@ -259,8 +262,6 @@ const NovoServico = () => {
                 </div>
                 <PerguntasEditor perguntas={perguntas} onChange={setPerguntas} />
               </div>
-
-
 
               <Button type="submit" className="w-full" disabled={saving || !!linkEmpresa}>
                 <Save className="mr-2 h-4 w-4" />
