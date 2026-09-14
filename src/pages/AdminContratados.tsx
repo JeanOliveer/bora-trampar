@@ -1,13 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, CheckCircle2, MapPin, Phone, Users, UserCheck } from "lucide-react";
+import { CheckCircle2, MapPin, Phone, Users, UserCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import Header from "@/components/Header";
 import RankedAvatar from "@/components/RankedAvatar";
 import { getNivel } from "@/lib/career";
 import VoltarButton from "@/components/VoltarButton";
@@ -165,25 +164,8 @@ const AdminContratados = () => {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <Header />
-      <main className="container flex-1 py-10">
+      <main className="container flex-1 py-6 md:py-10">
         <VoltarButton to="/admin" />
-
-        <div className="mb-8 flex flex-col gap-4 rounded-lg border bg-card p-6 shadow-sm sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h1 className="text-2xl font-bold sm:text-3xl">Contratados</h1>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Todos os trabalhadores contratados, agrupados por serviço.
-            </p>
-          </div>
-          <div className="flex items-center gap-3 rounded-md bg-primary/10 px-4 py-3 text-primary">
-            <UserCheck className="h-6 w-6" />
-            <div>
-              <div className="text-2xl font-bold leading-none">{totalContratados}</div>
-              <div className="text-xs uppercase tracking-wide text-primary/80">contratados</div>
-            </div>
-          </div>
-        </div>
 
         {loading ? (
           <p className="text-muted-foreground">Carregando...</p>
