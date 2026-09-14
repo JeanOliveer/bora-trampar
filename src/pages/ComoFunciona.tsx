@@ -2,6 +2,7 @@ import { Search, UserCheck, Briefcase, Check, Star, CircleDot } from "lucide-rea
 import { cn } from "@/lib/utils";
 import Header from "@/components/Header";
 import BottomTabBar from "@/components/BottomTabBar";
+import AppMobileHeader from "@/components/AppMobileHeader";
 
 const steps = [
   {
@@ -28,8 +29,16 @@ const steps = [
 
 const ComoFunciona = () => {
   return (
-    <div className="flex min-h-screen flex-col">
-      <Header />
+    <div className="flex min-h-screen flex-col bg-background">
+      <div className="hidden md:block">
+        <Header />
+      </div>
+      <AppMobileHeader
+        eyebrow="UaiTrampo"
+        title="Como funciona"
+        subtitle="Passo a passo do app"
+        backTo="/inicio"
+      />
       <main className="flex-1">
         <section className="container bg-background pb-32 pt-10 md:py-24">
           <div className="mx-auto max-w-2xl">
