@@ -111,18 +111,9 @@ const ComoFunciona = () => {
                 Todo trabalhador e empresa passa por verificação antes de iniciar um trampo.
               </p>
             </div>
-
-            <div className="mt-12 text-center">
-              <Link to="/cadastro">
-                <Button size="lg" className="gap-2 rounded-full px-8">
-                  Começar Agora <ArrowRight className="h-4 w-4" />
-                </Button>
-              </Link>
-            </div>
           </div>
         </section>
       </main>
-      <Footer />
       <BottomTabBar />
     </div>
   );
