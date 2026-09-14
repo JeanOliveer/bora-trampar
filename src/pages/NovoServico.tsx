@@ -66,29 +66,34 @@ const NovoServico = () => {
       return;
     }
     if (!categoria) { toast.error("Selecione uma categoria."); return; }
+    if (!descricao.trim()) { toast.error("Preencha a descrição do serviço."); return; }
+    if (descricao.length > 2000) { toast.error("Descrição muito longa."); return; }
     if (!cidade.trim()) { toast.error("Informe a cidade."); return; }
     if (!estado) { toast.error("Selecione o estado."); return; }
-    if (descricao.length > 2000) { toast.error("Descrição muito longa."); return; }
+    if (!dataServico) { toast.error("Selecione a data do serviço."); return; }
+    if (!horarioInicio) { toast.error("Informe o horário de início."); return; }
+    if (!horarioFim) { toast.error("Informe o horário de término."); return; }
+    if (!valor || Number(valor) <= 0) { toast.error("Informe o valor da diária."); return; }
+    if (!requisitos.trim()) { toast.error("Informe os requisitos do serviço."); return; }
     if (!empresaNome.trim()) { toast.error("Informe o nome da empresa contratante."); return; }
+    if (!empresaEmail.trim()) { toast.error("Informe o e-mail da empresa contratante."); return; }
 
     setSaving(true);
-    const horario = horarioInicio && horarioFim
-      ? `${horarioInicio} às ${horarioFim}`
-      : horarioInicio || null;
+    const horario = `${horarioInicio} às ${horarioFim}`;
 
     const { data: inserted, error } = await supabase.from("servicos").insert({
       titulo: titulo.trim(),
       categoria,
-      descricao: descricao.trim() || null,
+      descricao: descricao.trim(),
       cidade: cidade.trim(),
       estado,
-      data_servico: dataServico || null,
+      data_servico: dataServico,
       horario,
-      valor: valor ? Number(valor) : null,
-      requisitos: requisitos.trim() || null,
+      valor: Number(valor),
+      requisitos: requisitos.trim(),
       created_by: user!.id,
       empresa_nome: empresaNome.trim(),
-      empresa_email: empresaEmail.trim() || null,
+      empresa_email: empresaEmail.trim(),
     }).select("id, empresa_token").single();
 
     if (error || !inserted) {
