@@ -128,16 +128,11 @@ const NovoServico = () => {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <Header />
-      <main className="container flex-1 py-10">
+      <main className="container flex-1 py-6 md:py-10">
         <VoltarButton to="/admin" />
 
         <Card className="mx-auto max-w-2xl">
-          <CardHeader>
-            <CardTitle>Nova Diária</CardTitle>
-            <CardDescription>Preencha os dados do serviço a ser publicado para os trabalhadores.</CardDescription>
-          </CardHeader>
-          <CardContent>
+          <CardContent className="pt-6">
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label>Título *</Label>
@@ -161,8 +156,9 @@ const NovoServico = () => {
               </div>
 
               <div className="space-y-2">
-                <Label>Descrição</Label>
+                <Label>Descrição *</Label>
                 <Textarea
+                  required
                   maxLength={2000}
                   rows={4}
                   value={descricao}
@@ -195,25 +191,26 @@ const NovoServico = () => {
 
               <div className="grid gap-4 sm:grid-cols-3">
                 <div className="space-y-2">
-                  <Label>Data</Label>
-                  <Input type="date" value={dataServico} onChange={(e) => setDataServico(e.target.value)} />
+                  <Label>Data *</Label>
+                  <Input type="date" required value={dataServico} onChange={(e) => setDataServico(e.target.value)} />
                 </div>
                 <div className="space-y-2">
-                  <Label>Início</Label>
-                  <Input type="time" value={horarioInicio} onChange={(e) => setHorarioInicio(e.target.value)} />
+                  <Label>Início *</Label>
+                  <Input type="time" required value={horarioInicio} onChange={(e) => setHorarioInicio(e.target.value)} />
                 </div>
                 <div className="space-y-2">
-                  <Label>Término</Label>
-                  <Input type="time" value={horarioFim} onChange={(e) => setHorarioFim(e.target.value)} />
+                  <Label>Término *</Label>
+                  <Input type="time" required value={horarioFim} onChange={(e) => setHorarioFim(e.target.value)} />
                 </div>
               </div>
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
-                  <Label>Valor da diária (R$)</Label>
+                  <Label>Valor da diária (R$) *</Label>
                   <Input
                     type="number"
-                    min="0"
+                    required
+                    min="0.01"
                     step="0.01"
                     value={valor}
                     onChange={(e) => setValor(e.target.value)}
@@ -221,8 +218,9 @@ const NovoServico = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Requisitos</Label>
+                  <Label>Requisitos *</Label>
                   <Input
+                    required
                     maxLength={300}
                     value={requisitos}
                     onChange={(e) => setRequisitos(e.target.value)}
@@ -243,9 +241,10 @@ const NovoServico = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>E-mail da empresa</Label>
+                  <Label>E-mail da empresa *</Label>
                   <Input
                     type="email"
+                    required
                     maxLength={160}
                     value={empresaEmail}
                     onChange={(e) => setEmpresaEmail(e.target.value)}
@@ -263,8 +262,6 @@ const NovoServico = () => {
                 </div>
                 <PerguntasEditor perguntas={perguntas} onChange={setPerguntas} />
               </div>
-
-
 
               <Button type="submit" className="w-full" disabled={saving || !!linkEmpresa}>
                 <Save className="mr-2 h-4 w-4" />
