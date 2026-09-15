@@ -31,6 +31,9 @@ type Servico = {
   ativo: boolean;
 };
 
+const SERVICO_COLUNAS =
+  "id, titulo, descricao, categoria, valor, cidade, estado, data_servico, horario, requisitos, ativo";
+
 const emptyForm = {
   titulo: "",
   descricao: "",
@@ -68,7 +71,7 @@ const Admin = () => {
     if (!isAdmin) return;
     let cancelled = false;
     (async () => {
-      let query = supabase.from("servicos").select("*").order("created_at", { ascending: false });
+      let query = supabase.from("servicos").select(SERVICO_COLUNAS).order("created_at", { ascending: false });
       if (!isAdminRole && user) query = query.eq("created_by", user.id);
       const { data } = await query;
       if (cancelled) return;
@@ -79,7 +82,7 @@ const Admin = () => {
   }, [isAdmin, isAdminRole, user]);
 
   const load = async () => {
-    let query = supabase.from("servicos").select("*").order("created_at", { ascending: false });
+    let query = supabase.from("servicos").select(SERVICO_COLUNAS).order("created_at", { ascending: false });
     if (!isAdminRole && user) query = query.eq("created_by", user.id);
     const { data } = await query;
     setServicos((data as Servico[]) || []);
