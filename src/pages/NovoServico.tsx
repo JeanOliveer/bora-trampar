@@ -94,7 +94,7 @@ const NovoServico = () => {
       created_by: user!.id,
       empresa_nome: empresaNome.trim(),
       empresa_email: empresaEmail.trim(),
-    }).select("id, empresa_token").single();
+    }).select("id").single();
 
     if (error || !inserted) {
       setSaving(false);
@@ -102,7 +102,10 @@ const NovoServico = () => {
       return;
     }
 
-    const insertedRow = inserted as { id: string; empresa_token: string };
+    const insertedRow = inserted as { id: string };
+
+    const { data: tokenRows } = await supabase.rpc("obter_token_servico", { _servico_id: insertedRow.id });
+    const empresaToken = (tokenRows as Array<{ empresa_token: string }> | null)?.[0]?.empresa_token;
 
     if (perguntas.length > 0) {
       const rows = perguntas.map((p, idx) => ({
@@ -117,7 +120,11 @@ const NovoServico = () => {
     }
 
     setSaving(false);
-    const link = `${window.location.origin}/empresa/${(inserted as { empresa_token: string }).empresa_token}`;
+    if (!empresaToken) {
+      toast.error("Serviço publicado, mas não foi possível gerar o link da empresa.");
+      return;
+    }
+    const link = `${window.location.origin}/empresa/${empresaToken}`;
     setLinkEmpresa(link);
     toast.success("Serviço publicado! Compartilhe o link com a empresa.");
   };
