@@ -458,6 +458,30 @@ export type Database = {
         }
         Returns: boolean
       }
+      obter_servico_por_token: {
+        Args: { _token: string }
+        Returns: {
+          categoria: string
+          cidade: string
+          data_servico: string
+          descricao: string
+          empresa_nome: string
+          empresa_pontuacao: number
+          empresa_total_avaliacoes: number
+          estado: string
+          horario: string
+          id: string
+          titulo: string
+          valor: number
+        }[]
+      }
+      obter_token_servico: {
+        Args: { _servico_id: string }
+        Returns: {
+          empresa_email: string
+          empresa_token: string
+        }[]
+      }
       servico_token_valido: {
         Args: { _servico_id: string; _token: string }
         Returns: boolean
