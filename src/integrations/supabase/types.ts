@@ -202,6 +202,39 @@ export type Database = {
           },
         ]
       }
+      contratante_codigos: {
+        Row: {
+          codigo: string
+          created_at: string
+          expira_em: string
+          id: string
+          status_codigo: string
+          updated_at: string
+          usado_em: string | null
+          user_id: string
+        }
+        Insert: {
+          codigo: string
+          created_at?: string
+          expira_em?: string
+          id?: string
+          status_codigo?: string
+          updated_at?: string
+          usado_em?: string | null
+          user_id: string
+        }
+        Update: {
+          codigo?: string
+          created_at?: string
+          expira_em?: string
+          id?: string
+          status_codigo?: string
+          updated_at?: string
+          usado_em?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       notificacoes: {
         Row: {
           created_at: string
