@@ -99,16 +99,13 @@ const EmpresaPainel = () => {
   const load = async () => {
     if (!token) return;
     setLoading(true);
-    const { data: srv, error } = await supabase
-      .from("servicos")
-      .select("*")
-      .eq("empresa_token", token)
-      .maybeSingle();
+    const { data: srvRows, error } = await supabase.rpc("obter_servico_por_token", { _token: token });
+    const srv = (srvRows as Array<Omit<Servico, "empresa_token">> | null)?.[0];
     if (error || !srv) {
       setLoading(false);
       return;
     }
-    setServico(srv as Servico);
+    setServico({ ...srv, empresa_token: token } as Servico);
 
     const { data: cands } = await supabase
       .from("candidaturas")
