@@ -9,7 +9,7 @@ const BottomTabBar = () => {
 
   const tabs = [
     { to: "/inicio", label: "Início", icon: Home, end: true, show: true },
-    { to: "/servicos", label: "Serviços", icon: Briefcase, show: true },
+    { to: "/servicos", label: "Serviços", icon: Briefcase, show: !isContratante || isAdmin },
     { to: "/admin", label: "Empresa", icon: Building2, show: isAdmin || isContratante },
     { to: "/carreira", label: "Carreira", icon: TrendingUp, show: !isContratante || isAdmin },
     { to: "/como-funciona", label: "Como funciona", icon: CircleHelp, show: true },
