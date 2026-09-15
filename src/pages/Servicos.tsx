@@ -38,7 +38,7 @@ type Aprovada = {
 };
 
 const Servicos = () => {
-  const { user, isAdmin, loading: authLoading } = useAuth();
+  const { user, isAdmin, isContratante, loading: authLoading, profileLoading } = useAuth();
   const navigate = useNavigate();
   const userId = user?.id ?? null;
   const [servicos, setServicos] = useState<Servico[]>([]);
@@ -63,6 +63,12 @@ const Servicos = () => {
   useEffect(() => {
     if (!authLoading && !userId) navigate("/login", { replace: true });
   }, [authLoading, userId, navigate]);
+
+  useEffect(() => {
+    if (!authLoading && !profileLoading && userId && isContratante && !isAdmin) {
+      navigate("/admin", { replace: true });
+    }
+  }, [authLoading, profileLoading, userId, isContratante, isAdmin, navigate]);
 
   const fetchAprovadas = useCallback(async (showLoading = false) => {
     if (!userId) {

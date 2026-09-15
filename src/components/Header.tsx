@@ -23,9 +23,11 @@ const Header = () => {
         </Link>
 
         <nav className="hidden items-center gap-6 md:flex">
-          <Link to="/servicos" className="text-sm font-medium text-primary-foreground/80 transition-colors hover:text-primary-foreground">
-            Serviços
-          </Link>
+          {(!isContratante || isAdmin) && (
+            <Link to="/servicos" className="text-sm font-medium text-primary-foreground/80 transition-colors hover:text-primary-foreground">
+              Serviços
+            </Link>
+          )}
           <Link to="/como-funciona" className="text-sm font-medium text-primary-foreground/80 transition-colors hover:text-primary-foreground">
             Como Funciona
           </Link>
@@ -83,9 +85,11 @@ const Header = () => {
       {menuOpen && (
         <div className="animate-fade-in border-t border-primary-foreground/20 bg-primary px-4 pb-4 pt-2 md:hidden">
           <nav className="flex flex-col gap-3">
-            <Link to="/servicos" className="rounded-md px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-primary-foreground/10" onClick={() => setMenuOpen(false)}>
-              Serviços
-            </Link>
+            {(!isContratante || isAdmin) && (
+              <Link to="/servicos" className="rounded-md px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-primary-foreground/10" onClick={() => setMenuOpen(false)}>
+                Serviços
+              </Link>
+            )}
             <Link to="/como-funciona" className="rounded-md px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-primary-foreground/10" onClick={() => setMenuOpen(false)}>
               Como Funciona
             </Link>
