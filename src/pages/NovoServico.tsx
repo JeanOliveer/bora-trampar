@@ -120,7 +120,11 @@ const NovoServico = () => {
     }
 
     setSaving(false);
-    const link = `${window.location.origin}/empresa/${(inserted as { empresa_token: string }).empresa_token}`;
+    if (!empresaToken) {
+      toast.error("Serviço publicado, mas não foi possível gerar o link da empresa.");
+      return;
+    }
+    const link = `${window.location.origin}/empresa/${empresaToken}`;
     setLinkEmpresa(link);
     toast.success("Serviço publicado! Compartilhe o link com a empresa.");
   };
