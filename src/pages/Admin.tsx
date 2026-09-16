@@ -14,6 +14,7 @@ import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import BottomTabBar from "@/components/BottomTabBar";
 import AppMobileHeader from "@/components/AppMobileHeader";
+import ValidarCodigoContratante from "@/components/ValidarCodigoContratante";
 
 const estadosBR = ["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"];
 
