@@ -67,7 +67,7 @@ const Cadastro = ({ tipo = "trabalhador" }: { tipo?: "trabalhador" | "contratant
   const TERMS_VERSION = "2026-07-22";
   const PRIVACY_VERSION = "2026-07-22";
 
-  const criarConta = async (codigoContratante?: string) => {
+  const criarConta = async () => {
     setLoading(true);
 
     const { error } = await supabase.auth.signUp({
@@ -103,23 +103,22 @@ const Cadastro = ({ tipo = "trabalhador" }: { tipo?: "trabalhador" | "contratant
         { user_id: user.id, document_type: "termos_uso", version: TERMS_VERSION },
         { user_id: user.id, document_type: "politica_privacidade", version: PRIVACY_VERSION },
       ]);
-
-      if (isContratante) {
-        // O acesso ao painel Empresa já é concedido automaticamente no cadastro.
-        // Esta chamada é apenas uma garantia extra e não bloqueia o fluxo.
-        if (codigoContratante) {
-          await supabase.rpc("assumir_papel_contratante", { _codigo: codigoContratante });
-        }
-      }
     }
 
     setLoading(false);
+
+    if (isContratante) {
+      // O contratante só conclui o cadastro após confirmar o código de acesso.
+      setEtapaCodigo(true);
+      return;
+    }
+
     toast.success("Conta criada com sucesso!");
     if (safeNext) {
       window.location.href = safeNext;
       return;
     }
-    navigate(isContratante ? "/admin" : "/servicos");
+    navigate("/servicos");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -132,23 +131,23 @@ const Cadastro = ({ tipo = "trabalhador" }: { tipo?: "trabalhador" | "contratant
       toast.error("A senha deve ter no mínimo 6 caracteres.");
       return;
     }
-    if (isContratante) {
-      setEtapaCodigo(true);
-      return;
-    }
     await criarConta();
   };
 
   const handleValidarCodigo = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { data: valido, error } = await supabase.rpc("validar_codigo_contratante", { _codigo: codigo });
-    if (error || !valido) {
+    const { data, error } = await supabase.functions.invoke("codigo-contratante", {
+      body: { acao: "validar", codigo },
+    });
+    const erroServidor = (data as { error?: string } | null)?.error;
+    if (error || erroServidor || !(data as { ok?: boolean } | null)?.ok) {
       setLoading(false);
-      toast.error("Código inválido. Verifique o código informado e tente novamente.");
+      toast.error(erroServidor ?? "Código inválido. Verifique o código informado e tente novamente.");
       return;
     }
-    await criarConta(codigo);
+    toast.success("Conta de contratante confirmada!");
+    window.location.href = safeNext ?? "/admin";
   };
 
   if (etapaCodigo) {
