@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, Check, X } from "lucide-react";
+import { ArrowLeft, Check, MessageCircle, X } from "lucide-react";
+import SuporteChatDialog from "@/components/SuporteChatDialog";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import logo from "@/assets/uaitrampo-symbol.png";
@@ -63,11 +64,12 @@ const Cadastro = ({ tipo = "trabalhador" }: { tipo?: "trabalhador" | "contratant
   const [aceitouPrivacidade, setAceitouPrivacidade] = useState(false);
   const [etapaCodigo, setEtapaCodigo] = useState(false);
   const [codigo, setCodigo] = useState("");
+  const [chatAberto, setChatAberto] = useState(false);
 
   const TERMS_VERSION = "2026-07-22";
   const PRIVACY_VERSION = "2026-07-22";
 
-  const criarConta = async (codigoContratante?: string) => {
+  const criarConta = async () => {
     setLoading(true);
 
     const { error } = await supabase.auth.signUp({
@@ -103,23 +105,22 @@ const Cadastro = ({ tipo = "trabalhador" }: { tipo?: "trabalhador" | "contratant
         { user_id: user.id, document_type: "termos_uso", version: TERMS_VERSION },
         { user_id: user.id, document_type: "politica_privacidade", version: PRIVACY_VERSION },
       ]);
-
-      if (isContratante) {
-        // O acesso ao painel Empresa já é concedido automaticamente no cadastro.
-        // Esta chamada é apenas uma garantia extra e não bloqueia o fluxo.
-        if (codigoContratante) {
-          await supabase.rpc("assumir_papel_contratante", { _codigo: codigoContratante });
-        }
-      }
     }
 
     setLoading(false);
+
+    if (isContratante) {
+      // O contratante só conclui o cadastro após confirmar o código de acesso.
+      setEtapaCodigo(true);
+      return;
+    }
+
     toast.success("Conta criada com sucesso!");
     if (safeNext) {
       window.location.href = safeNext;
       return;
     }
-    navigate(isContratante ? "/admin" : "/servicos");
+    navigate("/servicos");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -132,23 +133,23 @@ const Cadastro = ({ tipo = "trabalhador" }: { tipo?: "trabalhador" | "contratant
       toast.error("A senha deve ter no mínimo 6 caracteres.");
       return;
     }
-    if (isContratante) {
-      setEtapaCodigo(true);
-      return;
-    }
     await criarConta();
   };
 
   const handleValidarCodigo = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { data: valido, error } = await supabase.rpc("validar_codigo_contratante", { _codigo: codigo });
-    if (error || !valido) {
+    const { data, error } = await supabase.functions.invoke("codigo-contratante", {
+      body: { acao: "validar", codigo },
+    });
+    const erroServidor = (data as { error?: string } | null)?.error;
+    if (error || erroServidor || !(data as { ok?: boolean } | null)?.ok) {
       setLoading(false);
-      toast.error("Código inválido. Verifique o código informado e tente novamente.");
+      toast.error(erroServidor ?? "Código inválido. Verifique o código informado e tente novamente.");
       return;
     }
-    await criarConta(codigo);
+    toast.success("Conta de contratante confirmada!");
+    window.location.href = safeNext ?? "/admin";
   };
 
   if (etapaCodigo) {
@@ -157,20 +158,13 @@ const Cadastro = ({ tipo = "trabalhador" }: { tipo?: "trabalhador" | "contratant
         <div className="pointer-events-none absolute -top-24 -right-24 h-72 w-72 rounded-full bg-white/[0.04]" />
         <div className="pointer-events-none absolute -bottom-40 -left-24 h-96 w-96 rounded-full bg-white/[0.03]" />
 
-        <button
-          onClick={() => setEtapaCodigo(false)}
-          className="absolute left-5 top-5 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 backdrop-blur-md ring-1 ring-white/20 transition-all active:scale-95"
-        >
-          <ArrowLeft className="h-4 w-4 text-white" />
-        </button>
-
         <div className="flex flex-1 flex-col items-center justify-center px-6 py-16">
           <img src={logo} alt="UaiTrampo" className="h-auto w-32 object-contain" />
           <h1 className="mt-5 max-w-[18rem] text-center text-xl font-extrabold tracking-tight">
             Digite o código de acesso do contratante
           </h1>
           <p className="mt-2 max-w-[18rem] text-center text-[13px] font-medium text-white/75">
-            Insira o código fornecido pelo Uai Trampo para concluir seu cadastro.
+            Seu código tem 6 dígitos, é válido por 24 horas e pode ser usado uma única vez.
           </p>
 
           <form onSubmit={handleValidarCodigo} className="mt-8 w-full max-w-sm space-y-4">
@@ -179,16 +173,17 @@ const Cadastro = ({ tipo = "trabalhador" }: { tipo?: "trabalhador" | "contratant
               <input
                 required
                 inputMode="numeric"
+                maxLength={6}
                 autoComplete="off"
                 value={codigo}
-                onChange={(e) => setCodigo(e.target.value)}
-                placeholder="Código de acesso"
-                className={inputClass}
+                onChange={(e) => setCodigo(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                placeholder="000000"
+                className={`${inputClass} text-center text-lg tracking-[0.4em]`}
               />
             </div>
             <button
               type="submit"
-              disabled={loading || !codigo}
+              disabled={loading || codigo.length !== 6}
               className="flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-[#16357F] text-sm font-semibold text-white shadow-xl transition-all active:scale-[0.97] hover:bg-[#1E4FD0] disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {loading ? "Validando..." : "Validar código"}
@@ -197,34 +192,20 @@ const Cadastro = ({ tipo = "trabalhador" }: { tipo?: "trabalhador" | "contratant
 
           <div className="mt-6 w-full max-w-sm">
             <p className="mb-2 text-center text-[12px] font-medium text-white/75">
-              Clique no ícone do WhatsApp para você receber seu código de acesso
+              Clique no chat do suporte para você receber seu código de acesso
             </p>
             <button
               type="button"
-              onClick={() => {
-                const mensagem = [
-                  "Olá! Acabei de criar minha conta de contratante no UaiTrampo e preciso do código de acesso.",
-                  "",
-                  `Nome: ${nome || "-"}`,
-                  `CPF: ${cpf || "-"}`,
-                  `E-mail: ${email || "-"}`,
-                  `Cidade/UF: ${cidade || "-"}${estado ? `/${estado}` : ""}`,
-                ].join("\n");
-                window.open(
-                  `https://wa.me/5535998928110?text=${encodeURIComponent(mensagem)}`,
-                  "_blank",
-                  "noopener,noreferrer"
-                );
-              }}
-              className="flex h-14 w-full items-center justify-center gap-2.5 rounded-2xl bg-[#25D366] text-sm font-bold text-white shadow-xl transition-all active:scale-[0.97] hover:bg-[#1EBE5B]"
+              onClick={() => setChatAberto(true)}
+              className="flex h-14 w-full items-center justify-center gap-2.5 rounded-2xl bg-white text-sm font-bold text-[#16357F] shadow-xl transition-all active:scale-[0.97] hover:bg-white/90"
             >
-              <svg viewBox="0 0 24 24" className="h-5 w-5 fill-current" aria-hidden="true">
-                <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.87 9.87 0 0 0 4.74 1.21c5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2zm0 18.03a8.1 8.1 0 0 1-4.13-1.13l-.3-.18-3.07.81.82-3-.2-.31a8.08 8.08 0 0 1-1.24-4.31c0-4.47 3.64-8.11 8.12-8.11 4.47 0 8.11 3.64 8.11 8.11s-3.64 8.12-8.11 8.12zm4.45-6.08c-.24-.12-1.44-.71-1.66-.79-.22-.08-.39-.12-.55.12-.16.24-.63.79-.77.96-.14.16-.29.18-.53.06-.24-.12-1.03-.38-1.96-1.21-.73-.65-1.22-1.44-1.36-1.69-.14-.24-.02-.37.11-.5.11-.11.24-.29.37-.43.12-.14.16-.24.24-.41.08-.16.04-.31-.02-.43-.06-.12-.55-1.32-.75-1.81-.2-.48-.4-.41-.55-.42h-.47c-.16 0-.43.06-.65.31-.22.24-.86.84-.86 2.05 0 1.21.88 2.37 1 2.54.12.16 1.72 2.63 4.18 3.69.58.25 1.04.4 1.4.52.59.19 1.12.16 1.54.1.47-.07 1.44-.59 1.65-1.16.2-.57.2-1.05.14-1.16-.06-.1-.22-.16-.46-.28z" />
-              </svg>
-              Receber código pelo WhatsApp
+              <MessageCircle className="h-5 w-5" />
+              uaitrampo.suporte
             </button>
           </div>
         </div>
+
+        <SuporteChatDialog open={chatAberto} onOpenChange={setChatAberto} nome={nome} />
       </div>
     );
   }
