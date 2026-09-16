@@ -64,6 +64,7 @@ const Cadastro = ({ tipo = "trabalhador" }: { tipo?: "trabalhador" | "contratant
   const [aceitouPrivacidade, setAceitouPrivacidade] = useState(false);
   const [etapaCodigo, setEtapaCodigo] = useState(false);
   const [codigo, setCodigo] = useState("");
+  const [chatAberto, setChatAberto] = useState(false);
 
   const TERMS_VERSION = "2026-07-22";
   const PRIVACY_VERSION = "2026-07-22";
