@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Search, Truck, Sparkles, HardHat, LayoutGrid, ChevronRight, Bell, MapPin } from "lucide-react";
+import { Search, Truck, Sparkles, HardHat, LayoutGrid, ChevronRight, Bell, MapPin, ArrowLeft, CircleHelp } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -63,32 +63,55 @@ const Index = () => {
       {/* Mobile app-style header */}
       <header className="md:hidden sticky top-0 z-30 bg-gradient-to-b from-primary to-primary/90 text-primary-foreground pb-6 pt-3 px-5 rounded-b-3xl shadow-[var(--shadow-elevated)]">
         <div className="flex items-center justify-between">
-          <div>
-            <p className="text-[11px] uppercase tracking-wider opacity-80">
-              {user ? "Olá," : "UaiTrampo"}
-            </p>
-            <h1 className="text-xl font-bold leading-tight">
-              {user ? `${primeiroNome} 👋` : "Encontre sua diária"}
-            </h1>
-            {profile?.cidade && (
-              <p className="mt-0.5 flex items-center gap-1 text-xs opacity-90">
-                <MapPin className="h-3 w-3" /> {profile.cidade}
-                {profile.estado ? `, ${profile.estado}` : ""}
+          <div className="flex items-start gap-3">
+            {!user && (
+              <Link
+                to="/"
+                aria-label="Voltar"
+                className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white/15 active:scale-95 transition-transform"
+              >
+                <ArrowLeft className="h-5 w-5" />
+              </Link>
+            )}
+            <div>
+              <p className="text-[11px] uppercase tracking-wider opacity-80">
+                {user ? "Olá," : "UaiTrampo"}
               </p>
-            )}
+              <h1 className="text-xl font-bold leading-tight">
+                {user ? `${primeiroNome} 👋` : "Encontre sua diária"}
+              </h1>
+              {profile?.cidade && (
+                <p className="mt-0.5 flex items-center gap-1 text-xs opacity-90">
+                  <MapPin className="h-3 w-3" /> {profile.cidade}
+                  {profile.estado ? `, ${profile.estado}` : ""}
+                </p>
+              )}
+            </div>
           </div>
-          <Link
-            to="/notificacoes"
-            className="relative grid h-10 w-10 place-items-center rounded-full bg-white/15 active:scale-95 transition-transform"
-            aria-label={naoLidas > 0 ? `Notificações, ${naoLidas} não lidas` : "Notificações"}
-          >
-            <Bell className="h-5 w-5" />
-            {naoLidas > 0 && (
-              <span className="absolute -right-0.5 -top-0.5 grid min-w-[18px] place-items-center rounded-full bg-destructive px-1 text-[10px] font-bold leading-[18px] text-destructive-foreground">
-                {badgeTexto(naoLidas)}
-              </span>
+          <div className="flex items-center gap-2">
+            {!user && (
+              <Link
+                to="/como-funciona"
+                aria-label="Como funciona"
+                className="flex h-10 items-center gap-1.5 rounded-full bg-white/15 px-3 text-xs font-semibold active:scale-95 transition-transform"
+              >
+                <CircleHelp className="h-4 w-4" />
+                <span className="whitespace-nowrap">Como funciona</span>
+              </Link>
             )}
-          </Link>
+            <Link
+              to="/notificacoes"
+              className="relative grid h-10 w-10 place-items-center rounded-full bg-white/15 active:scale-95 transition-transform"
+              aria-label={naoLidas > 0 ? `Notificações, ${naoLidas} não lidas` : "Notificações"}
+            >
+              <Bell className="h-5 w-5" />
+              {naoLidas > 0 && (
+                <span className="absolute -right-0.5 -top-0.5 grid min-w-[18px] place-items-center rounded-full bg-destructive px-1 text-[10px] font-bold leading-[18px] text-destructive-foreground">
+                  {badgeTexto(naoLidas)}
+                </span>
+              )}
+            </Link>
+          </div>
         </div>
 
         <div className="relative mt-4">
