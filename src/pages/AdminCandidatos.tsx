@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Users, Phone, MapPin, FileText, ExternalLink, CheckCircle2 } from "lucide-react";
+import { Users, Phone, MapPin, ExternalLink, CheckCircle2, Star, XCircle, MessageCircle, CalendarDays, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -91,7 +91,7 @@ const AdminCandidatos = () => {
     const [{ data: srv, error: srvError }, { data: cands, error: candError }] = await Promise.all([
       supabase
         .from("servicos")
-        .select("id, titulo, categoria, cidade, estado")
+        .select("id, titulo, categoria, cidade, estado, data_servico, horario")
         .eq("id", servicoId)
         .maybeSingle(),
       supabase
