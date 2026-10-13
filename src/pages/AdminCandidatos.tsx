@@ -196,6 +196,13 @@ const AdminCandidatos = () => {
         <div className="mb-8 flex flex-col gap-4 rounded-lg border bg-card p-6 shadow-sm sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-2xl font-bold sm:text-3xl">{servico?.titulo ?? "Serviço"}</h1>
+            {servico?.data_servico && (
+              <p className="mt-1 inline-flex items-center gap-1.5 text-sm font-medium text-primary">
+                <CalendarDays className="h-4 w-4" />
+                {formatarData(servico.data_servico)}
+                {servico.horario ? ` • ${servico.horario}` : ""}
+              </p>
+            )}
             <p className="mt-1 text-sm text-muted-foreground">
               {[servico?.categoria, servico?.cidade, servico?.estado].filter(Boolean).join(" • ") || "Candidatos"}
             </p>
@@ -243,8 +250,20 @@ const AdminCandidatos = () => {
                     <RankedAvatar nome={nome} pontuacao={pts} size="md" />
                     <div className="min-w-0 flex-1">
                       <CardTitle className="truncate text-base">{nome}</CardTitle>
-                      <div className="mt-1 flex flex-wrap items-center gap-1">
-                        <Badge variant="secondary" className="text-xs">{c.status}</Badge>
+                      <div className="mt-1 flex flex-wrap items-center gap-1.5 text-xs">
+                        <span className="inline-flex items-center gap-1 font-semibold text-foreground">
+                          <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+                          {s?.media_estrelas != null ? Number(s.media_estrelas).toFixed(1) : "Novo"}
+                          {s && s.total_avaliacoes > 0 && (
+                            <span className="font-normal text-muted-foreground">({s.total_avaliacoes})</span>
+                          )}
+                        </span>
+                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 font-medium text-emerald-700 dark:text-emerald-400">
+                          <ShieldCheck className="h-3 w-3" />
+                          {s?.pct_presenca != null ? `${s.pct_presenca}% presença` : "Sem histórico"}
+                        </span>
+                      </div>
+                      <div className="mt-1 flex flex-wrap gap-1">
                         <Badge className={`text-xs ${nivel.badgeClass}`}>{nivel.label} • {pts} pts</Badge>
                       </div>
                     </div>
@@ -261,16 +280,35 @@ const AdminCandidatos = () => {
                       </span>
                     </div>
                     <div className="mt-3 grid gap-2">
-                      {c.status === "aprovada" ? (
-                        <div className="flex items-center justify-center gap-1 rounded-md bg-emerald-500/10 px-2 py-2 text-xs font-medium text-emerald-700 dark:text-emerald-400">
-                          <CheckCircle2 className="h-4 w-4" />
-                          Contratado
+                      {c.status === "aprovada" || c.status === "concluida" ? (
+                        <>
+                          <div className="flex items-center justify-center gap-1 rounded-md bg-emerald-500/10 px-2 py-2 text-xs font-medium text-emerald-700 dark:text-emerald-400">
+                            <CheckCircle2 className="h-4 w-4" />
+                            {c.status === "concluida" ? "Serviço concluído" : "Aceito"}
+                          </div>
+                          {conversas[c.id] && (
+                            <Button className="w-full" onClick={() => navigate(`/mensagens/${conversas[c.id]}`)}>
+                              <MessageCircle className="mr-2 h-4 w-4" />
+                              Mensagens
+                            </Button>
+                          )}
+                        </>
+                      ) : c.status === "rejeitada" ? (
+                        <div className="flex items-center justify-center gap-1 rounded-md bg-destructive/10 px-2 py-2 text-xs font-medium text-destructive">
+                          <XCircle className="h-4 w-4" />
+                          Recusado
                         </div>
                       ) : (
-                        <Button className="w-full" onClick={() => contratar(c)}>
-                          <CheckCircle2 className="mr-2 h-4 w-4" />
-                          Contratar
-                        </Button>
+                        <div className="grid grid-cols-2 gap-2">
+                          <Button variant="destructive" onClick={() => rejeitar(c)}>
+                            <XCircle className="mr-1.5 h-4 w-4" />
+                            Recusar
+                          </Button>
+                          <Button className="bg-emerald-600 text-white hover:bg-emerald-700" onClick={() => contratar(c)}>
+                            <CheckCircle2 className="mr-1.5 h-4 w-4" />
+                            Aceitar
+                          </Button>
+                        </div>
                       )}
                       <Link to={`/admin/candidatos/${c.id}`}>
                         <Button variant="outline" className="w-full">
