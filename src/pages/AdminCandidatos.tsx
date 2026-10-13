@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Users, Phone, MapPin, FileText, ExternalLink, CheckCircle2 } from "lucide-react";
+import { Users, Phone, MapPin, ExternalLink, CheckCircle2, Star, XCircle, MessageCircle, CalendarDays, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -41,6 +41,16 @@ type Servico = {
   categoria: string | null;
   cidade: string | null;
   estado: string | null;
+  data_servico: string | null;
+  horario: string | null;
+};
+
+type Stats = { user_id: string; media_estrelas: number | null; total_avaliacoes: number; pct_presenca: number | null };
+
+const formatarData = (d: string | null) => {
+  if (!d) return null;
+  const txt = new Date(`${d}T12:00:00`).toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "short" });
+  return txt.charAt(0).toUpperCase() + txt.slice(1);
 };
 
 const initials = (name: string | null | undefined) => {
@@ -59,6 +69,8 @@ const AdminCandidatos = () => {
   const [servico, setServico] = useState<Servico | null>(null);
   const [candidaturas, setCandidaturas] = useState<Candidatura[]>([]);
   const [profilesMap, setProfilesMap] = useState<Record<string, ProfileLite>>({});
+  const [stats, setStats] = useState<Record<string, Stats>>({});
+  const [conversas, setConversas] = useState<Record<string, string>>({});
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
@@ -79,7 +91,7 @@ const AdminCandidatos = () => {
     const [{ data: srv, error: srvError }, { data: cands, error: candError }] = await Promise.all([
       supabase
         .from("servicos")
-        .select("id, titulo, categoria, cidade, estado")
+        .select("id, titulo, categoria, cidade, estado, data_servico, horario")
         .eq("id", servicoId)
         .maybeSingle(),
       supabase
@@ -103,14 +115,21 @@ const AdminCandidatos = () => {
 
     const ids = Array.from(new Set(list.map((c) => c.user_id)));
     if (ids.length > 0) {
-      const { data: profs } = await supabase
-        .from("profiles")
-        .select("user_id, nome_completo, cidade, estado, pontuacao")
-        .in("user_id", ids);
+      const [{ data: profs }, { data: st }, { data: convs }] = await Promise.all([
+        supabase.from("profiles").select("user_id, nome_completo, cidade, estado, pontuacao").in("user_id", ids),
+        supabase.rpc("estatisticas_trabalhadores", { _ids: ids }),
+        supabase.from("chat_conversas").select("id, candidatura_id").eq("servico_id", servicoId),
+      ]);
       if (cancelledRef?.value) return;
       const map: Record<string, ProfileLite> = {};
       (profs as ProfileLite[] | null)?.forEach((p) => (map[p.user_id] = p));
       setProfilesMap(map);
+      const sMap: Record<string, Stats> = {};
+      ((st as Stats[] | null) ?? []).forEach((s) => (sMap[s.user_id] = s));
+      setStats(sMap);
+      const cMap: Record<string, string> = {};
+      (convs ?? []).forEach((cv) => (cMap[cv.candidatura_id] = cv.id));
+      setConversas(cMap);
     } else {
       setProfilesMap({});
     }
@@ -125,19 +144,43 @@ const AdminCandidatos = () => {
   }, [load]);
 
   const contratar = async (c: Candidatura) => {
-    if (c.status === "aprovada") return;
+    if (c.status === "aprovada" || !user || !servicoId) return;
+    const agora = new Date().toISOString();
     const { error } = await supabase
       .from("candidaturas")
-      .update({ status: "aprovada", aprovada_em: new Date().toISOString() })
+      .update({ status: "aprovada", aprovada_em: agora })
       .eq("id", c.id);
     if (error) {
-      toast.error("Erro ao contratar candidato.");
+      toast.error("Erro ao aceitar candidato.");
       return;
     }
-    toast.success("Candidato contratado!");
-    setCandidaturas((prev) =>
-      prev.map((x) => (x.id === c.id ? { ...x, status: "aprovada", aprovada_em: new Date().toISOString() } : x)),
-    );
+    const { data: conv, error: convErr } = await supabase
+      .from("chat_conversas")
+      .upsert(
+        { candidatura_id: c.id, servico_id: servicoId, contratante_id: user.id, trabalhador_id: c.user_id },
+        { onConflict: "candidatura_id", ignoreDuplicates: false },
+      )
+      .select("id")
+      .single();
+    setCandidaturas((prev) => prev.map((x) => (x.id === c.id ? { ...x, status: "aprovada", aprovada_em: agora } : x)));
+    if (convErr || !conv) {
+      toast.success("Candidato aceito!");
+      return;
+    }
+    setConversas((prev) => ({ ...prev, [c.id]: conv.id }));
+    toast.success("Candidato aceito! O chat foi liberado.", {
+      action: { label: "Abrir chat", onClick: () => navigate(`/mensagens/${conv.id}`) },
+    });
+  };
+
+  const rejeitar = async (c: Candidatura) => {
+    const { error } = await supabase.from("candidaturas").update({ status: "rejeitada" }).eq("id", c.id);
+    if (error) {
+      toast.error("Erro ao recusar candidato.");
+      return;
+    }
+    toast("Candidatura recusada.");
+    setCandidaturas((prev) => prev.map((x) => (x.id === c.id ? { ...x, status: "rejeitada" } : x)));
   };
 
   if (authLoading || profileLoading || !isAdmin) {
@@ -153,6 +196,13 @@ const AdminCandidatos = () => {
         <div className="mb-8 flex flex-col gap-4 rounded-lg border bg-card p-6 shadow-sm sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-2xl font-bold sm:text-3xl">{servico?.titulo ?? "Serviço"}</h1>
+            {servico?.data_servico && (
+              <p className="mt-1 inline-flex items-center gap-1.5 text-sm font-medium text-primary">
+                <CalendarDays className="h-4 w-4" />
+                {formatarData(servico.data_servico)}
+                {servico.horario ? ` • ${servico.horario}` : ""}
+              </p>
+            )}
             <p className="mt-1 text-sm text-muted-foreground">
               {[servico?.categoria, servico?.cidade, servico?.estado].filter(Boolean).join(" • ") || "Candidatos"}
             </p>
@@ -200,8 +250,20 @@ const AdminCandidatos = () => {
                     <RankedAvatar nome={nome} pontuacao={pts} size="md" />
                     <div className="min-w-0 flex-1">
                       <CardTitle className="truncate text-base">{nome}</CardTitle>
-                      <div className="mt-1 flex flex-wrap items-center gap-1">
-                        <Badge variant="secondary" className="text-xs">{c.status}</Badge>
+                      <div className="mt-1 flex flex-wrap items-center gap-1.5 text-xs">
+                        <span className="inline-flex items-center gap-1 font-semibold text-foreground">
+                          <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+                          {s?.media_estrelas != null ? Number(s.media_estrelas).toFixed(1) : "Novo"}
+                          {s && s.total_avaliacoes > 0 && (
+                            <span className="font-normal text-muted-foreground">({s.total_avaliacoes})</span>
+                          )}
+                        </span>
+                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 font-medium text-emerald-700 dark:text-emerald-400">
+                          <ShieldCheck className="h-3 w-3" />
+                          {s?.pct_presenca != null ? `${s.pct_presenca}% presença` : "Sem histórico"}
+                        </span>
+                      </div>
+                      <div className="mt-1 flex flex-wrap gap-1">
                         <Badge className={`text-xs ${nivel.badgeClass}`}>{nivel.label} • {pts} pts</Badge>
                       </div>
                     </div>
@@ -218,16 +280,35 @@ const AdminCandidatos = () => {
                       </span>
                     </div>
                     <div className="mt-3 grid gap-2">
-                      {c.status === "aprovada" ? (
-                        <div className="flex items-center justify-center gap-1 rounded-md bg-emerald-500/10 px-2 py-2 text-xs font-medium text-emerald-700 dark:text-emerald-400">
-                          <CheckCircle2 className="h-4 w-4" />
-                          Contratado
+                      {c.status === "aprovada" || c.status === "concluida" ? (
+                        <>
+                          <div className="flex items-center justify-center gap-1 rounded-md bg-emerald-500/10 px-2 py-2 text-xs font-medium text-emerald-700 dark:text-emerald-400">
+                            <CheckCircle2 className="h-4 w-4" />
+                            {c.status === "concluida" ? "Serviço concluído" : "Aceito"}
+                          </div>
+                          {conversas[c.id] && (
+                            <Button className="w-full" onClick={() => navigate(`/mensagens/${conversas[c.id]}`)}>
+                              <MessageCircle className="mr-2 h-4 w-4" />
+                              Mensagens
+                            </Button>
+                          )}
+                        </>
+                      ) : c.status === "rejeitada" ? (
+                        <div className="flex items-center justify-center gap-1 rounded-md bg-destructive/10 px-2 py-2 text-xs font-medium text-destructive">
+                          <XCircle className="h-4 w-4" />
+                          Recusado
                         </div>
                       ) : (
-                        <Button className="w-full" onClick={() => contratar(c)}>
-                          <CheckCircle2 className="mr-2 h-4 w-4" />
-                          Contratar
-                        </Button>
+                        <div className="grid grid-cols-2 gap-2">
+                          <Button variant="destructive" onClick={() => rejeitar(c)}>
+                            <XCircle className="mr-1.5 h-4 w-4" />
+                            Recusar
+                          </Button>
+                          <Button className="bg-emerald-600 text-white hover:bg-emerald-700" onClick={() => contratar(c)}>
+                            <CheckCircle2 className="mr-1.5 h-4 w-4" />
+                            Aceitar
+                          </Button>
+                        </div>
                       )}
                       <Link to={`/admin/candidatos/${c.id}`}>
                         <Button variant="outline" className="w-full">

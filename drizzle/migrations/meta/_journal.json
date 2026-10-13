@@ -15,6 +15,13 @@
       "when": 1789503557638,
       "tag": "0001_create_contratante_codigos",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791899972780,
+      "tag": "0002_chat_temporario",
+      "breakpoints": true
     }
   ]
 }
