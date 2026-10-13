@@ -41,6 +41,16 @@ type Servico = {
   categoria: string | null;
   cidade: string | null;
   estado: string | null;
+  data_servico: string | null;
+  horario: string | null;
+};
+
+type Stats = { user_id: string; media_estrelas: number | null; total_avaliacoes: number; pct_presenca: number | null };
+
+const formatarData = (d: string | null) => {
+  if (!d) return null;
+  const txt = new Date(`${d}T12:00:00`).toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "short" });
+  return txt.charAt(0).toUpperCase() + txt.slice(1);
 };
 
 const initials = (name: string | null | undefined) => {
@@ -59,6 +69,8 @@ const AdminCandidatos = () => {
   const [servico, setServico] = useState<Servico | null>(null);
   const [candidaturas, setCandidaturas] = useState<Candidatura[]>([]);
   const [profilesMap, setProfilesMap] = useState<Record<string, ProfileLite>>({});
+  const [stats, setStats] = useState<Record<string, Stats>>({});
+  const [conversas, setConversas] = useState<Record<string, string>>({});
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
@@ -103,14 +115,21 @@ const AdminCandidatos = () => {
 
     const ids = Array.from(new Set(list.map((c) => c.user_id)));
     if (ids.length > 0) {
-      const { data: profs } = await supabase
-        .from("profiles")
-        .select("user_id, nome_completo, cidade, estado, pontuacao")
-        .in("user_id", ids);
+      const [{ data: profs }, { data: st }, { data: convs }] = await Promise.all([
+        supabase.from("profiles").select("user_id, nome_completo, cidade, estado, pontuacao").in("user_id", ids),
+        supabase.rpc("estatisticas_trabalhadores", { _ids: ids }),
+        supabase.from("chat_conversas").select("id, candidatura_id").eq("servico_id", servicoId),
+      ]);
       if (cancelledRef?.value) return;
       const map: Record<string, ProfileLite> = {};
       (profs as ProfileLite[] | null)?.forEach((p) => (map[p.user_id] = p));
       setProfilesMap(map);
+      const sMap: Record<string, Stats> = {};
+      ((st as Stats[] | null) ?? []).forEach((s) => (sMap[s.user_id] = s));
+      setStats(sMap);
+      const cMap: Record<string, string> = {};
+      (convs ?? []).forEach((cv) => (cMap[cv.candidatura_id] = cv.id));
+      setConversas(cMap);
     } else {
       setProfilesMap({});
     }
@@ -125,19 +144,43 @@ const AdminCandidatos = () => {
   }, [load]);
 
   const contratar = async (c: Candidatura) => {
-    if (c.status === "aprovada") return;
+    if (c.status === "aprovada" || !user || !servicoId) return;
+    const agora = new Date().toISOString();
     const { error } = await supabase
       .from("candidaturas")
-      .update({ status: "aprovada", aprovada_em: new Date().toISOString() })
+      .update({ status: "aprovada", aprovada_em: agora })
       .eq("id", c.id);
     if (error) {
-      toast.error("Erro ao contratar candidato.");
+      toast.error("Erro ao aceitar candidato.");
       return;
     }
-    toast.success("Candidato contratado!");
-    setCandidaturas((prev) =>
-      prev.map((x) => (x.id === c.id ? { ...x, status: "aprovada", aprovada_em: new Date().toISOString() } : x)),
-    );
+    const { data: conv, error: convErr } = await supabase
+      .from("chat_conversas")
+      .upsert(
+        { candidatura_id: c.id, servico_id: servicoId, contratante_id: user.id, trabalhador_id: c.user_id },
+        { onConflict: "candidatura_id", ignoreDuplicates: false },
+      )
+      .select("id")
+      .single();
+    setCandidaturas((prev) => prev.map((x) => (x.id === c.id ? { ...x, status: "aprovada", aprovada_em: agora } : x)));
+    if (convErr || !conv) {
+      toast.success("Candidato aceito!");
+      return;
+    }
+    setConversas((prev) => ({ ...prev, [c.id]: conv.id }));
+    toast.success("Candidato aceito! O chat foi liberado.", {
+      action: { label: "Abrir chat", onClick: () => navigate(`/mensagens/${conv.id}`) },
+    });
+  };
+
+  const rejeitar = async (c: Candidatura) => {
+    const { error } = await supabase.from("candidaturas").update({ status: "rejeitada" }).eq("id", c.id);
+    if (error) {
+      toast.error("Erro ao recusar candidato.");
+      return;
+    }
+    toast("Candidatura recusada.");
+    setCandidaturas((prev) => prev.map((x) => (x.id === c.id ? { ...x, status: "rejeitada" } : x)));
   };
 
   if (authLoading || profileLoading || !isAdmin) {
