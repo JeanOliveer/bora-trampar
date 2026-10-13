@@ -202,6 +202,89 @@ export type Database = {
           },
         ]
       }
+      chat_conversas: {
+        Row: {
+          candidatura_id: string
+          contratante_id: string
+          created_at: string
+          encerrado_em: string | null
+          id: string
+          servico_id: string
+          status: string
+          trabalhador_id: string
+          updated_at: string
+        }
+        Insert: {
+          candidatura_id: string
+          contratante_id: string
+          created_at?: string
+          encerrado_em?: string | null
+          id?: string
+          servico_id: string
+          status?: string
+          trabalhador_id: string
+          updated_at?: string
+        }
+        Update: {
+          candidatura_id?: string
+          contratante_id?: string
+          created_at?: string
+          encerrado_em?: string | null
+          id?: string
+          servico_id?: string
+          status?: string
+          trabalhador_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_conversas_candidatura_id_fkey"
+            columns: ["candidatura_id"]
+            isOneToOne: true
+            referencedRelation: "candidaturas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chat_conversas_servico_id_fkey"
+            columns: ["servico_id"]
+            isOneToOne: false
+            referencedRelation: "servicos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_mensagens: {
+        Row: {
+          autor_id: string
+          conversa_id: string
+          created_at: string
+          id: string
+          texto: string
+        }
+        Insert: {
+          autor_id: string
+          conversa_id: string
+          created_at?: string
+          id?: string
+          texto: string
+        }
+        Update: {
+          autor_id?: string
+          conversa_id?: string
+          created_at?: string
+          id?: string
+          texto?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_mensagens_conversa_id_fkey"
+            columns: ["conversa_id"]
+            isOneToOne: false
+            referencedRelation: "chat_conversas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contratante_codigos: {
         Row: {
           codigo: string
@@ -484,6 +567,15 @@ export type Database = {
     Functions: {
       assumir_papel_contratante: { Args: { _codigo: string }; Returns: boolean }
       calcular_pontos_estrelas: { Args: { _estrelas: number }; Returns: number }
+      estatisticas_trabalhadores: {
+        Args: { _ids: string[] }
+        Returns: {
+          media_estrelas: number
+          pct_presenca: number
+          total_avaliacoes: number
+          user_id: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
