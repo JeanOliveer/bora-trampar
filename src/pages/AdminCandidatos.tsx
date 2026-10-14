@@ -244,6 +244,7 @@ const AdminCandidatos = () => {
               const nome = p?.nome_completo || "Sem nome";
               const pts = p?.pontuacao ?? 0;
               const nivel = getNivel(pts);
+              const s = stats[c.user_id];
               return (
                 <Card key={c.id} className="transition-shadow hover:shadow-md">
                   <CardHeader className="flex flex-row items-center gap-3 space-y-0">
