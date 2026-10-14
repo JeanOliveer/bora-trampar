@@ -32,6 +32,8 @@ import NotFound from "./pages/NotFound.tsx";
 import TermosDeUso from "./pages/TermosDeUso.tsx";
 import PoliticaPrivacidade from "./pages/PoliticaPrivacidade.tsx";
 import Notificacoes from "./pages/Notificacoes.tsx";
+import Mensagens from "./pages/Mensagens.tsx";
+import ChatConversa from "./pages/ChatConversa.tsx";
 
 const queryClient = new QueryClient();
 
@@ -62,6 +64,8 @@ const App = () => (
 
             <Route path="/servicos" element={<Servicos />} />
             <Route path="/notificacoes" element={<Notificacoes />} />
+            <Route path="/mensagens" element={<Mensagens />} />
+            <Route path="/mensagens/:id" element={<ChatConversa />} />
             <Route path="/admin" element={<Admin />} />
             <Route path="/admin/novo-servico" element={<NovoServico />} />
             <Route path="/admin/contratados" element={<AdminContratados />} />
