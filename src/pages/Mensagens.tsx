@@ -58,7 +58,7 @@ const Mensagens = () => {
   return (
     <div className="min-h-screen bg-muted/40 pb-24">
       <div className="mx-auto max-w-2xl px-4 py-6">
-        <VoltarButton />
+        <VoltarButton to="/inicio" />
         <h1 className="mb-1 text-2xl font-bold">Mensagens</h1>
         <p className="mb-5 text-sm text-muted-foreground">Chats temporários dos seus serviços aceitos.</p>
         {carregando ? (
