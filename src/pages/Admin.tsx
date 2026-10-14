@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { Plus, Trash2, Pencil, Users, UserCheck } from "lucide-react";
+import { Plus, Trash2, Pencil, Users, UserCheck, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -175,6 +175,9 @@ const Admin = () => {
             </Link>
             <Link to="/admin/contratados">
               <Button variant="outline"><UserCheck className="mr-2 h-4 w-4" /> Contratados</Button>
+            </Link>
+            <Link to="/mensagens">
+              <Button variant="outline"><MessageCircle className="mr-2 h-4 w-4" /> Mensagens</Button>
             </Link>
           </div>
           <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) { setForm(emptyForm); setEditingId(null); } }}>
