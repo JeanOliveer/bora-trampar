@@ -158,10 +158,6 @@ const Admin = () => {
         backTo="/inicio"
       />
       <main className="container flex-1 py-6 pb-24 md:py-10 md:pb-10">
-        {isAdminRole && (
-          <div className="mb-6 max-w-md">
-          </div>
-        )}
         <div className="mb-6 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div className="hidden md:block">
             <h1 className="text-3xl font-bold">Painel Empresa</h1>
