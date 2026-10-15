@@ -172,6 +172,17 @@ const Servicos = () => {
     }
   };
 
+  const [conversas, setConversas] = useState<Record<string, string>>({});
+  useEffect(() => {
+    const ids = aprovadas.map((a) => a.id);
+    if (!ids.length) { setConversas({}); return; }
+    supabase.from("chat_conversas").select("id, candidatura_id").in("candidatura_id", ids).then(({ data }) => {
+      const m: Record<string, string> = {};
+      (data ?? []).forEach((c) => (m[c.candidatura_id] = c.id));
+      setConversas(m);
+    });
+  }, [aprovadas]);
+
   const totalDisponiveis = servicos.length;
 
   return (
@@ -184,17 +195,7 @@ const Servicos = () => {
         title="Serviços"
         subtitle={`${totalDisponiveis} ${totalDisponiveis === 1 ? "vaga disponível" : "vagas disponíveis"}`}
         backTo="/inicio"
-        right={user ? (
-          <Link to="/mensagens" aria-label="Mensagens" className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-primary-foreground/15">
-            <MessageCircle className="h-5 w-5" />
-          </Link>
-        ) : undefined}
       />
-      {user && (
-        <div className="container hidden pt-6 md:block">
-          <Link to="/mensagens"><Button variant="outline"><MessageCircle className="mr-2 h-4 w-4" />Mensagens</Button></Link>
-        </div>
-      )}
       <main className="container flex-1 py-6 pb-24 md:py-10 md:pb-10">
         <div className="mb-6 hidden md:block">
           <h1 className="text-3xl font-bold text-foreground">Serviços</h1>
@@ -381,7 +382,7 @@ const Servicos = () => {
                           />
                         </div>
                       </CardContent>
-                      <CardFooter>
+                      <CardFooter className="flex-col gap-2">
                         {!presenca ? (
                           <Button className="w-full" onClick={() => confirmarPresenca(a.id)} disabled={confirmandoId === a.id}>
                             <CheckCircle2 className="mr-2 h-4 w-4" />
@@ -398,6 +399,17 @@ const Servicos = () => {
                         ) : (
                           <Button className="w-full" variant="outline" disabled>
                             Chegada confirmada
+                          </Button>
+                        )}
+                        {conversas[a.id] ? (
+                          <Button className="w-full bg-emerald-600 text-white hover:bg-emerald-700" onClick={() => navigate(`/mensagens/${conversas[a.id]}`)}>
+                            <MessageCircle className="mr-2 h-4 w-4" />
+                            Mandar mensagem para contratante
+                          </Button>
+                        ) : (
+                          <Button className="w-full" variant="outline" disabled>
+                            <MessageCircle className="mr-2 h-4 w-4" />
+                            Chat com contratante indisponível
                           </Button>
                         )}
                       </CardFooter>
